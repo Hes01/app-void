@@ -103,7 +103,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         TextView tv = new TextView(this);
         tv.setTypeface(Typeface.MONOSPACE);
         tv.setTextSize(52f);
-        tv.setTextColor(Color.argb(38, 0, 255, 0)); // verde fósforo al ~15%
+        tv.setTextColor(Color.argb(180, 0, 255, 0)); // verde fósforo AS400 ~70%
         tv.setLetterSpacing(0.15f);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
