@@ -82,7 +82,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         repo    = new GestureRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
-        dateFmt = new SimpleDateFormat("EEE, d MMM, yyyy", Locale.getDefault());
+        dateFmt = new SimpleDateFormat("EEE d MMM yyyy", Locale.getDefault());
 
         FrameLayout root = new FrameLayout(this);
         GestureView gestureView = new GestureView(this);
@@ -133,19 +133,19 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         tvClock = new TextView(this);
         tvClock.setTypeface(Typeface.MONOSPACE);
         tvClock.setTextSize(58f);
-        tvClock.setTextColor(Color.argb(180, 0, 255, 0));
+        tvClock.setTextColor(Color.WHITE);
         tvClock.setGravity(Gravity.CENTER);
 
         tvDate = new TextView(this);
         tvDate.setTypeface(Typeface.MONOSPACE);
         tvDate.setTextSize(13f);
-        tvDate.setTextColor(Color.argb(110, 0, 255, 0));
+        tvDate.setTextColor(Color.argb(160, 255, 255, 255));
         tvDate.setGravity(Gravity.CENTER);
 
         tvBattery = new TextView(this);
         tvBattery.setTypeface(Typeface.MONOSPACE);
         tvBattery.setTextSize(13f);
-        tvBattery.setTextColor(Color.argb(110, 0, 255, 0));
+        tvBattery.setTextColor(Color.argb(160, 255, 255, 255));
         tvBattery.setGravity(Gravity.CENTER);
         tvBattery.setVisibility(View.GONE);
 

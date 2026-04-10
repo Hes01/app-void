@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Launcher: pantalla totalmente negra, sin chrome del sistema -->
+    <!-- Launcher: transparente, muestra el wallpaper del sistema -->
     <style name="Theme.Void" parent="android:Theme.NoTitleBar.Fullscreen">
-        <item name="android:windowBackground">@color/black</item>
-        <item name="android:colorBackground">@color/black</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">true</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
 

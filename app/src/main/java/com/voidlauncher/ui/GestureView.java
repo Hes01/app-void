@@ -47,7 +47,7 @@ public class GestureView extends View {
         stroke.setStyle(Paint.Style.STROKE);
         stroke.setStrokeCap(Paint.Cap.ROUND);
         stroke.setAntiAlias(true);
-        setBackgroundColor(Color.BLACK);
+        setBackgroundColor(Color.TRANSPARENT);
     }
 
     public void setListener(Listener l) { this.listener = l; }
@@ -95,7 +95,6 @@ public class GestureView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawColor(Color.BLACK);
         for (int i = 1; i < points.size(); i++) {
             PointF a = points.get(i - 1), b = points.get(i);
             canvas.drawLine(a.x, a.y, b.x, b.y, stroke);
