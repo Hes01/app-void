@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VOID</string>
+    <string name="settings_title">Gestos</string>
+    <string name="record_title">Nuevo gesto</string>
+    <string name="add_gesture">+ Añadir gesto</string>
+    <string name="save">Guardar</string>
+    <string name="draw_prompt">Dibuja tu gesto</string>
+    <string name="pick_app">Elige una app</string>
+    <string name="delete_confirm">¿Borrar este gesto?</string>
+    <string name="yes">Sí</string>
+    <string name="cancel">Cancelar</string>
+    <string name="empty_hint">Sin gestos. Toca + para añadir.</string>
+</resources>

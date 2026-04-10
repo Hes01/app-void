@@ -1,0 +1,13 @@
+architecture.md
+memory.md
+
+# Android build
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+*.keystore
+local.properties
+.idea/
+*.iml

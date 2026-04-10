@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="VOID"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:paddingBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnAdd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/add_gesture"
+        android:textColor="@color/black"
+        android:background="@color/accent"/>
+
+    <ListView
+        android:id="@+id/listGestures"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tvTitle"
+        android:layout_above="@id/btnAdd"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/emptyText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tvTitle"
+        android:layout_above="@id/btnAdd"
+        android:text="@string/empty_hint"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+</RelativeLayout>
