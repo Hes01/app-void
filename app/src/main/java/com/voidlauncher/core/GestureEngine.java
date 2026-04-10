@@ -47,15 +47,14 @@ public class GestureEngine {
 
     private boolean matchDirectional(int[] stored, int[] drawn) {
         if (stored.length == 0 || drawn.length == 0) return false;
-        if (Math.abs(stored.length - drawn.length) > TOLERANCE) return false;
+        // Longitud debe coincidir exactamente — segmentos distintos = gesto distinto
+        if (stored.length != drawn.length) return false;
 
-        int errors = 0;
-        int len = Math.min(stored.length, drawn.length);
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < stored.length; i++) {
             int diff = Math.abs(stored[i] - drawn[i]);
-            // 7 = wrap-around (0 y 7 son adyacentes en el círculo de 8 dirs)
-            if (diff > 1 && diff != 7) errors++;
-            if (errors > TOLERANCE) return false;
+            // Solo se permite desviación de 1 posición (ruido del dedo)
+            // diff=7 es el wrap-around del círculo (0 y 7 son adyacentes)
+            if (diff > 1 && diff != 7) return false;
         }
         return true;
     }
