@@ -56,6 +56,13 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         }
     };
 
+    private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context ctx, Intent intent) {
+            loadInstalledApps();
+        }
+    };
+
     private final BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context ctx, Intent intent) {
@@ -99,6 +106,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         hideSystemUI();
         clockHandler.post(clockTick);
         registerReceiver(batteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        IntentFilter pkgFilter = new IntentFilter();
+        pkgFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        pkgFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        pkgFilter.addDataScheme("package");
+        registerReceiver(packageReceiver, pkgFilter);
     }
 
     @Override
@@ -106,6 +118,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onPause();
         clockHandler.removeCallbacks(clockTick);
         try { unregisterReceiver(batteryReceiver); } catch (Exception ignored) {}
+        try { unregisterReceiver(packageReceiver); } catch (Exception ignored) {}
     }
 
     @Override
