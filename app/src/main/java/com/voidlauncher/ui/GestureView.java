@@ -67,6 +67,9 @@ public class GestureView extends View {
             case MotionEvent.ACTION_POINTER_DOWN:
                 if (e.getPointerCount() == HOLD_FINGERS) {
                     handler.postDelayed(holdRunnable, HOLD_MS);
+                } else if (e.getPointerCount() > HOLD_FINGERS) {
+                    // Más dedos de los esperados — cancelar búsqueda (ej: 4 dedos = ajustes)
+                    handler.removeCallbacks(holdRunnable);
                 }
                 break;
 

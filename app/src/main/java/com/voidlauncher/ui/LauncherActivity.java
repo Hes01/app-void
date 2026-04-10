@@ -18,7 +18,7 @@ import java.util.List;
 
 public class LauncherActivity extends Activity implements GestureView.Listener {
 
-    private static final int FINGERS_SETTINGS = 5;
+    private static final int FINGERS_SETTINGS = 4;
 
     private GestureEngine     engine;
     private GestureRepository repo;
