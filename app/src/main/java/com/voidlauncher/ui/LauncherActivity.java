@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -24,6 +25,7 @@ import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.core.GestureEngine;
 import com.voidlauncher.data.GestureMapping;
 import com.voidlauncher.data.GestureRepository;
+import com.voidlauncher.data.RecentApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +39,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private GestureEngine        engine;
     private GestureRepository    repo;
+    private RecentApps           recents;
     private String[]             appNames;
     private String[]             appPackages;
 
@@ -58,9 +61,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context ctx, Intent intent) {
-            loadInstalledApps();
-        }
+        public void onReceive(Context ctx, Intent intent) { loadInstalledApps(); }
     };
 
     private final BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
@@ -87,6 +88,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
         engine  = new GestureEngine();
         repo    = new GestureRepository(this);
+        recents = new RecentApps(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE d MMM yyyy", Locale.getDefault());
@@ -98,6 +100,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         root.addView(buildTopInfo());
         setContentView(root);
         loadInstalledApps();
+
         IntentFilter pkgFilter = new IntentFilter();
         pkgFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         pkgFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -127,10 +130,20 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_APP_SWITCH) {
+            openSearch();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public void onStroke(List<PointF> points, int maxPointers) {
         int[] drawn = engine.extractSignature(points);
         for (GestureMapping m : repo.getAll()) {
             if (engine.matches(m.signatures, drawn)) {
+                recents.record(m.appPackage);
                 AppLauncher.launch(this, m.appPackage);
                 return;
             }
@@ -142,11 +155,14 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         if (fingers >= FINGERS_SETTINGS) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else {
-            new QuickSearchDialog(this, appNames, appPackages).show();
+            openSearch();
         }
     }
 
-    // Reloj grande + fecha + batería (solo al cargar), todos arriba centrados
+    private void openSearch() {
+        new QuickSearchDialog(this, appNames, appPackages, recents).show();
+    }
+
     private LinearLayout buildTopInfo() {
         tvClock = new TextView(this);
         tvClock.setTypeface(Typeface.MONOSPACE);

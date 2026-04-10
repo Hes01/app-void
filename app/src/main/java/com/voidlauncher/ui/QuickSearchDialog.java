@@ -13,14 +13,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.view.View;
 import com.voidlauncher.core.AppLauncher;
+import com.voidlauncher.data.RecentApps;
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuickSearchDialog {
 
-    private final Context  context;
-    private final String[] names;
-    private final String[] packages;
+    private final Context     context;
+    private final String[]    names;
+    private final String[]    packages;
+    private final RecentApps  recents;
 
     private final List<String> filteredNames = new ArrayList<>();
     private final List<String> filteredPkgs  = new ArrayList<>();
@@ -28,10 +30,11 @@ public class QuickSearchDialog {
     private ArrayAdapter<String> adapter;
     private AlertDialog          dialog;
 
-    public QuickSearchDialog(Context context, String[] names, String[] packages) {
+    public QuickSearchDialog(Context context, String[] names, String[] packages, RecentApps recents) {
         this.context  = context;
         this.names    = names;
         this.packages = packages;
+        this.recents  = recents;
     }
 
     public void show() {
@@ -60,6 +63,7 @@ public class QuickSearchDialog {
             @Override public void afterTextChanged(Editable s) { filter(s.toString()); }
         });
 
+        filter("");  // muestra recientes al abrir
         showKeyboard(input);
         return root;
     }
@@ -83,7 +87,9 @@ public class QuickSearchDialog {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
                 dialog.dismiss();
-                AppLauncher.launch(context, filteredPkgs.get(pos));
+                String pkg = filteredPkgs.get(pos);
+                recents.record(pkg);
+                AppLauncher.launch(context, pkg);
             }
         });
         return list;
@@ -94,20 +100,34 @@ public class QuickSearchDialog {
         filteredPkgs.clear();
         String q = query.toLowerCase().trim();
 
-        for (int i = 0; i < names.length; i++) {
-            if (q.isEmpty() || names[i].toLowerCase().contains(q)) {
-                filteredNames.add(names[i]);
-                filteredPkgs.add(packages[i]);
+        if (q.isEmpty()) {
+            // Muestra recientes
+            for (String pkg : recents.get()) {
+                for (int i = 0; i < packages.length; i++) {
+                    if (packages[i].equals(pkg)) {
+                        filteredNames.add(names[i]);
+                        filteredPkgs.add(packages[i]);
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < names.length; i++) {
+                if (names[i].toLowerCase().contains(q)) {
+                    filteredNames.add(names[i]);
+                    filteredPkgs.add(packages[i]);
+                }
+            }
+            // Una sola app → lanza directo
+            if (filteredNames.size() == 1) {
+                dialog.dismiss();
+                recents.record(filteredPkgs.get(0));
+                AppLauncher.launch(context, filteredPkgs.get(0));
+                return;
             }
         }
 
         adapter.notifyDataSetChanged();
-
-        // Una sola app → lanza directo
-        if (!q.isEmpty() && filteredNames.size() == 1) {
-            dialog.dismiss();
-            AppLauncher.launch(context, filteredPkgs.get(0));
-        }
     }
 
     private void showKeyboard(EditText input) {
