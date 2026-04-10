@@ -11,7 +11,7 @@ import java.util.List;
 public class GestureEngine {
 
     // Movimiento mínimo (px) antes de registrar una dirección
-    private static final float SEGMENT_PX = 40f;
+    private static final float SEGMENT_PX = 20f;
     // Errores de dirección permitidos al comparar
     private static final int TOLERANCE = 1;
 
@@ -42,6 +42,10 @@ public class GestureEngine {
     }
 
     public boolean matches(int[] stored, int[] drawn) {
+        return matchDirectional(stored, drawn) || matchDirectional(stored, reverse(drawn));
+    }
+
+    private boolean matchDirectional(int[] stored, int[] drawn) {
         if (stored.length == 0 || drawn.length == 0) return false;
         if (Math.abs(stored.length - drawn.length) > TOLERANCE) return false;
 
@@ -54,6 +58,12 @@ public class GestureEngine {
             if (errors > TOLERANCE) return false;
         }
         return true;
+    }
+
+    private int[] reverse(int[] sig) {
+        int[] rev = new int[sig.length];
+        for (int i = 0; i < sig.length; i++) rev[i] = sig[sig.length - 1 - i];
+        return rev;
     }
 
     private int toDir(float dx, float dy) {
