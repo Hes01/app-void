@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,29 +13,18 @@ import java.util.List;
 
 public class GestureView extends View {
 
-    private static final long HOLD_MS      = 300;
-    private static final int  HOLD_FINGERS = 2;
+    private static final int HOLD_FINGERS = 2;
 
     public interface Listener {
         void onStroke(List<PointF> points, int maxPointers);
         void onHold(int fingers);
     }
 
-    private final Paint       stroke      = new Paint();
-    private final List<PointF> points     = new ArrayList<>();
-    private final Handler     handler     = new Handler();
-    private Listener          listener;
-    private int               maxPointers = 0;
-    private boolean           holdFired   = false;
-
-    private final Runnable holdRunnable = new Runnable() {
-        @Override public void run() {
-            holdFired = true;
-            points.clear();
-            invalidate();
-            if (listener != null) listener.onHold(HOLD_FINGERS);
-        }
-    };
+    private final Paint        stroke      = new Paint();
+    private final List<PointF> points      = new ArrayList<>();
+    private Listener           listener;
+    private int                maxPointers = 0;
+    private boolean            holdFired   = false;
 
     public GestureView(Context context) { this(context, null); }
 
@@ -66,10 +54,10 @@ public class GestureView extends View {
 
             case MotionEvent.ACTION_POINTER_DOWN:
                 if (e.getPointerCount() == HOLD_FINGERS) {
-                    handler.postDelayed(holdRunnable, HOLD_MS);
-                } else if (e.getPointerCount() > HOLD_FINGERS) {
-                    // Más dedos de los esperados — cancelar búsqueda (ej: 4 dedos = ajustes)
-                    handler.removeCallbacks(holdRunnable);
+                    holdFired = true;
+                    points.clear();
+                    invalidate();
+                    if (listener != null) listener.onHold(HOLD_FINGERS);
                 }
                 break;
 
@@ -81,7 +69,6 @@ public class GestureView extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
-                handler.removeCallbacks(holdRunnable);
                 if (!holdFired && listener != null) {
                     listener.onStroke(new ArrayList<>(points), maxPointers);
                 }
