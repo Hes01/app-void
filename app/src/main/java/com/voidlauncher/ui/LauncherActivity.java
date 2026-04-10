@@ -110,10 +110,6 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onStroke(List<PointF> points, int maxPointers) {
-        if (maxPointers >= FINGERS_SETTINGS) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return;
-        }
         int[] drawn = engine.extractSignature(points);
         for (GestureMapping m : repo.getAll()) {
             if (engine.matches(m.signatures, drawn)) {
@@ -125,7 +121,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onHold(int fingers) {
-        new QuickSearchDialog(this, appNames, appPackages).show();
+        if (fingers >= FINGERS_SETTINGS) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } else {
+            new QuickSearchDialog(this, appNames, appPackages).show();
+        }
     }
 
     // Reloj grande + fecha + batería (solo al cargar), todos arriba centrados
