@@ -44,7 +44,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private TextView             tvDate;
     private TextView             tvBattery;
     private final Handler        clockHandler = new Handler();
-    private java.text.DateFormat timeFmt;
+    private SimpleDateFormat     timeFmt;
     private SimpleDateFormat     dateFmt;
 
     private final Runnable clockTick = new Runnable() {
@@ -65,7 +65,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
             boolean charging = status == BatteryManager.BATTERY_STATUS_CHARGING
                             || status == BatteryManager.BATTERY_STATUS_FULL;
             if (charging && level >= 0 && scale > 0) {
-                tvBattery.setText("⚡ " + Math.round(level * 100f / scale) + "%");
+                tvBattery.setText(Math.round(level * 100f / scale) + "%");
                 tvBattery.setVisibility(View.VISIBLE);
             } else {
                 tvBattery.setVisibility(View.GONE);
@@ -80,7 +80,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
         engine  = new GestureEngine();
         repo    = new GestureRepository(this);
-        timeFmt = DateFormat.getTimeFormat(this);
+        String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
+        timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE, d MMM, yyyy", Locale.getDefault());
 
         FrameLayout root = new FrameLayout(this);
