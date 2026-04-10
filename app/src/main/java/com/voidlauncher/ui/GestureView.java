@@ -14,7 +14,7 @@ import java.util.List;
 
 public class GestureView extends View {
 
-    private static final long HOLD_MS      = 2000;
+    private static final long HOLD_MS      = 300;
     private static final int  HOLD_FINGERS = 2;
 
     public interface Listener {
