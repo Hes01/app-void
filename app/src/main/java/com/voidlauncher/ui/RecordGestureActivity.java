@@ -58,7 +58,8 @@ public class RecordGestureActivity extends Activity implements GestureView.Liste
         int done = recordings.size();
 
         if (done < TOTAL_RECORDINGS) {
-            tvPrompt.setText(done + " / " + TOTAL_RECORDINGS + " — dibuja de nuevo");
+            tvPrompt.setText(getString(R.string.record_progress,
+                    done, TOTAL_RECORDINGS, getString(R.string.draw_again)));
         } else {
             saveAndFinish();
         }
@@ -89,7 +90,8 @@ public class RecordGestureActivity extends Activity implements GestureView.Liste
                     @Override public void onClick(DialogInterface d, int which) {
                         selectedPackage = pkgs[which];
                         selectedAppName = names[which];
-                        tvPrompt.setText("1 / " + TOTAL_RECORDINGS + " — dibuja tu gesto");
+                        tvPrompt.setText(getString(R.string.record_progress,
+                                1, TOTAL_RECORDINGS, getString(R.string.draw_prompt)));
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {

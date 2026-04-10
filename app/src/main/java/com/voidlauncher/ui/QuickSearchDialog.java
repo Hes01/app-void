@@ -66,7 +66,7 @@ public class QuickSearchDialog {
 
     private EditText buildInput() {
         EditText input = new EditText(context);
-        input.setHint("buscar app...");
+        input.setHint(context.getString(com.voidlauncher.R.string.search_hint));
         input.setHintTextColor(0xFF555555);
         input.setTextColor(Color.WHITE);
         input.setTextSize(18f);
