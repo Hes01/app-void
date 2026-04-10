@@ -8,57 +8,59 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import com.voidlauncher.R;
 import com.voidlauncher.core.GestureEngine;
 import com.voidlauncher.data.GestureMapping;
 import com.voidlauncher.data.GestureRepository;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class RecordGestureActivity extends Activity implements GestureView.Listener {
 
-    private GestureEngine     engine;
-    private GestureRepository repo;
-    private String            selectedPackage;
-    private String            selectedAppName;
-    private int[]             lastSignature;
-    private Button            btnSave;
-    private TextView          tvPrompt;
+    private static final int TOTAL_RECORDINGS = 3;
+
+    private GestureEngine      engine;
+    private GestureRepository  repo;
+    private String             selectedPackage;
+    private String             selectedAppName;
+    private final List<int[]>  recordings = new ArrayList<>();
+    private TextView           tvPrompt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
-        engine  = new GestureEngine();
-        repo    = new GestureRepository(this);
-        btnSave = findViewById(R.id.btnSave);
+        engine   = new GestureEngine();
+        repo     = new GestureRepository(this);
         tvPrompt = findViewById(R.id.tvPrompt);
 
         GestureView gestureView = findViewById(R.id.gestureView);
         gestureView.setListener(this);
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { saveAndFinish(); }
-        });
-
         pickApp();
     }
 
     @Override
-    public void onHold(int fingers) { /* no aplica en pantalla de grabación */ }
+    public void onHold(int fingers) { /* no aplica en grabación */ }
 
     @Override
     public void onStroke(List<PointF> points, int maxPointers) {
         if (selectedPackage == null) return;
-        lastSignature = engine.extractSignature(points);
-        if (lastSignature.length > 0) {
-            btnSave.setVisibility(View.VISIBLE);
-            tvPrompt.setText("Gesto listo. Guarda o dibuja de nuevo.");
+
+        int[] sig = engine.extractSignature(points);
+        if (sig.length == 0) return;
+
+        recordings.add(sig);
+        int done = recordings.size();
+
+        if (done < TOTAL_RECORDINGS) {
+            tvPrompt.setText(done + " / " + TOTAL_RECORDINGS + " — dibuja de nuevo");
+        } else {
+            saveAndFinish();
         }
     }
 
@@ -87,7 +89,7 @@ public class RecordGestureActivity extends Activity implements GestureView.Liste
                     @Override public void onClick(DialogInterface d, int which) {
                         selectedPackage = pkgs[which];
                         selectedAppName = names[which];
-                        tvPrompt.setText(getString(R.string.draw_prompt));
+                        tvPrompt.setText("1 / " + TOTAL_RECORDINGS + " — dibuja tu gesto");
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -97,9 +99,9 @@ public class RecordGestureActivity extends Activity implements GestureView.Liste
     }
 
     private void saveAndFinish() {
-        if (selectedPackage == null || lastSignature == null || lastSignature.length == 0) return;
+        int[][] sigs = recordings.toArray(new int[0][]);
         repo.save(new GestureMapping(
-                GestureRepository.newId(), selectedPackage, selectedAppName, lastSignature));
+                GestureRepository.newId(), selectedPackage, selectedAppName, sigs));
         setResult(RESULT_OK);
         finish();
     }

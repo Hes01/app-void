@@ -54,7 +54,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         }
         int[] drawn = engine.extractSignature(points);
         for (GestureMapping m : repo.getAll()) {
-            if (engine.matches(m.signature, drawn)) {
+            if (engine.matches(m.signatures, drawn)) {
                 AppLauncher.launch(this, m.appPackage);
                 return;
             }

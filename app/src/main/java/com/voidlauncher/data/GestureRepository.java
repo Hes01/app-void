@@ -46,9 +46,7 @@ public class GestureRepository {
         persist(list);
     }
 
-    public static String newId() {
-        return UUID.randomUUID().toString();
-    }
+    public static String newId() { return UUID.randomUUID().toString(); }
 
     private void persist(List<GestureMapping> list) {
         try {
@@ -59,20 +57,29 @@ public class GestureRepository {
     }
 
     private JSONObject toJson(GestureMapping m) throws JSONException {
-        JSONArray sig = new JSONArray();
-        for (int d : m.signature) sig.put(d);
+        // sigs: array de arrays [[1,2],[1,2],[1,3]]
+        JSONArray sigs = new JSONArray();
+        for (int[] sig : m.signatures) {
+            JSONArray s = new JSONArray();
+            for (int d : sig) s.put(d);
+            sigs.put(s);
+        }
         JSONObject o = new JSONObject();
         o.put("id", m.id);
         o.put("pkg", m.appPackage);
         o.put("name", m.appName);
-        o.put("sig", sig);
+        o.put("sigs", sigs);
         return o;
     }
 
     private GestureMapping fromJson(JSONObject o) throws JSONException {
-        JSONArray sigArr = o.getJSONArray("sig");
-        int[] sig = new int[sigArr.length()];
-        for (int i = 0; i < sigArr.length(); i++) sig[i] = sigArr.getInt(i);
-        return new GestureMapping(o.getString("id"), o.getString("pkg"), o.getString("name"), sig);
+        JSONArray sigsArr = o.getJSONArray("sigs");
+        int[][] sigs = new int[sigsArr.length()][];
+        for (int i = 0; i < sigsArr.length(); i++) {
+            JSONArray s = sigsArr.getJSONArray(i);
+            sigs[i] = new int[s.length()];
+            for (int j = 0; j < s.length(); j++) sigs[i][j] = s.getInt(j);
+        }
+        return new GestureMapping(o.getString("id"), o.getString("pkg"), o.getString("name"), sigs);
     }
 }

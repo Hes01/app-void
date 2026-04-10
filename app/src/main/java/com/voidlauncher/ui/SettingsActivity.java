@@ -72,7 +72,7 @@ public class SettingsActivity extends Activity {
         mappings = repo.getAll();
         String[] labels = new String[mappings.size()];
         for (int i = 0; i < mappings.size(); i++) {
-            labels[i] = mappings.get(i).appName + "  " + sigToArrows(mappings.get(i).signature);
+            labels[i] = mappings.get(i).appName + "  " + sigToArrows(mappings.get(i).signatures[0]);
         }
         listView.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, labels));

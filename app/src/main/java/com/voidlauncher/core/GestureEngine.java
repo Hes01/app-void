@@ -10,10 +10,8 @@ import java.util.List;
  */
 public class GestureEngine {
 
-    // Movimiento mínimo (px) antes de registrar una dirección
-    private static final float SEGMENT_PX = 20f;
-    // Errores de dirección permitidos al comparar
-    private static final int TOLERANCE = 1;
+    private static final float SEGMENT_PX   = 20f;
+    private static final int   REQUIRED_VOTES = 2; // de 3 grabaciones
 
     // 8 direcciones cardinales: 0=E 1=NE 2=N 3=NW 4=W 5=SW 6=S 7=SE
     public int[] extractSignature(List<PointF> points) {
@@ -28,9 +26,7 @@ public class GestureEngine {
 
             if (length(accumX, accumY) >= SEGMENT_PX) {
                 int dir = toDir(accumX, accumY);
-                if (dirs.isEmpty() || dirs.get(dirs.size() - 1) != dir) {
-                    dirs.add(dir);
-                }
+                if (dirs.isEmpty() || dirs.get(dirs.size() - 1) != dir) dirs.add(dir);
                 accumX = 0;
                 accumY = 0;
             }
@@ -41,19 +37,31 @@ public class GestureEngine {
         return sig;
     }
 
-    public boolean matches(int[] stored, int[] drawn) {
+    /**
+     * Compara el gesto dibujado contra las 3 grabaciones del usuario.
+     * Necesita mayoría (2 de 3) para hacer match.
+     * La tolerancia es la variación real de la mano, no un valor fijo.
+     */
+    public boolean matches(int[][] stored, int[] drawn) {
+        int votes = 0;
+        for (int[] sig : stored) {
+            if (matchOne(sig, drawn)) votes++;
+            if (votes >= REQUIRED_VOTES) return true;
+        }
+        return false;
+    }
+
+    private boolean matchOne(int[] stored, int[] drawn) {
         return matchDirectional(stored, drawn) || matchDirectional(stored, reverse(drawn));
     }
 
     private boolean matchDirectional(int[] stored, int[] drawn) {
         if (stored.length == 0 || drawn.length == 0) return false;
-        // Longitud debe coincidir exactamente — segmentos distintos = gesto distinto
         if (stored.length != drawn.length) return false;
 
         for (int i = 0; i < stored.length; i++) {
             int diff = Math.abs(stored[i] - drawn[i]);
-            // Solo se permite desviación de 1 posición (ruido del dedo)
-            // diff=7 es el wrap-around del círculo (0 y 7 son adyacentes)
+            // diff=7 es wrap-around: 0 y 7 son adyacentes en el círculo de 8 dirs
             if (diff > 1 && diff != 7) return false;
         }
         return true;
@@ -66,7 +74,6 @@ public class GestureEngine {
     }
 
     private int toDir(float dx, float dy) {
-        // -dy: el eje Y de pantalla está invertido respecto al matemático
         double angle = Math.toDegrees(Math.atan2(-dy, dx));
         if (angle < 0) angle += 360;
         return (int) Math.round(angle / 45.0) % 8;
