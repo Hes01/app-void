@@ -61,8 +61,8 @@ public class GestureEngine {
 
         for (int i = 0; i < stored.length; i++) {
             int diff = Math.abs(stored[i] - drawn[i]);
-            // diff=7 es wrap-around: 0 y 7 son adyacentes en el círculo de 8 dirs
-            if (diff > 1 && diff != 7) return false;
+            // Match exacto — la tolerancia viene de las 3 grabaciones, no del algoritmo
+            if (diff != 0) return false;
         }
         return true;
     }
