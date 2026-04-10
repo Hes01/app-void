@@ -50,6 +50,9 @@ public class RecordGestureActivity extends Activity implements GestureView.Liste
     }
 
     @Override
+    public void onHold(int fingers) { /* no aplica en pantalla de grabación */ }
+
+    @Override
     public void onStroke(List<PointF> points, int maxPointers) {
         if (selectedPackage == null) return;
         lastSignature = engine.extractSignature(points);
