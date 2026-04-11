@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.voidlauncher.data.ContextualApps;
 import com.voidlauncher.data.RecentApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -32,6 +33,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private String[]          appNames;
     private String[]          appPackages;
     private RecentApps        recents;
+    private ContextualApps    contextual;
 
     private TextView          tvClock;
     private TextView          tvDate;
@@ -76,7 +78,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        recents = new RecentApps(this);
+        recents    = new RecentApps(this);
+        contextual = new ContextualApps(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE d MMM yyyy", Locale.getDefault());
@@ -119,11 +122,12 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onTwoFingerTap() {
-        new QuickSearchDialog(this, appNames, appPackages, recents).show();
+        new QuickSearchDialog(this, appNames, appPackages, contextual).show();
     }
 
     public void onAppLaunched(String pkg) {
         recents.record(pkg);
+        contextual.record(pkg);
     }
 
     private LinearLayout buildTopInfo() {
