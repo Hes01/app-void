@@ -115,7 +115,7 @@ public class QuickSearchDialog {
                     }
                 }
             }
-        } else if (q.equals("void")) {
+        } else if (q.equals("/xyzzy") || q.equals("/void")) {
             dialog.dismiss();
             launcher.startActivity(new Intent(launcher, SettingsActivity.class));
             return;
