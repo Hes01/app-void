@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.view.View;
+import android.content.Intent;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.data.ContextualApps;
 import java.util.ArrayList;
@@ -114,6 +115,10 @@ public class QuickSearchDialog {
                     }
                 }
             }
+        } else if (q.equals("void")) {
+            dialog.dismiss();
+            launcher.startActivity(new Intent(launcher, SettingsActivity.class));
+            return;
         } else {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].toLowerCase().contains(q)) {
