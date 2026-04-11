@@ -8,23 +8,18 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.graphics.Typeface;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.voidlauncher.core.AppLauncher;
-import com.voidlauncher.core.GestureEngine;
-import com.voidlauncher.data.GestureMapping;
-import com.voidlauncher.data.GestureRepository;
+import com.voidlauncher.data.ContextualApps;
 import com.voidlauncher.data.RecentApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -35,20 +30,17 @@ import java.util.Locale;
 
 public class LauncherActivity extends Activity implements GestureView.Listener {
 
-    private static final int FINGERS_SETTINGS = 4;
+    private String[]          appNames;
+    private String[]          appPackages;
+    private RecentApps        recents;
+    private ContextualApps    contextual;
 
-    private GestureEngine        engine;
-    private GestureRepository    repo;
-    private RecentApps           recents;
-    private String[]             appNames;
-    private String[]             appPackages;
-
-    private TextView             tvClock;
-    private TextView             tvDate;
-    private TextView             tvBattery;
-    private final Handler        clockHandler = new Handler();
-    private SimpleDateFormat     timeFmt;
-    private SimpleDateFormat     dateFmt;
+    private TextView          tvClock;
+    private TextView          tvDate;
+    private TextView          tvBattery;
+    private final Handler     clockHandler = new Handler();
+    private SimpleDateFormat  timeFmt;
+    private SimpleDateFormat  dateFmt;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
@@ -86,9 +78,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        engine  = new GestureEngine();
-        repo    = new GestureRepository(this);
-        recents = new RecentApps(this);
+        recents    = new RecentApps(this);
+        contextual = new ContextualApps(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE d MMM yyyy", Locale.getDefault());
@@ -130,37 +121,13 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_APP_SWITCH) {
-            openSearch();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+    public void onTwoFingerTap() {
+        new QuickSearchDialog(this, appNames, appPackages, contextual).show();
     }
 
-    @Override
-    public void onStroke(List<PointF> points, int maxPointers) {
-        int[] drawn = engine.extractSignature(points);
-        for (GestureMapping m : repo.getAll()) {
-            if (engine.matches(m.signatures, drawn)) {
-                recents.record(m.appPackage);
-                AppLauncher.launch(this, m.appPackage);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public void onHold(int fingers) {
-        if (fingers >= FINGERS_SETTINGS) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        } else {
-            openSearch();
-        }
-    }
-
-    private void openSearch() {
-        new QuickSearchDialog(this, appNames, appPackages, recents).show();
+    public void onAppLaunched(String pkg) {
+        recents.record(pkg);
+        contextual.record(pkg);
     }
 
     private LinearLayout buildTopInfo() {
