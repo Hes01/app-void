@@ -121,8 +121,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     @Override
-    public void onTwoFingerTap() {
-        new QuickSearchDialog(this, appNames, appPackages, contextual).show();
+    public void onTap() {
+        new QuickSearchDialog(this, appNames, appPackages, contextual, recents).show();
     }
 
     public void onAppLaunched(String pkg) {

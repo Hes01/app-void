@@ -8,11 +8,10 @@ import android.view.View;
 public class GestureView extends View {
 
     public interface Listener {
-        void onTwoFingerTap();
+        void onTap();
     }
 
     private Listener listener;
-    private boolean  fired = false;
 
     public GestureView(Context context) { this(context, null); }
 
@@ -25,19 +24,8 @@ public class GestureView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        switch (e.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                fired = false;
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                if (!fired && e.getPointerCount() == 2) {
-                    fired = true;
-                    if (listener != null) listener.onTwoFingerTap();
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                fired = false;
-                break;
+        if (e.getActionMasked() == MotionEvent.ACTION_UP) {
+            if (listener != null) listener.onTap();
         }
         return true;
     }

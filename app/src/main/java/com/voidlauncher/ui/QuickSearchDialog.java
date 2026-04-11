@@ -2,21 +2,26 @@ package com.voidlauncher.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.view.View;
-import android.content.Intent;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.data.ContextualApps;
+import com.voidlauncher.data.RecentApps;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class QuickSearchDialog {
 
@@ -24,6 +29,8 @@ public class QuickSearchDialog {
     private final String[]         names;
     private final String[]         packages;
     private final ContextualApps   contextual;
+    private final RecentApps       recents;
+    private final Set<String>      newlyInstalled = new HashSet<>();
 
     private final List<String> filteredNames = new ArrayList<>();
     private final List<String> filteredPkgs  = new ArrayList<>();
@@ -32,17 +39,27 @@ public class QuickSearchDialog {
     private AlertDialog          dialog;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
-                             String[] packages, ContextualApps contextual) {
+                             String[] packages, ContextualApps contextual,
+                             RecentApps recents) {
         this.launcher   = launcher;
         this.names      = names;
         this.packages   = packages;
         this.contextual = contextual;
+        this.recents    = recents;
+        
+        // Identificar apps instaladas en las últimas 24h
+        long yesterday = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+        for (String pkg : packages) {
+            try {
+                long installed = launcher.getPackageManager().getPackageInfo(pkg, 0).firstInstallTime;
+                if (installed > yesterday) newlyInstalled.add(pkg);
+            } catch (Exception ignored) {}
+        }
     }
 
     public void show() {
-        LinearLayout layout = buildLayout();
         dialog = new AlertDialog.Builder(launcher)
-                .setView(layout)
+                .setView(buildLayout())
                 .create();
         dialog.show();
     }
@@ -81,7 +98,20 @@ public class QuickSearchDialog {
     }
 
     private ListView buildList() {
-        adapter = new ArrayAdapter<>(launcher, android.R.layout.simple_list_item_1, filteredNames);
+        adapter = new ArrayAdapter<String>(launcher, android.R.layout.simple_list_item_1, filteredNames) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                TextView tv = (TextView) super.getView(position, convertView, parent);
+                String pkg = filteredPkgs.get(position);
+                // Verde si es instalada recientemente (últimas 24h)
+                if (newlyInstalled.contains(pkg)) {
+                    tv.setTextColor(0xFF00FF00);
+                } else {
+                    tv.setTextColor(Color.WHITE);
+                }
+                return tv;
+            }
+        };
         ListView list = new ListView(launcher);
         list.setBackgroundColor(Color.BLACK);
         list.setAdapter(adapter);
@@ -115,6 +145,11 @@ public class QuickSearchDialog {
                     }
                 }
             }
+        } else if (q.equals("/all")) {
+            for (int i = 0; i < names.length; i++) {
+                filteredNames.add(names[i]);
+                filteredPkgs.add(packages[i]);
+            }
         } else if (q.equals("/xyzzy") || q.equals("/void")) {
             dialog.dismiss();
             launcher.startActivity(new Intent(launcher, SettingsActivity.class));
@@ -141,7 +176,7 @@ public class QuickSearchDialog {
             @Override public void run() {
                 InputMethodManager imm = (InputMethodManager)
                         launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
             }
         }, 100);
     }
