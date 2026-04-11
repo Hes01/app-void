@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.view.View;
 import com.voidlauncher.core.AppLauncher;
-import com.voidlauncher.data.RecentApps;
+import com.voidlauncher.data.ContextualApps;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class QuickSearchDialog {
     private final LauncherActivity launcher;
     private final String[]         names;
     private final String[]         packages;
-    private final RecentApps       recents;
+    private final ContextualApps   contextual;
 
     private final List<String> filteredNames = new ArrayList<>();
     private final List<String> filteredPkgs  = new ArrayList<>();
@@ -31,11 +31,11 @@ public class QuickSearchDialog {
     private AlertDialog          dialog;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
-                             String[] packages, RecentApps recents) {
-        this.launcher  = launcher;
-        this.names     = names;
-        this.packages  = packages;
-        this.recents   = recents;
+                             String[] packages, ContextualApps contextual) {
+        this.launcher   = launcher;
+        this.names      = names;
+        this.packages   = packages;
+        this.contextual = contextual;
     }
 
     public void show() {
@@ -105,7 +105,7 @@ public class QuickSearchDialog {
         String q = query.toLowerCase().trim();
 
         if (q.isEmpty()) {
-            for (String pkg : recents.get()) {
+            for (String pkg : contextual.getTop(packages)) {
                 for (int i = 0; i < packages.length; i++) {
                     if (packages[i].equals(pkg)) {
                         filteredNames.add(names[i]);
