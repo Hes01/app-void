@@ -19,10 +19,10 @@ import java.util.List;
 
 public class QuickSearchDialog {
 
-    private final Context     context;
-    private final String[]    names;
-    private final String[]    packages;
-    private final RecentApps  recents;
+    private final LauncherActivity launcher;
+    private final String[]         names;
+    private final String[]         packages;
+    private final RecentApps       recents;
 
     private final List<String> filteredNames = new ArrayList<>();
     private final List<String> filteredPkgs  = new ArrayList<>();
@@ -30,23 +30,24 @@ public class QuickSearchDialog {
     private ArrayAdapter<String> adapter;
     private AlertDialog          dialog;
 
-    public QuickSearchDialog(Context context, String[] names, String[] packages, RecentApps recents) {
-        this.context  = context;
-        this.names    = names;
-        this.packages = packages;
-        this.recents  = recents;
+    public QuickSearchDialog(LauncherActivity launcher, String[] names,
+                             String[] packages, RecentApps recents) {
+        this.launcher  = launcher;
+        this.names     = names;
+        this.packages  = packages;
+        this.recents   = recents;
     }
 
     public void show() {
         LinearLayout layout = buildLayout();
-        dialog = new AlertDialog.Builder(context)
+        dialog = new AlertDialog.Builder(launcher)
                 .setView(layout)
                 .create();
         dialog.show();
     }
 
     private LinearLayout buildLayout() {
-        LinearLayout root = new LinearLayout(context);
+        LinearLayout root = new LinearLayout(launcher);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.BLACK);
         root.setPadding(40, 40, 40, 0);
@@ -63,14 +64,14 @@ public class QuickSearchDialog {
             @Override public void afterTextChanged(Editable s) { filter(s.toString()); }
         });
 
-        filter("");  // muestra recientes al abrir
+        filter("");
         showKeyboard(input);
         return root;
     }
 
     private EditText buildInput() {
-        EditText input = new EditText(context);
-        input.setHint(context.getString(com.voidlauncher.R.string.search_hint));
+        EditText input = new EditText(launcher);
+        input.setHint(launcher.getString(com.voidlauncher.R.string.search_hint));
         input.setHintTextColor(0xFF555555);
         input.setTextColor(Color.WHITE);
         input.setTextSize(18f);
@@ -79,20 +80,23 @@ public class QuickSearchDialog {
     }
 
     private ListView buildList() {
-        adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, filteredNames);
-        ListView list = new ListView(context);
+        adapter = new ArrayAdapter<>(launcher, android.R.layout.simple_list_item_1, filteredNames);
+        ListView list = new ListView(launcher);
         list.setBackgroundColor(Color.BLACK);
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                dialog.dismiss();
-                String pkg = filteredPkgs.get(pos);
-                recents.record(pkg);
-                AppLauncher.launch(context, pkg);
+                launch(filteredPkgs.get(pos));
             }
         });
         return list;
+    }
+
+    private void launch(String pkg) {
+        dialog.dismiss();
+        launcher.onAppLaunched(pkg);
+        AppLauncher.launch(launcher, pkg);
     }
 
     private void filter(String query) {
@@ -101,7 +105,6 @@ public class QuickSearchDialog {
         String q = query.toLowerCase().trim();
 
         if (q.isEmpty()) {
-            // Muestra recientes
             for (String pkg : recents.get()) {
                 for (int i = 0; i < packages.length; i++) {
                     if (packages[i].equals(pkg)) {
@@ -118,11 +121,8 @@ public class QuickSearchDialog {
                     filteredPkgs.add(packages[i]);
                 }
             }
-            // Una sola app → lanza directo
             if (filteredNames.size() == 1) {
-                dialog.dismiss();
-                recents.record(filteredPkgs.get(0));
-                AppLauncher.launch(context, filteredPkgs.get(0));
+                launch(filteredPkgs.get(0));
                 return;
             }
         }
@@ -135,7 +135,7 @@ public class QuickSearchDialog {
         input.postDelayed(new Runnable() {
             @Override public void run() {
                 InputMethodManager imm = (InputMethodManager)
-                        context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
             }
         }, 100);

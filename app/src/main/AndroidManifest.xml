@@ -28,12 +28,6 @@
             android:exported="false"
             android:label="@string/settings_title"/>
 
-        <activity
-            android:name=".ui.RecordGestureActivity"
-            android:theme="@style/Theme.Void"
-            android:exported="false"
-            android:label="@string/record_title"/>
-
     </application>
 
 </manifest>
