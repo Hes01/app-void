@@ -54,7 +54,6 @@ public class QuickSearchDialog {
             dialog.getWindow().setLayout(
                 WindowManager.LayoutParams.MATCH_PARENT, 
                 WindowManager.LayoutParams.MATCH_PARENT);
-            // Esto elimina el padding que el sistema añade a la ventana
             dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
         }
         dialog.show();
@@ -93,7 +92,6 @@ public class QuickSearchDialog {
 
         filter("");
         
-        // Forzar teclado
         input.requestFocus();
         input.postDelayed(new Runnable() {
             @Override public void run() {
@@ -108,7 +106,7 @@ public class QuickSearchDialog {
 
     private EditText buildInput() {
         EditText input = new EditText(launcher);
-        input.setHint(""); // Sin hint, cursor al inicio
+        input.setHint("");
         input.setTextColor(Color.WHITE);
         input.setTextSize(22f);
         input.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
