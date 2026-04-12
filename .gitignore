@@ -11,3 +11,4 @@ app/build/
 local.properties
 .idea/
 *.iml
+*.md
