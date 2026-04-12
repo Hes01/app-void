@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VOID</string>
-    <string name="settings_title">If it\'s worth it, you\'ll see something here soon :)</string>
-    <string name="search_hint">buscar app…</string>
+    <string name="settings_title">VOID SETTINGS</string>
 </resources>

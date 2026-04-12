@@ -1,12 +1,16 @@
 package com.voidlauncher.ui;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,11 +21,8 @@ import android.widget.TextView;
 import android.view.View;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.data.ContextualApps;
-import com.voidlauncher.data.RecentApps;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class QuickSearchDialog {
 
@@ -29,38 +30,33 @@ public class QuickSearchDialog {
     private final String[]         names;
     private final String[]         packages;
     private final ContextualApps   contextual;
-    private final RecentApps       recents;
-    private final Set<String>      newlyInstalled = new HashSet<>();
 
     private final List<String> filteredNames = new ArrayList<>();
     private final List<String> filteredPkgs  = new ArrayList<>();
 
     private ArrayAdapter<String> adapter;
-    private AlertDialog          dialog;
+    private Dialog               dialog;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
-                             String[] packages, ContextualApps contextual,
-                             RecentApps recents) {
+                             String[] packages, ContextualApps contextual) {
         this.launcher   = launcher;
         this.names      = names;
         this.packages   = packages;
         this.contextual = contextual;
-        this.recents    = recents;
-        
-        // Identificar apps instaladas en las últimas 24h
-        long yesterday = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
-        for (String pkg : packages) {
-            try {
-                long installed = launcher.getPackageManager().getPackageInfo(pkg, 0).firstInstallTime;
-                if (installed > yesterday) newlyInstalled.add(pkg);
-            } catch (Exception ignored) {}
-        }
     }
 
     public void show() {
-        dialog = new AlertDialog.Builder(launcher)
-                .setView(buildLayout())
-                .create();
+        dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        dialog.setContentView(buildLayout());
+        
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+            dialog.getWindow().setLayout(
+                WindowManager.LayoutParams.MATCH_PARENT, 
+                WindowManager.LayoutParams.MATCH_PARENT);
+            // Esto elimina el padding que el sistema añade a la ventana
+            dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
+        }
         dialog.show();
     }
 
@@ -68,12 +64,25 @@ public class QuickSearchDialog {
         LinearLayout root = new LinearLayout(launcher);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.BLACK);
-        root.setPadding(40, 40, 40, 0);
+        root.setPadding(40, 60, 40, 0);
 
-        EditText input = buildInput();
-        ListView list  = buildList();
+        LinearLayout inputRow = new LinearLayout(launcher);
+        inputRow.setOrientation(LinearLayout.HORIZONTAL);
+        inputRow.setGravity(Gravity.CENTER_VERTICAL);
 
-        root.addView(input);
+        TextView promptSign = new TextView(launcher);
+        promptSign.setText("> ");
+        promptSign.setTextColor(0x66FFFFFF);
+        promptSign.setTextSize(22f);
+        promptSign.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
+
+        final EditText input = buildInput();
+        inputRow.addView(promptSign);
+        inputRow.addView(input, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+
+        ListView list = buildList();
+
+        root.addView(inputRow);
         root.addView(list);
 
         input.addTextChangedListener(new TextWatcher() {
@@ -83,17 +92,29 @@ public class QuickSearchDialog {
         });
 
         filter("");
-        showKeyboard(input);
+        
+        // Forzar teclado
+        input.requestFocus();
+        input.postDelayed(new Runnable() {
+            @Override public void run() {
+                InputMethodManager imm = (InputMethodManager)
+                        launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 200);
+
         return root;
     }
 
     private EditText buildInput() {
         EditText input = new EditText(launcher);
-        input.setHint(launcher.getString(com.voidlauncher.R.string.search_hint));
-        input.setHintTextColor(0xFF555555);
+        input.setHint(""); // Sin hint, cursor al inicio
         input.setTextColor(Color.WHITE);
-        input.setTextSize(18f);
+        input.setTextSize(22f);
+        input.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
         input.setBackgroundColor(Color.TRANSPARENT);
+        input.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        input.setPadding(0, 0, 0, 0);
         return input;
     }
 
@@ -102,18 +123,20 @@ public class QuickSearchDialog {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 TextView tv = (TextView) super.getView(position, convertView, parent);
-                String pkg = filteredPkgs.get(position);
-                // Verde si es instalada recientemente (últimas 24h)
-                if (newlyInstalled.contains(pkg)) {
-                    tv.setTextColor(0xFF00FF00);
-                } else {
-                    tv.setTextColor(Color.WHITE);
-                }
+                tv.setTextColor(Color.WHITE);
+                tv.setTextSize(16f);
+                tv.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
+                tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                tv.setPadding(0, 30, 0, 30);
                 return tv;
             }
         };
         ListView list = new ListView(launcher);
         list.setBackgroundColor(Color.BLACK);
+        list.setDivider(null); 
+        list.setDividerHeight(0);
+        list.setSelector(android.R.color.transparent);
+        list.setOverScrollMode(View.OVER_SCROLL_NEVER);
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -150,7 +173,7 @@ public class QuickSearchDialog {
                 filteredNames.add(names[i]);
                 filteredPkgs.add(packages[i]);
             }
-        } else if (q.equals("/xyzzy") || q.equals("/void")) {
+        } else if (q.equals("/void")) {
             dialog.dismiss();
             launcher.startActivity(new Intent(launcher, SettingsActivity.class));
             return;
@@ -168,16 +191,5 @@ public class QuickSearchDialog {
         }
 
         adapter.notifyDataSetChanged();
-    }
-
-    private void showKeyboard(EditText input) {
-        input.requestFocus();
-        input.postDelayed(new Runnable() {
-            @Override public void run() {
-                InputMethodManager imm = (InputMethodManager)
-                        launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-            }
-        }, 100);
     }
 }

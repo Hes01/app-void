@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
@@ -17,10 +16,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.voidlauncher.data.ContextualApps;
-import com.voidlauncher.data.RecentApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,22 +29,16 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private String[]          appNames;
     private String[]          appPackages;
-    private RecentApps        recents;
     private ContextualApps    contextual;
 
     private TextView          tvClock;
-    private TextView          tvDate;
-    private TextView          tvBattery;
     private final Handler     clockHandler = new Handler();
     private SimpleDateFormat  timeFmt;
-    private SimpleDateFormat  dateFmt;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
-            Date now = new Date();
-            tvClock.setText(timeFmt.format(now));
-            tvDate.setText(dateFmt.format(now));
-            clockHandler.postDelayed(this, 30_000);
+            tvClock.setText(timeFmt.format(new Date()));
+            clockHandler.postDelayed(this, 1000); // Actualizar cada segundo para mayor precisión si se desea, o cada 60s
         }
     };
 
@@ -56,35 +47,17 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         public void onReceive(Context ctx, Intent intent) { loadInstalledApps(); }
     };
 
-    private final BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context ctx, Intent intent) {
-            int level  = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-            int scale  = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean charging = status == BatteryManager.BATTERY_STATUS_CHARGING
-                            || status == BatteryManager.BATTERY_STATUS_FULL;
-            if (charging && level >= 0 && scale > 0) {
-                tvBattery.setText(Math.round(level * 100f / scale) + "%");
-                tvBattery.setVisibility(View.VISIBLE);
-            } else {
-                tvBattery.setVisibility(View.GONE);
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        recents    = new RecentApps(this);
         contextual = new ContextualApps(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
-        dateFmt = new SimpleDateFormat("EEE d MMM yyyy", Locale.getDefault());
 
         FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.BLACK);
         GestureView gestureView = new GestureView(this);
         gestureView.setListener(this);
         root.addView(gestureView);
@@ -104,14 +77,12 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onResume();
         hideSystemUI();
         clockHandler.post(clockTick);
-        registerReceiver(batteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         clockHandler.removeCallbacks(clockTick);
-        try { unregisterReceiver(batteryReceiver); } catch (Exception ignored) {}
     }
 
     @Override
@@ -122,48 +93,27 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onTap() {
-        new QuickSearchDialog(this, appNames, appPackages, contextual, recents).show();
+        new QuickSearchDialog(this, appNames, appPackages, contextual).show();
     }
 
     public void onAppLaunched(String pkg) {
-        recents.record(pkg);
         contextual.record(pkg);
     }
 
-    private LinearLayout buildTopInfo() {
+    private View buildTopInfo() {
         tvClock = new TextView(this);
-        tvClock.setTypeface(Typeface.MONOSPACE);
-        tvClock.setTextSize(58f);
+        tvClock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
+        tvClock.setTextSize(64f);
         tvClock.setTextColor(Color.WHITE);
+        tvClock.setAlpha(0.8f); // Un poco de transparencia para suavizar el contraste
         tvClock.setGravity(Gravity.CENTER);
-
-        tvDate = new TextView(this);
-        tvDate.setTypeface(Typeface.MONOSPACE);
-        tvDate.setTextSize(13f);
-        tvDate.setTextColor(Color.argb(160, 255, 255, 255));
-        tvDate.setGravity(Gravity.CENTER);
-
-        tvBattery = new TextView(this);
-        tvBattery.setTypeface(Typeface.MONOSPACE);
-        tvBattery.setTextSize(13f);
-        tvBattery.setTextColor(Color.argb(160, 255, 255, 255));
-        tvBattery.setGravity(Gravity.CENTER);
-        tvBattery.setVisibility(View.GONE);
-
-        LinearLayout ll = new LinearLayout(this);
-        ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setGravity(Gravity.CENTER_HORIZONTAL);
-        ll.addView(tvClock);
-        ll.addView(tvDate);
-        ll.addView(tvBattery);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-        lp.topMargin = 52;
-        ll.setLayoutParams(lp);
-        return ll;
+                Gravity.CENTER); // Centrado total para mayor minimalismo
+        tvClock.setLayoutParams(lp);
+        return tvClock;
     }
 
     private void loadInstalledApps() {
