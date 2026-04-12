@@ -1,6 +1,7 @@
 package com.voidlauncher.ui;
 
 import android.app.Activity;
+import android.app.AppOpsManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +10,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
@@ -32,13 +35,14 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private ContextualApps    contextual;
 
     private TextView          tvClock;
+    private TextView          tvPermissionAlert;
     private final Handler     clockHandler = new Handler();
     private SimpleDateFormat  timeFmt;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
             tvClock.setText(timeFmt.format(new Date()));
-            clockHandler.postDelayed(this, 1000); // Actualizar cada segundo para mayor precisión si se desea, o cada 60s
+            clockHandler.postDelayed(this, 1000); 
         }
     };
 
@@ -58,10 +62,16 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.BLACK);
+        
         GestureView gestureView = new GestureView(this);
         gestureView.setListener(this);
         root.addView(gestureView);
+        
         root.addView(buildTopInfo());
+        
+        tvPermissionAlert = buildPermissionAlert();
+        root.addView(tvPermissionAlert);
+        
         setContentView(root);
         loadInstalledApps();
 
@@ -77,6 +87,46 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onResume();
         hideSystemUI();
         clockHandler.post(clockTick);
+        checkUsagePermission();
+    }
+
+    private void checkUsagePermission() {
+        try {
+            AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, 
+                    android.os.Process.myUid(), getPackageName());
+            boolean granted = mode == AppOpsManager.MODE_ALLOWED;
+            tvPermissionAlert.setVisibility(granted ? View.GONE : View.VISIBLE);
+        } catch (Exception e) {
+            tvPermissionAlert.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private TextView buildPermissionAlert() {
+        TextView tv = new TextView(this);
+        tv.setText("[!] ");
+        tv.setTextColor(0x44FFFFFF);
+        tv.setTextSize(14f);
+        tv.setTypeface(Typeface.MONOSPACE);
+        tv.setPadding(40, 40, 40, 40);
+        
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.END);
+        tv.setLayoutParams(lp);
+        
+        tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+                } catch (Exception e) {
+                    // Si falla por alguna razón (versión vieja), no hacemos nada
+                }
+            }
+        });
+        return tv;
     }
 
     @Override
@@ -101,19 +151,36 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     private View buildTopInfo() {
+        FrameLayout container = new FrameLayout(this);
+
         tvClock = new TextView(this);
         tvClock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
         tvClock.setTextSize(64f);
         tvClock.setTextColor(Color.WHITE);
-        tvClock.setAlpha(0.8f); // Un poco de transparencia para suavizar el contraste
+        tvClock.setAlpha(0.8f);
         tvClock.setGravity(Gravity.CENTER);
 
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+        View circle = new View(this);
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.OVAL);
+        shape.setStroke(2, Color.WHITE);
+        circle.setBackground(shape);
+        circle.setAlpha(0.15f);
+
+        int size = (int) (getResources().getDisplayMetrics().density * 240);
+        
+        container.addView(circle, new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
+        container.addView(tvClock, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER); // Centrado total para mayor minimalismo
-        tvClock.setLayoutParams(lp);
-        return tvClock;
+                Gravity.CENTER));
+
+        container.setLayoutParams(new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER));
+        
+        return container;
     }
 
     private void loadInstalledApps() {
