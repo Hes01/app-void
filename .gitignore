@@ -12,3 +12,4 @@ local.properties
 .idea/
 *.iml
 *.md
+log.txt

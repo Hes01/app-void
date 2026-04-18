@@ -3,6 +3,7 @@ package com.voidlauncher.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AliasRepository {
@@ -41,5 +42,13 @@ public class AliasRepository {
             result.put(e.getKey(), String.valueOf(e.getValue()));
         }
         return result;
+    }
+
+    public void cleanOrphans(List<String> installedPackages) {
+        SharedPreferences.Editor editor = prefs.edit();
+        for (Map.Entry<String, ?> e : prefs.getAll().entrySet()) {
+            if (!installedPackages.contains(e.getValue())) editor.remove(e.getKey());
+        }
+        editor.apply();
     }
 }

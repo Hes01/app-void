@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
 
     <application
         android:name=".VoidApplication"
@@ -24,11 +25,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.SettingsActivity"
-            android:theme="@style/Theme.Void.Settings"
-            android:exported="false"
-            android:label="@string/settings_title"/>
 
     </application>
 
