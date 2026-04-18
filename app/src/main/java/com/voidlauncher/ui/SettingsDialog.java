@@ -63,7 +63,7 @@ public class SettingsDialog {
         root.setPadding(48, 72, 48, 0);
 
         TextView title = new TextView(launcher);
-        title.setText("/ void");
+        title.setText(". void");
         title.setTextColor(0x55FFFFFF);
         title.setTextSize(14f);
         title.setTypeface(Typeface.MONOSPACE);
@@ -112,8 +112,8 @@ public class SettingsDialog {
             .setView(input)
             .setPositiveButton("ok", (d, w) -> {
                 String val = input.getText().toString().trim();
-                if (val.isEmpty()) { if (current != null) aliases.remove(current); }
-                else aliases.set(val, pkg);
+                if (current != null) aliases.remove(current);
+                if (!val.isEmpty()) aliases.set(val, pkg);
                 list.invalidateViews();
             })
             .setNeutralButton("desinstalar", (d, w) -> {
