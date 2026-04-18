@@ -106,7 +106,7 @@ public class QuickSearchDialog {
                     filteredNames.add(alias != null ? alias : names[i]); filteredPkgs.add(packages[i]);
                 }
             }
-            if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
+            if (filteredNames.size() == 1 && q.length() >= 3) { launch(filteredPkgs.get(0)); return; }
         }
         adapter.notifyDataSetChanged();
     }
