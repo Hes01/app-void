@@ -103,7 +103,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         for (ResolveInfo info : infos) {
             String pkg = info.activityInfo.packageName;
             String alias = PluginRegistry.readAlias(this, pkg);
-            if (alias != null && aliases.resolve(alias) == null)
+            if (alias != null && aliases.resolve(alias) == null && aliases.aliasOf(pkg) == null)
                 aliases.set(alias, pkg);
         }
     }
