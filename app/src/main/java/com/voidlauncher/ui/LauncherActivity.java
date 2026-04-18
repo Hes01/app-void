@@ -8,21 +8,18 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
-import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.voidlauncher.core.PluginRegistry;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -47,7 +44,16 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context ctx, Intent intent) { loadInstalledApps(); }
+        public void onReceive(Context ctx, Intent intent) {
+            String pkg = intent.getData() != null ? intent.getData().getSchemeSpecificPart() : null;
+            if (pkg == null) return;
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+                PluginRegistry.onInstalled(ctx, pkg);
+            } else {
+                PluginRegistry.onRemoved(ctx, pkg, aliases);
+            }
+            loadInstalledApps();
+        }
     };
 
     @Override
@@ -67,7 +73,9 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         gestureView.setListener(this);
         root.addView(gestureView);
         
-        root.addView(buildTopInfo());
+        TextView[] clockRef = new TextView[1];
+        root.addView(ClockView.build(this, clockRef));
+        tvClock = clockRef[0];
         
         setContentView(root);
         loadInstalledApps();
@@ -107,50 +115,13 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         contextual.record(pkg);
     }
 
-    private View buildTopInfo() {
-        FrameLayout container = new FrameLayout(this);
-
-        tvClock = new TextView(this);
-        tvClock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
-        tvClock.setTextSize(64f);
-        tvClock.setTextColor(Color.WHITE);
-        tvClock.setAlpha(0.8f);
-        tvClock.setGravity(Gravity.CENTER);
-
-        View circle = new View(this);
-        GradientDrawable shape = new GradientDrawable();
-        shape.setShape(GradientDrawable.OVAL);
-        shape.setStroke(2, Color.WHITE);
-        circle.setBackground(shape);
-        circle.setAlpha(0.15f);
-
-        int size = (int) (getResources().getDisplayMetrics().density * 240);
-        
-        container.addView(circle, new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
-        container.addView(tvClock, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER));
-
-        container.setLayoutParams(new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER));
-        
-        return container;
-    }
-
     private void loadInstalledApps() {
         PackageManager pm = getPackageManager();
         Intent main = new Intent(Intent.ACTION_MAIN, null);
         main.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> infos = pm.queryIntentActivities(main, 0);
-        Collections.sort(infos, new Comparator<ResolveInfo>() {
-            @Override public int compare(ResolveInfo a, ResolveInfo b) {
-                return a.loadLabel(getPackageManager()).toString()
-                        .compareToIgnoreCase(b.loadLabel(getPackageManager()).toString());
-            }
-        });
+        Collections.sort(infos, (a, b) -> a.loadLabel(pm).toString()
+                .compareToIgnoreCase(b.loadLabel(pm).toString()));
         appNames    = new String[infos.size()];
         appPackages = new String[infos.size()];
         for (int i = 0; i < infos.size(); i++) {
