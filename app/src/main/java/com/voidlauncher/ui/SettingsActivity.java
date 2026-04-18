@@ -1,143 +1,159 @@
 package com.voidlauncher.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
-import com.voidlauncher.R;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import com.voidlauncher.data.AliasRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SettingsActivity extends Activity {
 
-    private static final Map<String, String> MORSE = new HashMap<>();
-    static {
-        MORSE.put(".-", "A");   MORSE.put("-...", "B"); MORSE.put("-.-.", "C");
-        MORSE.put("-..", "D");  MORSE.put(".", "E");    MORSE.put("..-.", "F");
-        MORSE.put("--.", "G");  MORSE.put("....", "H"); MORSE.put("..", "I");
-        MORSE.put(".---", "J"); MORSE.put("-.-", "K");  MORSE.put(".-..", "L");
-        MORSE.put("--", "M");   MORSE.put("-.", "N");   MORSE.put("---", "O");
-        MORSE.put(".--.", "P"); MORSE.put("--.-", "Q"); MORSE.put(".-.", "R");
-        MORSE.put("...", "S");  MORSE.put("-", "T");    MORSE.put("..-", "U");
-        MORSE.put("...-", "V"); MORSE.put(".--", "W");  MORSE.put("-..-", "X");
-        MORSE.put("-.--", "Y"); MORSE.put("--..", "Z");
-        MORSE.put(".----", "1"); MORSE.put("..---", "2"); MORSE.put("...--", "3");
-        MORSE.put("....-", "4"); MORSE.put(".....", "5"); MORSE.put("-....", "6");
-        MORSE.put("--...", "7"); MORSE.put("---..", "8"); MORSE.put("----.", "9");
-        MORSE.put("-----", "0"); MORSE.put("/", " ");
-    }
-
-    private static final String[] WHY = {
-        "because 68kb is enough.",
-        "because black uses no power.",
-        "because the best UI is no UI.",
-        "because fast is a feature.",
-        "because you already know what you want.",
-        "because nothing is also a design decision."
-    };
-
-    private TextView tvDecoded;
-    private EditText etInput;
-    private final Random rng = new Random();
+    private AliasRepository   aliases;
+    private List<String>      appNames    = new ArrayList<>();
+    private List<String>      appPackages = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        aliases = new AliasRepository(this);
+        loadApps();
+        setContentView(buildLayout());
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
+    }
+
+    private LinearLayout buildLayout() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.BLACK);
-        root.setGravity(Gravity.CENTER);
-        root.setPadding(40, 40, 40, 40);
+        root.setPadding(48, 72, 48, 0);
 
-        tvDecoded = new TextView(this);
-        tvDecoded.setTextColor(Color.GRAY);
-        tvDecoded.setTextSize(24f);
-        tvDecoded.setTypeface(Typeface.MONOSPACE);
-        tvDecoded.setGravity(Gravity.CENTER);
-        tvDecoded.setText("");
+        TextView title = new TextView(this);
+        title.setText("/ void");
+        title.setTextColor(0x55FFFFFF);
+        title.setTextSize(14f);
+        title.setTypeface(Typeface.MONOSPACE);
+        title.setPadding(0, 0, 0, 40);
 
-        etInput = new EditText(this);
-        etInput.setBackgroundColor(Color.TRANSPARENT);
-        etInput.setTextColor(Color.WHITE);
-        etInput.setTextSize(32f);
-        etInput.setTypeface(Typeface.MONOSPACE);
-        etInput.setGravity(Gravity.CENTER);
-        etInput.setHint(".... . .-.. .-.. ---");
-        etInput.setHintTextColor(0x33FFFFFF);
+        root.addView(title);
+        root.addView(buildList());
+        return root;
+    }
 
-        root.addView(tvDecoded);
-        root.addView(etInput);
+    private ListView buildList() {
+        adapter = new ArrayAdapter<String>(this, 0, appNames) {
+            @Override
+            public View getView(int pos, View convertView, ViewGroup parent) {
+                LinearLayout row = new LinearLayout(getContext());
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setPadding(0, 28, 0, 28);
 
-        etInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
-            @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
-            @Override public void afterTextChanged(Editable s) {
-                decode(s.toString());
+                String alias = aliases.aliasOf(appPackages.get(pos));
+                String aliasText = alias != null ? alias : "  ";
+
+                TextView tvAlias = new TextView(getContext());
+                tvAlias.setText(aliasText);
+                tvAlias.setTextColor(alias != null ? Color.WHITE : 0x22FFFFFF);
+                tvAlias.setTextSize(14f);
+                tvAlias.setTypeface(Typeface.MONOSPACE);
+                tvAlias.setWidth(dpToPx(64));
+
+                TextView tvName = new TextView(getContext());
+                tvName.setText(appNames.get(pos));
+                tvName.setTextColor(0x88FFFFFF);
+                tvName.setTextSize(14f);
+                tvName.setTypeface(Typeface.MONOSPACE);
+
+                row.addView(tvAlias);
+                row.addView(tvName);
+                return row;
+            }
+        };
+
+        ListView list = new ListView(this);
+        list.setBackgroundColor(Color.BLACK);
+        list.setDivider(null);
+        list.setDividerHeight(0);
+        list.setSelector(android.R.color.transparent);
+        list.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> p, View v, int pos, long id) {
+                showEditDialog(pos);
             }
         });
-
-        setContentView(root);
-        showKeyboard();
+        return list;
     }
 
-    private void decode(String raw) {
-        StringBuilder sb = new StringBuilder();
-        String[] parts = raw.split("\\s+");
-        for (String part : parts) {
-            String val = MORSE.get(part);
-            if (val != null) sb.append(val);
+    private void showEditDialog(int pos) {
+        String pkg     = appPackages.get(pos);
+        String current = aliases.aliasOf(pkg);
+
+        EditText input = new EditText(this);
+        input.setTypeface(Typeface.MONOSPACE);
+        input.setText(current != null ? current : "");
+        input.setHint("alias  (vacío = quitar)");
+        input.setGravity(Gravity.START);
+        input.setBackgroundColor(Color.TRANSPARENT);
+        input.setTextColor(Color.WHITE);
+        input.setHintTextColor(0x44FFFFFF);
+        int pad = dpToPx(24);
+        input.setPadding(pad, pad, pad, pad);
+
+        new AlertDialog.Builder(this)
+            .setTitle(appNames.get(pos))
+            .setView(input)
+            .setPositiveButton("ok", (d, w) -> {
+                String val = input.getText().toString().trim();
+                if (val.isEmpty()) aliases.remove(current != null ? current : "");
+                else               aliases.set(val, pkg);
+                adapter.notifyDataSetChanged();
+            })
+            .setNeutralButton("desinstalar", (d, w) -> {
+                startActivity(new Intent(Intent.ACTION_DELETE,
+                        Uri.parse("package:" + pkg)));
+            })
+            .setNegativeButton("cancelar", null)
+            .show();
+    }
+
+    private void loadApps() {
+        PackageManager pm = getPackageManager();
+        Intent main = new Intent(Intent.ACTION_MAIN, null);
+        main.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> infos = pm.queryIntentActivities(main, 0);
+        Collections.sort(infos, (a, b) ->
+                a.loadLabel(pm).toString().compareToIgnoreCase(b.loadLabel(pm).toString()));
+        for (ResolveInfo r : infos) {
+            appNames.add(r.loadLabel(pm).toString());
+            appPackages.add(r.activityInfo.packageName);
         }
-        String decoded = sb.toString();
-        tvDecoded.setText(decoded);
-
-        checkEggs(decoded);
     }
 
-    private void checkEggs(String decoded) {
-        if (decoded.equals("HELLO")) {
-            egg("hello, human");
-        } else if (decoded.equals("WHY")) {
-            egg(WHY[rng.nextInt(WHY.length)]);
-        } else if (decoded.equals("CREDITS")) {
-            egg("hes.");
-        } else if (decoded.equals("GS")) {
-            egg("and counting.");
-        } else if (decoded.equals("MAKELOVE")) {
-            egg("not war?");
-        }
-    }
-
-    private void egg(final String response) {
-        etInput.setEnabled(false);
-        tvDecoded.setTextColor(Color.WHITE);
-        tvDecoded.setText(response);
-        
-        new Handler().postDelayed(new Runnable() {
-            @Override public void run() {
-                finish();
-            }
-        }, 3000);
-    }
-
-    private void showKeyboard() {
-        etInput.requestFocus();
-        new Handler().postDelayed(new Runnable() {
-            @Override public void run() {
-                InputMethodManager imm = (InputMethodManager)
-                        getSystemService(INPUT_METHOD_SERVICE);
-                if (imm != null) imm.showSoftInput(etInput, InputMethodManager.SHOW_IMPLICIT);
-            }
-        }, 200);
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 }

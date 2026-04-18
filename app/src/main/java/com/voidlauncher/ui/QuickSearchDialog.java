@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.view.View;
 import com.voidlauncher.core.AppLauncher;
+import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class QuickSearchDialog {
     private final String[]         names;
     private final String[]         packages;
     private final ContextualApps   contextual;
+    private final AliasRepository  aliases;
 
     private final List<String> filteredNames = new ArrayList<>();
     private final List<String> filteredPkgs  = new ArrayList<>();
@@ -38,11 +40,13 @@ public class QuickSearchDialog {
     private Dialog               dialog;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
-                             String[] packages, ContextualApps contextual) {
+                             String[] packages, ContextualApps contextual,
+                             AliasRepository aliases) {
         this.launcher   = launcher;
         this.names      = names;
         this.packages   = packages;
         this.contextual = contextual;
+        this.aliases    = aliases;
     }
 
     public void show() {
@@ -175,6 +179,10 @@ public class QuickSearchDialog {
             dialog.dismiss();
             launcher.startActivity(new Intent(launcher, SettingsActivity.class));
             return;
+        } else if (q.startsWith("/")) {
+            String cmd = q.substring(1).trim();
+            String pkg = aliases.resolve(cmd);
+            if (pkg != null) { launch(pkg); return; }
         } else {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].toLowerCase().contains(q)) {
