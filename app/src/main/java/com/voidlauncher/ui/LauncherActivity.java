@@ -92,6 +92,20 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onResume();
         hideSystemUI();
         clockHandler.post(clockTick);
+        verifyPlugins();
+    }
+
+    private void verifyPlugins() {
+        PackageManager pm = getPackageManager();
+        Intent main = new Intent(Intent.ACTION_MAIN, null);
+        main.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> infos = pm.queryIntentActivities(main, PackageManager.GET_META_DATA);
+        for (ResolveInfo info : infos) {
+            String pkg = info.activityInfo.packageName;
+            String alias = PluginRegistry.readAlias(this, pkg);
+            if (alias != null && aliases.resolve(alias) == null)
+                aliases.set(alias, pkg);
+        }
     }
 
     @Override

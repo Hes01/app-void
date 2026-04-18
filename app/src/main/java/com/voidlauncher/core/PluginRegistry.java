@@ -22,7 +22,7 @@ public class PluginRegistry {
         if (alias != null) aliases.remove(alias);
     }
 
-    private static String readAlias(Context ctx, String pkg) {
+    public static String readAlias(Context ctx, String pkg) {
         try {
             PackageManager pm = ctx.getPackageManager();
             ApplicationInfo ai = pm.getApplicationInfo(pkg, PackageManager.GET_META_DATA);

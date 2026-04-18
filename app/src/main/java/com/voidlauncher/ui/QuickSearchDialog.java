@@ -93,13 +93,13 @@ public class QuickSearchDialog {
             for (String pkg : contextual.getTop(packages))
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
-        } else if (q.equals("/all")) {
+        } else if (q.equals(".all")) {
             for (int i = 0; i < names.length; i++) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
-        } else if (q.equals("/void")) {
+        } else if (q.equals(".void")) {
             new SettingsDialog(launcher, aliases, dialog).show(); return;
-        } else if (q.startsWith("/")) {
+        } else if (q.startsWith(".")) {
             routeCommand(q.substring(1).trim()); return;
-        } else {
+        } else if (q.matches(".*[a-z0-9].*")) {
             for (int i = 0; i < names.length; i++) {
                 String alias = aliases.aliasOf(packages[i]);
                 if ((alias != null && alias.contains(q)) || names[i].toLowerCase().contains(q)) {
@@ -115,14 +115,21 @@ public class QuickSearchDialog {
         CommandRouter cmd = CommandRouter.parse(raw);
         String pkg = aliases.resolve(cmd.alias);
         if (pkg == null) { adapter.notifyDataSetChanged(); return; }
+
         if (cmd.isUninstall()) {
             dialog.dismiss();
             launcher.startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg)));
-        } else if (cmd.isList()) {
-            queryPlugin(pkg);
-        } else {
-            launchWithArgs(pkg, cmd.rawArgs());
+            return;
         }
+        if (cmd.isList()) { queryPlugin(pkg); return; }
+        if (cmd.isDeleteItem()) { deletePlugin(pkg, cmd.deleteId()); return; }
+
+        // args/flags pendientes → mostrar en lista, ejecutar al tapear
+        String rawArgs = cmd.rawArgs();
+        String label = cmd.alias + (rawArgs != null ? "  " + rawArgs : "  _");
+        filteredNames.add(label);
+        filteredPkgs.add(rawArgs != null ? pkg + "\t" + rawArgs : pkg);
+        adapter.notifyDataSetChanged();
     }
 
     private void launchWithArgs(String pkg, String args) {
@@ -131,6 +138,7 @@ public class QuickSearchDialog {
         if (intent == null) return;
         if (args != null && !args.isEmpty()) intent.putExtra(CommandRouter.EXTRA_ARGS, args);
         launcher.startActivity(intent);
+        launcher.overridePendingTransition(0, 0);
     }
 
     private void queryPlugin(String pkg) {
@@ -139,13 +147,38 @@ public class QuickSearchDialog {
             if (c == null) return;
             filteredNames.clear(); filteredPkgs.clear();
             while (c.moveToNext()) {
-                filteredNames.add(c.getString(c.getColumnIndexOrThrow("title")));
-                filteredPkgs.add(pkg + ":" + c.getInt(c.getColumnIndexOrThrow("_id")));
+                int id = c.getInt(c.getColumnIndexOrThrow("_id"));
+                String title = c.getString(c.getColumnIndexOrThrow("title"));
+                filteredNames.add(id + "  →  " + title);
+                filteredPkgs.add(pkg + ":" + id);
             }
         } catch (Exception ignored) {}
         adapter.notifyDataSetChanged();
     }
 
-    private void launch(String pkg) { dialog.dismiss(); launcher.onAppLaunched(pkg); AppLauncher.launch(launcher, pkg); }
+    private void deletePlugin(String pkg, String id) {
+        Uri uri = Uri.parse("content://" + pkg + ".provider/items");
+        try { launcher.getContentResolver().delete(uri, "_id=?", new String[]{id}); }
+        catch (Exception ignored) {}
+        queryPlugin(pkg);
+    }
+
+    private void launch(String pkgOrCmd) {
+        if (pkgOrCmd.contains("\t")) {
+            String[] parts = pkgOrCmd.split("\t", 2);
+            launchWithArgs(parts[0], parts[1]);
+        } else if (pkgOrCmd.contains(":")) {
+            String[] parts = pkgOrCmd.split(":", 2);
+            dialog.dismiss(); launcher.onAppLaunched(parts[0]);
+            Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(parts[0]);
+            if (intent == null) return;
+            try { intent.putExtra("void.extra.id", Integer.parseInt(parts[1])); }
+            catch (NumberFormatException ignored) {}
+            launcher.startActivity(intent);
+            launcher.overridePendingTransition(0, 0);
+        } else {
+            dialog.dismiss(); launcher.onAppLaunched(pkgOrCmd); AppLauncher.launch(launcher, pkgOrCmd);
+        }
+    }
     private String displayName(int i) { String a = aliases.aliasOf(packages[i]); return a != null ? a : names[i]; }
 }
