@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -31,6 +32,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private String[]          appNames;
     private String[]          appPackages;
     private ContextualApps    contextual;
+    private AliasRepository   aliases;
 
     private TextView          tvClock;
     private final Handler     clockHandler = new Handler();
@@ -54,6 +56,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         contextual = new ContextualApps(this);
+        aliases    = new AliasRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
 
@@ -97,7 +100,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onTap() {
-        new QuickSearchDialog(this, appNames, appPackages, contextual).show();
+        new QuickSearchDialog(this, appNames, appPackages, contextual, aliases).show();
     }
 
     public void onAppLaunched(String pkg) {
