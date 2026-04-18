@@ -13,3 +13,4 @@ local.properties
 *.iml
 *.md
 log.txt
+report_ia.txt

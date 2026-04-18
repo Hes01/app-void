@@ -16,7 +16,6 @@ public class CommandRouter {
         this.args  = args;
     }
 
-    /** Parsea "nn -l", "nn titulo", "nn -dn 1", "fb -d", "fb" */
     public static CommandRouter parse(String query) {
         String[] parts = query.trim().split("\\s+", 2);
         String alias = parts[0].toLowerCase();

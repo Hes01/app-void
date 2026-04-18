@@ -124,7 +124,6 @@ public class QuickSearchDialog {
         if (cmd.isList()) { queryPlugin(pkg); return; }
         if (cmd.isDeleteItem()) { deletePlugin(pkg, cmd.deleteId()); return; }
 
-        // args/flags pendientes → mostrar en lista, ejecutar al tapear
         String rawArgs = cmd.rawArgs();
         String label = cmd.alias + (rawArgs != null ? "  " + rawArgs : "  _");
         filteredNames.add(label);
