@@ -5,15 +5,24 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.voidlauncher.data.AliasRepository;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PluginRegistry {
 
     private static final String META_ALIAS = "void.plugin.alias";
 
-    /** Llama al instalar un paquete. Si es plugin void, registra su alias. */
+    private static final Set<String> RESERVED = new HashSet<>(Arrays.asList(
+            "void", "all", "l", "d"
+    ));
+
     public static void onInstalled(Context ctx, String pkg) {
         String alias = readAlias(ctx, pkg);
-        if (alias != null) new AliasRepository(ctx).set(alias, pkg);
+        if (alias == null) return;
+        String a = alias.toLowerCase().trim();
+        if (a.isEmpty() || RESERVED.contains(a) || !a.matches("[a-z0-9_]{1,16}")) return;
+        new AliasRepository(ctx).set(a, pkg);
     }
 
     /** Llama al desinstalar un paquete. Limpia su alias si era plugin. */
