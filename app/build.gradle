@@ -14,8 +14,18 @@ android {
         versionName "1.0"
     }
 
+    signingConfigs {
+        release {
+            storeFile file("/x/apps/keystores/void-launcher.jks")
+            storePassword "void_launcher_2024"
+            keyAlias "void-launcher"
+            keyPassword "void_launcher_2024"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
