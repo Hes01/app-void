@@ -1,5 +1,6 @@
 architecture.md
 memory.md
+VOID_SYSTEM.md
 
 # Android build
 .gradle/
@@ -11,6 +12,5 @@ app/build/
 local.properties
 .idea/
 *.iml
-*.md
 log.txt
 report_ia.txt
