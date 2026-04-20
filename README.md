@@ -11,7 +11,7 @@
 
 ![Visitas](https://visitor-badge.laobi.icu/badge?page_id=Hes01.app-void&left_color=555555&right_color=000000&left_text=visitas)
 
-Un launcher Pantalla oscura + buscador tipo terminal.
+Un launcher. Pantalla oscura, buscador tipo terminal, alias para todo.
 
 </div>
 
@@ -27,20 +27,35 @@ Un launcher Pantalla oscura + buscador tipo terminal.
 
 ## Por qué existe
 
-Nació de la necesidad de buscar algo ligero, sencillo y rápido sin ningún tipo de permiso que minimice la fricción en mi caso.
+Nació de la necesidad de tener algo ligero, sencillo y rápido que minimice la fricción al usar el teléfono. Sin iconos, sin distracciones, sin permisos innecesarios.
 
 ## Cómo funciona
 
-Tocas cualquier parte de la pantalla y aparece el buscador. Escribes las primeras letras de la app y listo. Si solo hay una coincidencia, la abre directo sin que tengas que confirmar nada.
+Tocas cualquier parte de la pantalla y aparece el buscador. Escribes las primeras letras de la app y listo. Si solo hay una coincidencia, la abre directo sin confirmar nada.
 
-La búsqueda también aprende. Si siempre abres Spotify a las 7am, a esa hora Spotify aparece de primero sin escribir ni una letra. Todo pasa en el teléfono, sin servidores, sin internet, no se recopila información de ningún tipo.
+La búsqueda aprende de ti. Si siempre abres Spotify a las 7am, a esa hora aparece de primero sin escribir ni una letra. Todo pasa en el teléfono, sin servidores, sin internet, sin recopilar nada.
+
+## Alias
+
+Desde `.void` puedes asignarle un nombre corto a cualquier app instalada. Una vez asignado, ese nombre se convierte en un comando.
+
+```
+.fb          → abre Facebook (si le asignaste el alias "fb")
+.yt          → abre YouTube
+.nn          → abre VOID Note
+```
 
 ## Comandos
 
 | Comando | Qué hace |
 |---|---|
 | `.all` | Lista todas las apps instaladas |
-| `.void` | Abre los ajustes (poner alias a tus apps) |
+| `.void` | Abre el panel de alias |
+| `.<alias>` | Lanza la app con ese alias |
+| `.<alias> texto` | Lanza la app pasándole el texto como argumento |
+| `.<alias> -l` | Lista el contenido del plugin (si lo soporta) |
+| `.<alias> del N` | Elimina el ítem N del plugin |
+| `.<alias> -d` | Desinstala la app |
 
 ## Lo que no tiene
 
@@ -61,13 +76,22 @@ La búsqueda también aprende. Si siempre abres Spotify a las 7am, a esa hora Sp
 ## Arquitectura
 
 ```
-app/
-├── LauncherActivity.java    — pantalla principal, reloj, receptor de eventos
-├── GestureView.java         — captura toques
-├── QuickSearchDialog.java   — buscador y comandos
-├── ContextualApps.java      — aprende qué apps usas y cuándo
-├── SettingsActivity.java    — ajustes
-└── AppLauncher.java         — lanza apps por packageName
+core/
+├── AppLauncher.java       — lanza apps por packageName
+├── CommandRouter.java     — parsea comandos: alias, flags, args
+└── PluginRegistry.java    — auto-registro de alias al instalar plugins
+
+data/
+├── AliasRepository.java   — guarda alias↔packageName en SharedPreferences
+└── ContextualApps.java    — top 5 apps por ventana horaria ±90min
+
+ui/
+├── LauncherActivity.java  — pantalla principal, gestiona ciclo de vida
+├── ClockView.java         — reloj centrado con círculo decorativo
+├── GestureView.java       — captura toques en la pantalla
+├── QuickSearchDialog.java — buscador, filtro y enrutamiento de comandos
+├── QuickSearchLayout.java — layout del buscador
+└── SettingsDialog.java    — panel visual para asignar alias a apps
 ```
 
 ## Instalar
@@ -84,10 +108,10 @@ cd app-void
 
 ## Ecosistema VOID (próximamente)
 
-VOID está pensado como un sistema modular. Cada pieza es una app independiente de menos de 100KB realizado por necesidad y para optimizar recursos.
+VOID está pensado como un sistema modular. Cada pieza es una app independiente de menos de 100KB.
 
 - **VOID** — el launcher (este repo)
-- **VOID Note** — bloc de notas minimalista (próximamente)
+- **VOID Note** — bloc de notas minimalista
 
 ---
 
