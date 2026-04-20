@@ -2,7 +2,6 @@ package com.voidlauncher.core;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 
 public class AppLauncher {
 
@@ -14,12 +13,4 @@ public class AppLauncher {
         return true;
     }
 
-    public static boolean isInstalled(Context context, String packageName) {
-        try {
-            context.getPackageManager().getPackageInfo(packageName, 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
 }
