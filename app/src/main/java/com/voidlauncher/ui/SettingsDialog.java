@@ -152,6 +152,6 @@ public class SettingsDialog {
     }
 
     private int dp(int dp) {
-        return Math.round(dp * launcher.getResources().getDisplayMetrics().density);
+        return QuickSearchLayout.dp(launcher, dp);
     }
 }

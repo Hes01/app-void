@@ -40,7 +40,7 @@ public class ContextualApps {
     }
 
     /** Devuelve las apps más frecuentes en esta franja horaria. */
-    public List<String> getTop(String[] allPkgs) {
+    public List<String> getTop() {
         List<String> events = load();
         if (events.isEmpty()) return new ArrayList<>();
 
