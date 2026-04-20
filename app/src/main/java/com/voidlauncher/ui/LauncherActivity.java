@@ -1,7 +1,6 @@
 package com.voidlauncher.ui;
 
 import android.app.Activity;
-import android.app.AppOpsManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,21 +8,18 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.text.format.DateFormat;
-import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.voidlauncher.core.PluginRegistry;
+import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -33,9 +29,9 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private String[]          appNames;
     private String[]          appPackages;
     private ContextualApps    contextual;
+    private AliasRepository   aliases;
 
     private TextView          tvClock;
-    private TextView          tvPermissionAlert;
     private final Handler     clockHandler = new Handler();
     private SimpleDateFormat  timeFmt;
 
@@ -48,7 +44,16 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context ctx, Intent intent) { loadInstalledApps(); }
+        public void onReceive(Context ctx, Intent intent) {
+            String pkg = intent.getData() != null ? intent.getData().getSchemeSpecificPart() : null;
+            if (pkg == null) return;
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+                PluginRegistry.onInstalled(ctx, pkg);
+            } else {
+                PluginRegistry.onRemoved(ctx, pkg, aliases);
+            }
+            loadInstalledApps();
+        }
     };
 
     @Override
@@ -57,6 +62,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         contextual = new ContextualApps(this);
+        aliases    = new AliasRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
 
@@ -67,10 +73,9 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         gestureView.setListener(this);
         root.addView(gestureView);
         
-        root.addView(buildTopInfo());
-        
-        tvPermissionAlert = buildPermissionAlert();
-        root.addView(tvPermissionAlert);
+        TextView[] clockRef = new TextView[1];
+        root.addView(ClockView.build(this, clockRef));
+        tvClock = clockRef[0];
         
         setContentView(root);
         loadInstalledApps();
@@ -87,46 +92,20 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onResume();
         hideSystemUI();
         clockHandler.post(clockTick);
-        checkUsagePermission();
+        verifyPlugins();
     }
 
-    private void checkUsagePermission() {
-        try {
-            AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
-            int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, 
-                    android.os.Process.myUid(), getPackageName());
-            boolean granted = mode == AppOpsManager.MODE_ALLOWED;
-            tvPermissionAlert.setVisibility(granted ? View.GONE : View.VISIBLE);
-        } catch (Exception e) {
-            tvPermissionAlert.setVisibility(View.VISIBLE);
+    private void verifyPlugins() {
+        PackageManager pm = getPackageManager();
+        Intent main = new Intent(Intent.ACTION_MAIN, null);
+        main.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> infos = pm.queryIntentActivities(main, PackageManager.GET_META_DATA);
+        for (ResolveInfo info : infos) {
+            String pkg = info.activityInfo.packageName;
+            String alias = PluginRegistry.readAlias(this, pkg);
+            if (alias != null && aliases.resolve(alias) == null && aliases.aliasOf(pkg) == null)
+                aliases.set(alias, pkg);
         }
-    }
-
-    private TextView buildPermissionAlert() {
-        TextView tv = new TextView(this);
-        tv.setText("[!] ");
-        tv.setTextColor(0x44FFFFFF);
-        tv.setTextSize(14f);
-        tv.setTypeface(Typeface.MONOSPACE);
-        tv.setPadding(40, 40, 40, 40);
-        
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM | Gravity.END);
-        tv.setLayoutParams(lp);
-        
-        tv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
-                } catch (Exception e) {
-                    // Si falla por alguna razón (versión vieja), no hacemos nada
-                }
-            }
-        });
-        return tv;
     }
 
     @Override
@@ -143,44 +122,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onTap() {
-        new QuickSearchDialog(this, appNames, appPackages, contextual).show();
+        new QuickSearchDialog(this, appNames, appPackages, contextual, aliases).show();
     }
 
     public void onAppLaunched(String pkg) {
         contextual.record(pkg);
-    }
-
-    private View buildTopInfo() {
-        FrameLayout container = new FrameLayout(this);
-
-        tvClock = new TextView(this);
-        tvClock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
-        tvClock.setTextSize(64f);
-        tvClock.setTextColor(Color.WHITE);
-        tvClock.setAlpha(0.8f);
-        tvClock.setGravity(Gravity.CENTER);
-
-        View circle = new View(this);
-        GradientDrawable shape = new GradientDrawable();
-        shape.setShape(GradientDrawable.OVAL);
-        shape.setStroke(2, Color.WHITE);
-        circle.setBackground(shape);
-        circle.setAlpha(0.15f);
-
-        int size = (int) (getResources().getDisplayMetrics().density * 240);
-        
-        container.addView(circle, new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
-        container.addView(tvClock, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER));
-
-        container.setLayoutParams(new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER));
-        
-        return container;
     }
 
     private void loadInstalledApps() {
@@ -188,12 +134,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         Intent main = new Intent(Intent.ACTION_MAIN, null);
         main.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> infos = pm.queryIntentActivities(main, 0);
-        Collections.sort(infos, new Comparator<ResolveInfo>() {
-            @Override public int compare(ResolveInfo a, ResolveInfo b) {
-                return a.loadLabel(getPackageManager()).toString()
-                        .compareToIgnoreCase(b.loadLabel(getPackageManager()).toString());
-            }
-        });
+        Collections.sort(infos, (a, b) -> a.loadLabel(pm).toString()
+                .compareToIgnoreCase(b.loadLabel(pm).toString()));
         appNames    = new String[infos.size()];
         appPackages = new String[infos.size()];
         for (int i = 0; i < infos.size(); i++) {
