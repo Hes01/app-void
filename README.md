@@ -27,7 +27,7 @@ Un launcher. Pantalla oscura, buscador tipo terminal, alias para todo.
 
 ## Por qué existe
 
-Nació de la necesidad de tener algo ligero, sencillo y rápido que minimice la fricción al usar el teléfono. Sin iconos, sin distracciones, sin permisos innecesarios.
+Nació de la necesidad de tener algo ligero, sencillo y rápido que minimizara la fricción al usar el teléfono. Sin iconos, sin distracciones, sin permisos innecesarios.
 
 ## Cómo funciona
 
@@ -40,9 +40,9 @@ La búsqueda aprende de ti. Si siempre abres Spotify a las 7am, a esa hora apare
 Desde `.void` puedes asignarle un nombre corto a cualquier app instalada. Una vez asignado, ese nombre se convierte en un comando.
 
 ```
-.fb          → abre Facebook (si le asignaste el alias "fb")
-.yt          → abre YouTube
-.nn          → abre VOID Note
+fb          → abre Facebook (si le asignaste el alias "fb")
+yt          → abre YouTube
+nn          → abre VOID Note
 ```
 
 ## Comandos
@@ -51,11 +51,6 @@ Desde `.void` puedes asignarle un nombre corto a cualquier app instalada. Una ve
 |---|---|
 | `.all` | Lista todas las apps instaladas |
 | `.void` | Abre el panel de alias |
-| `.<alias>` | Lanza la app con ese alias |
-| `.<alias> texto` | Lanza la app pasándole el texto como argumento |
-| `.<alias> -l` | Lista el contenido del plugin (si lo soporta) |
-| `.<alias> del N` | Elimina el ítem N del plugin |
-| `.<alias> -d` | Desinstala la app |
 
 ## Lo que no tiene
 
@@ -70,7 +65,7 @@ Desde `.void` puedes asignarle un nombre corto a cualquier app instalada. Una ve
 ## Números
 
 - **1 permiso**: leer apps instaladas (Android 11+ lo exige)
-- **~92KB** el APK release con ProGuard
+- **~100KB** el APK release con ProGuard
 - **Android 4.1+** compatible
 
 ## Arquitectura
@@ -98,7 +93,7 @@ ui/
 
 Descarga el APK desde [Releases](https://github.com/Hes01/app-void/releases) e instálalo. Necesitas permitir instalación desde fuentes desconocidas si no viene de la Play Store.
 
-O clona y compila tú mismo:
+O clona y compila:
 
 ```bash
 git clone https://github.com/Hes01/app-void.git
@@ -107,6 +102,13 @@ cd app-void
 ```
 
 ## Ecosistema VOID (próximamente)
+
+| Comando | Qué hará |
+|---|---|
+| `.<alias> texto` | Lanza la app pasándole el texto como argumento |
+| `.<alias> l` | Lista el contenido del plugin (si lo soporta) |
+| `.<alias> del N` | Elimina el ítem N del plugin |
+| `.<alias> -d` | Desinstala la app |
 
 VOID está pensado como un sistema modular. Cada pieza es una app independiente de menos de 100KB.
 
