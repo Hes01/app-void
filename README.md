@@ -4,7 +4,7 @@
 
 ![Android](https://img.shields.io/badge/Android-4.1%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-puro-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![Tamaño](https://img.shields.io/badge/tamaño-~92KB-blue?style=flat-square)
+![Tamaño](https://img.shields.io/badge/tamaño-~100KB-blue?style=flat-square)
 ![Dependencias](https://img.shields.io/badge/dependencias-cero-success?style=flat-square)
 ![Licencia](https://img.shields.io/github/license/Hes01/app-void?style=flat-square)
 ![Estrellas](https://img.shields.io/github/stars/Hes01/app-void?style=flat-square)
