@@ -3,8 +3,8 @@ package com.voidlauncher.core;
 public class CommandRouter {
 
     public static final String EXTRA_ARGS     = "void.extra.args";
-    public static final String FLAG_UNINSTALL = "-d";
-    public static final String FLAG_LIST      = "-l";
+    public static final String FLAG_UNINSTALL = "d";
+    public static final String FLAG_LIST      = "l";
 
     public final String alias;
     public final String flag;
@@ -37,10 +37,8 @@ public class CommandRouter {
         return s;
     }
 
-    public boolean isUninstall()  { return FLAG_UNINSTALL.equals(flag); }
-    public boolean isList() {
-        return FLAG_LIST.equals(flag) || (flag == null && "l".equalsIgnoreCase(args));
-    }
+    public boolean isUninstall() { return flag == null && FLAG_UNINSTALL.equalsIgnoreCase(args); }
+    public boolean isList()      { return flag == null && FLAG_LIST.equalsIgnoreCase(args); }
     public boolean isDeleteItem() {
         if (flag != null || args == null) return false;
         String[] p = args.trim().split("[^a-zA-Z0-9]+", 2);

@@ -90,7 +90,7 @@ public class QuickSearchDialog {
         filteredNames.clear(); filteredPkgs.clear();
         String q = query.toLowerCase().trim();
         if (q.isEmpty()) {
-            for (String pkg : contextual.getTop(packages))
+            for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
