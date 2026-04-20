@@ -4,14 +4,14 @@
 
 ![Android](https://img.shields.io/badge/Android-4.1%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-puro-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![Tamaño](https://img.shields.io/badge/tamaño-~26KB-blue?style=flat-square)
+![Tamaño](https://img.shields.io/badge/tamaño-~150KB-blue?style=flat-square)
 ![Dependencias](https://img.shields.io/badge/dependencias-cero-success?style=flat-square)
 ![Licencia](https://img.shields.io/github/license/Hes01/app-void?style=flat-square)
 ![Estrellas](https://img.shields.io/github/stars/Hes01/app-void?style=flat-square)
 
-![Visitas](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHes01%2Fapp-void&count_bg=%23000000&title_bg=%23555555&icon=github.svg&icon_color=%23FFFFFF&title=visitas&edge_flat=true)
+![Visitas](https://visitor-badge.laobi.icu/badge?page_id=Hes01.app-void&left_color=555555&right_color=000000&left_text=visitas)
 
-Un launcher que no te pide atención. Pantalla negra, buscador tipo terminal y ya.
+Un launcher Pantalla oscura + buscador tipo terminal.
 
 </div>
 
@@ -27,29 +27,22 @@ Un launcher que no te pide atención. Pantalla negra, buscador tipo terminal y y
 
 ## Por qué existe
 
-Me cansé de los iconos, los colores y las notificaciones gritándome en la cara cada vez que desbloqueaba el teléfono. VOID no tiene nada de eso. Es una pantalla negra, un reloj con un círculo fino y silencio.
-
-Si quieres abrir algo, tocas y escribes. Como una terminal, pero desde tu teléfono.
+Nació de la necesidad de buscar algo ligero, sencillo y rapido sin ningún tipo de permiso que minimice la fricción en mi caso.
 
 ## Cómo funciona
 
 Tocas cualquier parte de la pantalla y aparece el buscador. Escribes las primeras letras de la app y listo. Si solo hay una coincidencia, la abre directo sin que tengas que confirmar nada.
 
-La búsqueda también aprende. Si siempre abres Spotify a las 7am, a esa hora Spotify aparece de primero sin escribir ni una letra. Todo pasa en el teléfono, sin servidores, sin internet.
+La búsqueda también aprende. Si siempre abres Spotify a las 7am, a esa hora Spotify aparece de primero sin escribir ni una letra. Todo pasa en el teléfono, sin servidores, sin internet, no se recopila información de ningun tipo!.
 
 ## Comandos
 
 | Comando | Qué hace |
 |---|---|
-| `/all` | Lista todas las apps instaladas |
-| `/void` | Abre los ajustes (modo morse) |
-| `/nn` | Abre VOID Note si está instalado |
-| `/nn titulo` | Abre VOID Note con ese título listo |
-| `/nn -l` | Lista tus notas |
-| `/nn -rm 1` | Borra la nota con id 1 |
-| `/<alias> -d` | Desinstala la app con ese alias |
+| `.all` | Lista todas las apps instaladas |
+| `.void` | Abre los ajustes (poner alias a tus apps) |
 
-## Lo que no tiene (a propósito)
+## Lo que no tiene 
 
 - Iconos
 - Widgets
@@ -91,9 +84,9 @@ cd app-void
 ./gradlew assembleRelease
 ```
 
-## Ecosistema VOID
+## Ecosistema VOID (proximamente)
 
-VOID está pensado como un sistema modular. Cada pieza es una app independiente de menos de 100KB.
+VOID está pensado como un sistema modular. Cada pieza es una app independiente de menos de 100KB realizado por necesidad y optimizar recursos.
 
 - **VOID** — el launcher (este repo)
 - **VOID Note** — bloc de notas minimalista (próximamente)
@@ -101,5 +94,5 @@ VOID está pensado como un sistema modular. Cada pieza es una app independiente 
 ---
 
 <div align="center">
-Hecho para gente que quiere entrar, hacer lo que tiene que hacer y salir.
+Hecho para gente que quiere entrar, hacer lo que tiene que hacer y ya.
 </div>
