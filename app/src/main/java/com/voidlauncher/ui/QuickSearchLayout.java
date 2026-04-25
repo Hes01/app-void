@@ -43,7 +43,11 @@ class QuickSearchLayout {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.BLACK);
         root.setPadding(dp(ctx, 16), dp(ctx, 24), dp(ctx, 16), 0);
+        View underline = new View(ctx);
+        underline.setBackgroundColor(0x44FFFFFF);
         root.addView(inputRow);
+        root.addView(underline, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 2)));
         root.addView(list);
 
         return new QuickSearchLayout(root, input, list);
