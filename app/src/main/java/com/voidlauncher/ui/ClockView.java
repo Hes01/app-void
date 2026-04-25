@@ -18,7 +18,7 @@ class ClockView {
         float density     = ctx.getResources().getDisplayMetrics().density;
         int   circleSize  = Math.round(density * 240);
         int   containerSz = Math.round(density * 280);
-        float orbitR      = circleSize / 2f + density * 13;
+        float orbitR      = circleSize / 2f + density * 6;
 
         TextView clock = new TextView(ctx);
         clock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
