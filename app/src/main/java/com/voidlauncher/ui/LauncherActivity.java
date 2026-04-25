@@ -63,7 +63,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
         contextual = new ContextualApps(this);
         aliases    = new AliasRepository(this);
-        String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
+        String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
 
         FrameLayout root = new FrameLayout(this);
@@ -119,6 +119,9 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onDestroy();
         try { unregisterReceiver(packageReceiver); } catch (Exception ignored) {}
     }
+
+    @Override
+    public void onBackPressed() { /* launcher no retrocede */ }
 
     @Override
     public void onTap() {

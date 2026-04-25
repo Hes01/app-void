@@ -2,7 +2,6 @@ package com.voidlauncher.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,14 +33,6 @@ public class AliasRepository {
             if (pkg.equals(e.getValue())) return e.getKey();
         }
         return null;
-    }
-
-    public Map<String, String> getAll() {
-        Map<String, String> result = new HashMap<>();
-        for (Map.Entry<String, ?> e : prefs.getAll().entrySet()) {
-            result.put(e.getKey(), String.valueOf(e.getValue()));
-        }
-        return result;
     }
 
     public void cleanOrphans(List<String> installedPackages) {
