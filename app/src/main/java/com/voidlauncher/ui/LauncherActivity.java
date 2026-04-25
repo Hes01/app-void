@@ -121,6 +121,9 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     @Override
+    public void onBackPressed() { /* launcher no retrocede */ }
+
+    @Override
     public void onTap() {
         new QuickSearchDialog(this, appNames, appPackages, contextual, aliases).show();
     }
