@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.voidlauncher'
     compileSdk 34
@@ -10,12 +16,22 @@ android {
         applicationId "com.voidlauncher"
         minSdk 16
         targetSdk 34
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword'] ?: null
+            keyAlias keystoreProperties['keyAlias'] ?: null
+            keyPassword keystoreProperties['keyPassword'] ?: null
+        }
     }
 
     buildTypes {
         release {
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : null
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
