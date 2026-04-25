@@ -32,21 +32,22 @@ class QuickSearchLayout {
         prompt.setTextSize(22f);
         prompt.setTypeface(Typeface.MONOSPACE);
 
-        LinearLayout inputHRow = new LinearLayout(ctx);
-        inputHRow.setOrientation(LinearLayout.HORIZONTAL);
-        inputHRow.setGravity(Gravity.CENTER_VERTICAL);
-        inputHRow.addView(prompt);
-        inputHRow.addView(input, new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-
         View underline = new View(ctx);
         underline.setBackgroundColor(0x44FFFFFF);
 
+        LinearLayout editSection = new LinearLayout(ctx);
+        editSection.setOrientation(LinearLayout.VERTICAL);
+        editSection.addView(input, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        editSection.addView(underline, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
+
         LinearLayout inputRow = new LinearLayout(ctx);
-        inputRow.setOrientation(LinearLayout.VERTICAL);
-        inputRow.addView(inputHRow);
-        inputRow.addView(underline, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 2)));
+        inputRow.setOrientation(LinearLayout.HORIZONTAL);
+        inputRow.setGravity(Gravity.CENTER_VERTICAL);
+        inputRow.addView(prompt);
+        inputRow.addView(editSection, new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -64,6 +65,7 @@ class QuickSearchLayout {
         et.setTextSize(22f);
         et.setTypeface(Typeface.MONOSPACE);
         et.setBackgroundColor(Color.TRANSPARENT);
+        et.setSingleLine(true);
         et.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         et.setPadding(0, 0, 0, 0);
         return et;
