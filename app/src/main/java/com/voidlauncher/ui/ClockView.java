@@ -56,15 +56,8 @@ class ClockView {
                     float  x     = cx + (float) (orbitR * Math.cos(angle));
                     float  y     = cy + (float) (orbitR * Math.sin(angle));
 
-                    float r;
-                    int   alpha;
-                    if (i == active) {
-                        r = density * 3f;   alpha = 255;
-                    } else if (i % 5 == 0) {
-                        r = density * 2.5f; alpha = 60;
-                    } else {
-                        r = density * 1.4f; alpha = 25;
-                    }
+                    float r     = (i % 5 == 0) ? density * 2.5f : density * 1.4f;
+                    int   alpha = (i == active) ? 255 : (i % 5 == 0) ? 60 : 25;
                     dotPaint.setAlpha(alpha);
                     canvas.drawCircle(x, y, r, dotPaint);
                 }
