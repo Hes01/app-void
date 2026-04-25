@@ -74,13 +74,14 @@ public class QuickSearchDialog {
     }
 
     private ArrayAdapter<String> buildAdapter() {
-        return new ArrayAdapter<String>(launcher, android.R.layout.simple_list_item_1, filteredNames) {
+        return new ArrayAdapter<String>(launcher, 0, filteredNames) {
             @Override public View getView(int pos, View cv, ViewGroup parent) {
-                TextView tv = (TextView) super.getView(pos, cv, parent);
+                TextView tv = cv instanceof TextView ? (TextView) cv : new TextView(launcher);
+                tv.setText(getItem(pos));
                 tv.setTextColor(Color.WHITE);
                 tv.setTextSize(16f);
                 tv.setTypeface(Typeface.MONOSPACE);
-                tv.setPadding(0, QuickSearchLayout.dp(launcher, 12), 0, QuickSearchLayout.dp(launcher, 12));
+                tv.setPadding(0, QuickSearchLayout.dp(launcher, 6), 0, QuickSearchLayout.dp(launcher, 6));
                 return tv;
             }
         };

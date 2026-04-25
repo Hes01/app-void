@@ -32,22 +32,27 @@ class QuickSearchLayout {
         prompt.setTextSize(22f);
         prompt.setTypeface(Typeface.MONOSPACE);
 
-        LinearLayout inputRow = new LinearLayout(ctx);
-        inputRow.setOrientation(LinearLayout.HORIZONTAL);
-        inputRow.setGravity(Gravity.CENTER_VERTICAL);
-        inputRow.addView(prompt);
-        inputRow.addView(input, new LinearLayout.LayoutParams(
+        LinearLayout inputHRow = new LinearLayout(ctx);
+        inputHRow.setOrientation(LinearLayout.HORIZONTAL);
+        inputHRow.setGravity(Gravity.CENTER_VERTICAL);
+        inputHRow.addView(prompt);
+        inputHRow.addView(input, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        View underline = new View(ctx);
+        underline.setBackgroundColor(0x44FFFFFF);
+
+        LinearLayout inputRow = new LinearLayout(ctx);
+        inputRow.setOrientation(LinearLayout.VERTICAL);
+        inputRow.addView(inputHRow);
+        inputRow.addView(underline, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 2)));
 
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.BLACK);
         root.setPadding(dp(ctx, 16), dp(ctx, 24), dp(ctx, 16), 0);
-        View underline = new View(ctx);
-        underline.setBackgroundColor(0x44FFFFFF);
         root.addView(inputRow);
-        root.addView(underline, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 2)));
         root.addView(list);
 
         return new QuickSearchLayout(root, input, list);
