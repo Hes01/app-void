@@ -9,11 +9,11 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.voidlauncher'
+    namespace 'com.hes01.voidlauncher'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.voidlauncher"
+        applicationId "com.hes01.voidlauncher"
         minSdk 16
         targetSdk 34
         versionCode 1
