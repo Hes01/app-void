@@ -88,7 +88,10 @@ class QuickSearchLayout {
         lv.setDivider(null);
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        lv.setVerticalScrollBarEnabled(false);
         lv.setStackFromBottom(true);
+        lv.setPadding(0, dp(ctx, 16), 0, 0);
+        lv.setClipToPadding(false);
         return lv;
     }
 

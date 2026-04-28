@@ -10,6 +10,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -47,7 +49,24 @@ public class QuickSearchDialog {
         QuickSearchLayout layout = QuickSearchLayout.build(launcher);
         adapter = buildAdapter();
         layout.list.setAdapter(adapter);
-        layout.list.setOnItemClickListener((p, v, pos, id) -> launch(filteredPkgs.get(pos)));
+        layout.list.setOnItemClickListener((p, v, pos, id) -> {
+            String pkg = filteredPkgs.get(pos);
+            if (pkg.isEmpty()) return;
+            v.setAlpha(0.4f);
+            v.postDelayed(() -> { v.setAlpha(1f); launch(pkg); }, 120);
+        });
+        GestureDetector gd = new GestureDetector(launcher,
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override public boolean onFling(MotionEvent e1, MotionEvent e2,
+                                                    float vx, float vy) {
+                        if (vy > 800 && Math.abs(vy) > Math.abs(vx) * 1.5f
+                                && filteredNames.size() <= 8) {
+                            dialog.dismiss(); return true;
+                        }
+                        return false;
+                    }
+                });
+        layout.list.setOnTouchListener((v, e) -> { gd.onTouchEvent(e); return false; });
         layout.input.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
@@ -80,7 +99,8 @@ public class QuickSearchDialog {
             @Override public View getView(int pos, View cv, ViewGroup parent) {
                 TextView tv = cv instanceof TextView ? (TextView) cv : new TextView(launcher);
                 tv.setText(getItem(pos));
-                boolean first = (pos == 0);
+                boolean empty = filteredPkgs.size() > pos && filteredPkgs.get(pos).isEmpty();
+                boolean first = (pos == 0) && !empty;
                 tv.setTextColor(first ? 0xFFE8E8E8 : 0xFF4A4A4A);
                 tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
@@ -113,6 +133,7 @@ public class QuickSearchDialog {
                 }
             }
             if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
+            if (filteredNames.isEmpty()) { filteredNames.add("sin resultados"); filteredPkgs.add(""); }
         }
         adapter.notifyDataSetChanged();
     }
