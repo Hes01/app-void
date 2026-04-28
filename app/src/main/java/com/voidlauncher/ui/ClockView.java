@@ -14,27 +14,34 @@ import java.util.Calendar;
 
 class ClockView {
 
-    static FrameLayout build(Context ctx, TextView[] clockOut) {
+    static FrameLayout build(Context ctx, TextView[] clockOut, TextView[] dateOut) {
         float density     = ctx.getResources().getDisplayMetrics().density;
         int   circleSize  = Math.round(density * 240);
-        int   containerSz = Math.round(density * 280);
+        int   containerSz = Math.round(density * 300);
         float orbitR      = circleSize / 2f + density * 6;
 
         TextView clock = new TextView(ctx);
         clock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
         clock.setTextSize(64f);
-        clock.setTextColor(Color.WHITE);
-        clock.setAlpha(0.8f);
+        clock.setTextColor(0xFFE8E8E8);
+        clock.setAlpha(0.9f);
         clock.setLetterSpacing(0.05f);
         clock.setGravity(Gravity.CENTER);
         if (clockOut != null) clockOut[0] = clock;
 
+        TextView date = new TextView(ctx);
+        date.setTextColor(0xFF4A4A4A);
+        date.setTextSize(11f);
+        date.setLetterSpacing(0.15f);
+        date.setTypeface(Typeface.MONOSPACE);
+        date.setGravity(Gravity.CENTER);
+        if (dateOut != null) dateOut[0] = date;
+
         GradientDrawable shape = new GradientDrawable();
         shape.setShape(GradientDrawable.OVAL);
-        shape.setStroke(2, Color.WHITE);
+        shape.setStroke(1, 0xFF1E1E1E);
         View circle = new View(ctx);
         circle.setBackground(shape);
-        circle.setAlpha(0.15f);
 
         FrameLayout container = new FrameLayout(ctx) {
             private final Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -57,13 +64,19 @@ class ClockView {
                     float  x     = cx + (float) (orbitR * Math.cos(angle));
                     float  y     = cy + (float) (orbitR * Math.sin(angle));
 
-                    float r     = (i % 5 == 0) ? density * 2.5f : density * 1.4f;
-                    int   alpha = (i == active) ? 255 : (i % 5 == 0) ? 60 : 25;
+                    float r     = (i % 5 == 0) ? density * 2f : density * 1.2f;
+                    int   alpha = (i == active) ? 200 : (i % 5 == 0) ? 40 : 15;
                     dotPaint.setAlpha(alpha);
                     canvas.drawCircle(x, y, r, dotPaint);
                 }
             }
         };
+
+        int dateOffset = Math.round(density * 40);
+        FrameLayout.LayoutParams dateLp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        dateLp.topMargin = dateOffset;
 
         container.setLayoutParams(new FrameLayout.LayoutParams(
                 containerSz, containerSz, Gravity.CENTER));
@@ -72,6 +85,7 @@ class ClockView {
         container.addView(clock, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        container.addView(date, dateLp);
         return container;
     }
 }

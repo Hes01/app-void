@@ -80,8 +80,9 @@ public class QuickSearchDialog {
             @Override public View getView(int pos, View cv, ViewGroup parent) {
                 TextView tv = cv instanceof TextView ? (TextView) cv : new TextView(launcher);
                 tv.setText(getItem(pos));
-                tv.setTextColor(Color.WHITE);
-                tv.setTextSize(16f);
+                boolean first = (pos == 0);
+                tv.setTextColor(first ? 0xFFE8E8E8 : 0xFF4A4A4A);
+                tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
                 int h = QuickSearchLayout.dp(launcher, 11);
                 int v = QuickSearchLayout.dp(launcher, 16);

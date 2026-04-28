@@ -32,13 +32,16 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private AliasRepository   aliases;
 
     private TextView          tvClock;
+    private TextView          tvDate;
     private final Handler     clockHandler = new Handler();
     private SimpleDateFormat  timeFmt;
+    private SimpleDateFormat  dateFmt;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
             tvClock.setText(timeFmt.format(new Date()));
-            clockHandler.postDelayed(this, 1000); 
+            tvDate.setText(dateFmt.format(new Date()).toUpperCase(Locale.getDefault()));
+            clockHandler.postDelayed(this, 1000);
         }
     };
 
@@ -65,17 +68,20 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         aliases    = new AliasRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
+        dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(Color.BLACK);
-        
+        root.setBackgroundColor(0xFF0A0A0A);
+
         GestureView gestureView = new GestureView(this);
         gestureView.setListener(this);
         root.addView(gestureView);
-        
+
         TextView[] clockRef = new TextView[1];
-        root.addView(ClockView.build(this, clockRef));
+        TextView[] dateRef  = new TextView[1];
+        root.addView(ClockView.build(this, clockRef, dateRef));
         tvClock = clockRef[0];
+        tvDate  = dateRef[0];
         
         setContentView(root);
         loadInstalledApps();
