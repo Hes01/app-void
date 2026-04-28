@@ -104,6 +104,7 @@ public class QuickSearchDialog {
                 tv.setTextColor(first ? 0xFFE8E8E8 : 0xFF4A4A4A);
                 tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
+                tv.setLetterSpacing(0.05f);
                 int h = QuickSearchLayout.dp(launcher, 11);
                 int v = QuickSearchLayout.dp(launcher, 16);
                 tv.setPadding(v, h, v, h);
