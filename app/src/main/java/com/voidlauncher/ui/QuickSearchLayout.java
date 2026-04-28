@@ -15,11 +15,13 @@ class QuickSearchLayout {
     final LinearLayout root;
     final EditText     input;
     final ListView     list;
+    final TextView     prompt;
 
-    private QuickSearchLayout(LinearLayout root, EditText input, ListView list) {
-        this.root  = root;
-        this.input = input;
-        this.list  = list;
+    private QuickSearchLayout(LinearLayout root, EditText input, ListView list, TextView prompt) {
+        this.root   = root;
+        this.input  = input;
+        this.list   = list;
+        this.prompt = prompt;
     }
 
     static QuickSearchLayout build(Context ctx) {
@@ -65,7 +67,7 @@ class QuickSearchLayout {
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
         root.addView(inputRow);
 
-        return new QuickSearchLayout(root, input, list);
+        return new QuickSearchLayout(root, input, list, prompt);
     }
 
     private static EditText buildInput(Context ctx) {
