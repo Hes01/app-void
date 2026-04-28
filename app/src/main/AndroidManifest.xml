@@ -12,7 +12,7 @@
         android:allowBackup="false">
 
         <activity
-            android:name=".ui.LauncherActivity"
+            android:name="com.voidlauncher.ui.LauncherActivity"
             android:launchMode="singleTask"
             android:stateNotNeeded="true"
             android:screenOrientation="portrait"

@@ -28,33 +28,29 @@ class QuickSearchLayout {
 
         TextView prompt = new TextView(ctx);
         prompt.setText("> ");
-        prompt.setTextColor(0x66FFFFFF);
-        prompt.setTextSize(22f);
+        prompt.setTextColor(0x55FFFFFF);
+        prompt.setTextSize(18f);
         prompt.setTypeface(Typeface.MONOSPACE);
-
-        View underline = new View(ctx);
-        underline.setBackgroundColor(0x44FFFFFF);
-
-        LinearLayout editSection = new LinearLayout(ctx);
-        editSection.setOrientation(LinearLayout.VERTICAL);
-        editSection.addView(input, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        editSection.addView(underline, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
 
         LinearLayout inputRow = new LinearLayout(ctx);
         inputRow.setOrientation(LinearLayout.HORIZONTAL);
         inputRow.setGravity(Gravity.CENTER_VERTICAL);
+        inputRow.setPadding(dp(ctx, 16), dp(ctx, 14), dp(ctx, 16), dp(ctx, 14));
         inputRow.addView(prompt);
-        inputRow.addView(editSection, new LinearLayout.LayoutParams(
+        inputRow.addView(input, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        View separator = new View(ctx);
+        separator.setBackgroundColor(0x22FFFFFF);
 
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.BLACK);
-        root.setPadding(dp(ctx, 16), dp(ctx, 24), dp(ctx, 16), 0);
+        root.addView(list, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        root.addView(separator, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
         root.addView(inputRow);
-        root.addView(list);
 
         return new QuickSearchLayout(root, input, list);
     }
@@ -62,10 +58,12 @@ class QuickSearchLayout {
     private static EditText buildInput(Context ctx) {
         EditText et = new EditText(ctx);
         et.setTextColor(Color.WHITE);
-        et.setTextSize(22f);
+        et.setTextSize(18f);
         et.setTypeface(Typeface.MONOSPACE);
         et.setBackgroundColor(Color.TRANSPARENT);
         et.setSingleLine(true);
+        et.setHint(".all  →  todo");
+        et.setHintTextColor(0x28FFFFFF);
         et.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         et.setPadding(0, 0, 0, 0);
         return et;
@@ -77,6 +75,7 @@ class QuickSearchLayout {
         lv.setDivider(null);
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        lv.setStackFromBottom(true);
         return lv;
     }
 

@@ -25,6 +25,7 @@ class ClockView {
         clock.setTextSize(64f);
         clock.setTextColor(Color.WHITE);
         clock.setAlpha(0.8f);
+        clock.setLetterSpacing(0.05f);
         clock.setGravity(Gravity.CENTER);
         if (clockOut != null) clockOut[0] = clock;
 

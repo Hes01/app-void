@@ -55,10 +55,12 @@ public class QuickSearchDialog {
         });
 
         dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(layout.root);
+        dialog.setContentView(layout.root, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT);
             dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
@@ -81,7 +83,9 @@ public class QuickSearchDialog {
                 tv.setTextColor(Color.WHITE);
                 tv.setTextSize(16f);
                 tv.setTypeface(Typeface.MONOSPACE);
-                tv.setPadding(0, QuickSearchLayout.dp(launcher, 6), 0, QuickSearchLayout.dp(launcher, 6));
+                int h = QuickSearchLayout.dp(launcher, 11);
+                int v = QuickSearchLayout.dp(launcher, 16);
+                tv.setPadding(v, h, v, h);
                 return tv;
             }
         };
@@ -95,7 +99,7 @@ public class QuickSearchDialog {
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
-            for (int i = 0; i < names.length; i++) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
+            for (int i = names.length - 1; i >= 0; i--) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
             new SettingsDialog(launcher, aliases, dialog).show(); return;
         } else if (q.startsWith(".")) {
