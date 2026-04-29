@@ -84,6 +84,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         tvDate  = dateRef[0];
         
         setContentView(root);
+        if (!OnboardingHints.isDone(this)) OnboardingHints.show(root);
         loadInstalledApps();
 
         IntentFilter pkgFilter = new IntentFilter();
