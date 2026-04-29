@@ -30,6 +30,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private String[]          appPackages;
     private ContextualApps    contextual;
     private AliasRepository   aliases;
+    private android.view.View launchBar;
 
     private TextView          tvClock;
     private TextView          tvDate;
@@ -83,6 +84,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         tvClock = clockRef[0];
         tvDate  = dateRef[0];
         
+        launchBar = LaunchBar.attach(root);
         setContentView(root);
         if (!OnboardingHints.isDone(this)) OnboardingHints.show(root);
         loadInstalledApps();
@@ -137,6 +139,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     public void onAppLaunched(String pkg) {
         contextual.record(pkg);
+        LaunchBar.show(launchBar);
     }
 
     private void loadInstalledApps() {
