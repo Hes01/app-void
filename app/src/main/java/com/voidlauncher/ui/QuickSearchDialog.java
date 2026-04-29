@@ -37,7 +37,7 @@ public class QuickSearchDialog {
     private final List<String>     filteredPkgs  = new ArrayList<>();
     private ArrayAdapter<String>   adapter;
     private Dialog                 dialog;
-    private TextView               prompt;
+    private TextView               label;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
                              String[] packages, ContextualApps contextual,
@@ -48,7 +48,7 @@ public class QuickSearchDialog {
 
     public void show() {
         QuickSearchLayout layout = QuickSearchLayout.build(launcher);
-        prompt  = layout.prompt;
+        label   = layout.label;
         adapter = buildAdapter();
         layout.list.setAdapter(adapter);
         layout.list.setOnItemClickListener((p, v, pos, id) -> {
@@ -119,17 +119,17 @@ public class QuickSearchDialog {
         filteredNames.clear(); filteredPkgs.clear();
         String q = query.toLowerCase().trim();
         if (q.isEmpty()) {
-            setPrompt("_", 0xFF4A4A4A);
+            setLabelColor(0xFF4A4A4A);
             for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
-            setPrompt("all", 0xFF4A4A4A);
+            setLabelColor(0xFF4A4A4A);
             for (int i = names.length - 1; i >= 0; i--) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
             new SettingsDialog(launcher, aliases, dialog).show(); return;
         } else if (q.startsWith(".")) {
-            setPrompt(q.substring(1).split(" ")[0], 0xFF4A4A4A);
+            setLabelColor(0xFF4A4A4A);
             routeCommand(q.substring(1).trim()); return;
         } else if (q.matches(".*[a-z0-9].*")) {
             for (int i = 0; i < names.length; i++) {
@@ -140,10 +140,10 @@ public class QuickSearchDialog {
             }
             if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
             if (filteredNames.isEmpty()) {
-                setPrompt("?", 0xFFCC4444);
+                setLabelColor(0xFFCC4444);
                 filteredNames.add("sin resultados"); filteredPkgs.add("");
             } else {
-                setPrompt(">", 0xFFE8E8E8);
+                setLabelColor(0xFFE8E8E8);
             }
         }
         adapter.notifyDataSetChanged();
@@ -163,8 +163,8 @@ public class QuickSearchDialog {
         if (cmd.isDeleteItem()) { deletePlugin(pkg, cmd.deleteId()); return; }
 
         String rawArgs = cmd.rawArgs();
-        String label = cmd.alias + (rawArgs != null ? "  " + rawArgs : "  _");
-        filteredNames.add(label);
+        String entry = cmd.alias + (rawArgs != null ? "  " + rawArgs : "  _");
+        filteredNames.add(entry);
         filteredPkgs.add(rawArgs != null ? pkg + "\t" + rawArgs : pkg);
         adapter.notifyDataSetChanged();
     }
@@ -217,10 +217,9 @@ public class QuickSearchDialog {
             dialog.dismiss(); launcher.onAppLaunched(pkgOrCmd); AppLauncher.launch(launcher, pkgOrCmd);
         }
     }
-    private void setPrompt(String text, int color) {
-        if (prompt == null) return;
-        prompt.setText(text + " ");
-        prompt.setTextColor(color);
+    private void setLabelColor(int color) {
+        if (label == null) return;
+        label.setTextColor(color);
     }
     private String displayName(int i) { String a = aliases.aliasOf(packages[i]); return a != null ? a : names[i]; }
 }

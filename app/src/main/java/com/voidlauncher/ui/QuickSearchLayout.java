@@ -15,13 +15,13 @@ class QuickSearchLayout {
     final LinearLayout root;
     final EditText     input;
     final ListView     list;
-    final TextView     prompt;
+    final TextView     label;
 
-    private QuickSearchLayout(LinearLayout root, EditText input, ListView list, TextView prompt) {
-        this.root   = root;
-        this.input  = input;
-        this.list   = list;
-        this.prompt = prompt;
+    private QuickSearchLayout(LinearLayout root, EditText input, ListView list, TextView label) {
+        this.root  = root;
+        this.input = input;
+        this.list  = list;
+        this.label = label;
     }
 
     static QuickSearchLayout build(Context ctx) {
@@ -35,25 +35,12 @@ class QuickSearchLayout {
         label.setTypeface(Typeface.MONOSPACE);
         label.setLetterSpacing(0.2f);
 
-        TextView prompt = new TextView(ctx);
-        prompt.setText("> ");
-        prompt.setTextColor(0xFF4A4A4A);
-        prompt.setTextSize(18f);
-        prompt.setTypeface(Typeface.MONOSPACE);
-
         LinearLayout inputRow = new LinearLayout(ctx);
         inputRow.setOrientation(LinearLayout.VERTICAL);
         inputRow.setPadding(dp(ctx, 16), dp(ctx, 14), dp(ctx, 16), dp(ctx, 14));
 
-        LinearLayout inputLine = new LinearLayout(ctx);
-        inputLine.setOrientation(LinearLayout.HORIZONTAL);
-        inputLine.setGravity(Gravity.CENTER_VERTICAL);
-        inputLine.addView(prompt);
-        inputLine.addView(input, new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-
         inputRow.addView(label);
-        inputRow.addView(inputLine);
+        inputRow.addView(input);
 
         View separator = new View(ctx);
         separator.setBackgroundColor(0xFF1A1A1A);
@@ -67,7 +54,7 @@ class QuickSearchLayout {
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
         root.addView(inputRow);
 
-        return new QuickSearchLayout(root, input, list, prompt);
+        return new QuickSearchLayout(root, input, list, label);
     }
 
     private static EditText buildInput(Context ctx) {
