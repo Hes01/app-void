@@ -140,6 +140,7 @@ public class QuickSearchDialog {
             }
             if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
             if (filteredNames.isEmpty()) {
+                VibrationFeedback.onNoResults(launcher);
                 setLabelColor(0xFFCC4444);
                 filteredNames.add("sin resultados"); filteredPkgs.add("");
             } else {
@@ -153,6 +154,7 @@ public class QuickSearchDialog {
         CommandRouter cmd = CommandRouter.parse(raw);
         String pkg = aliases.resolve(cmd.alias);
         if (pkg == null) { adapter.notifyDataSetChanged(); return; }
+        VibrationFeedback.onCommand(launcher);
 
         if (cmd.isUninstall()) {
             dialog.dismiss();
@@ -170,6 +172,7 @@ public class QuickSearchDialog {
     }
 
     private void launchWithArgs(String pkg, String args) {
+        VibrationFeedback.onLaunch(launcher);
         dialog.dismiss(); launcher.onAppLaunched(pkg);
         Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(pkg);
         if (intent == null) return;
@@ -214,6 +217,7 @@ public class QuickSearchDialog {
             launcher.startActivity(intent);
             launcher.overridePendingTransition(0, 0);
         } else {
+            VibrationFeedback.onLaunch(launcher);
             dialog.dismiss(); launcher.onAppLaunched(pkgOrCmd); AppLauncher.launch(launcher, pkgOrCmd);
         }
     }
