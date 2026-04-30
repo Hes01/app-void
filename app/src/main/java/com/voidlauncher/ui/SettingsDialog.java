@@ -45,7 +45,7 @@ public class SettingsDialog {
         dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         dialog.setContentView(buildLayout());
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0xFF0A0A0A));
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             dialog.getWindow().setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -59,7 +59,7 @@ public class SettingsDialog {
     private LinearLayout buildLayout() {
         LinearLayout root = new LinearLayout(launcher);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.BLACK);
+        root.setBackgroundColor(0xFF0A0A0A);
         root.setPadding(48, 72, 48, 0);
 
         TextView title = new TextView(launcher);
@@ -86,7 +86,7 @@ public class SettingsDialog {
             }
         };
         list = new ListView(launcher);
-        list.setBackgroundColor(Color.BLACK);
+        list.setBackgroundColor(0xFF0A0A0A);
         list.setDivider(null);
         list.setSelector(android.R.color.transparent);
         list.setOverScrollMode(View.OVER_SCROLL_NEVER);
