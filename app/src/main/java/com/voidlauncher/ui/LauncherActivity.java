@@ -72,7 +72,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(0xFF000000);
+        root.setBackgroundColor(0xFF0A0A0A);
 
         GestureView gestureView = new GestureView(this);
         gestureView.setListener(this);
