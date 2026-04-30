@@ -89,6 +89,7 @@ public class QuickSearchDialog {
         filter("");
         dialog.show();
         VibrationFeedback.onOpen(hapticView());
+        SearchHints.showIfNeeded(launcher, layout.hintRow, layout.hintText, layout.input);
         layout.input.requestFocus();
         layout.input.postDelayed(() -> {
             InputMethodManager imm = (InputMethodManager)

@@ -86,7 +86,6 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         
         launchBar = LaunchBar.attach(root);
         setContentView(root);
-        if (!OnboardingHints.isDone(this)) OnboardingHints.show(root);
         loadInstalledApps();
 
         IntentFilter pkgFilter = new IntentFilter();
