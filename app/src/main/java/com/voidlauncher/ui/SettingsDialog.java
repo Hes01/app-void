@@ -1,6 +1,5 @@
 package com.voidlauncher.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +7,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
@@ -96,38 +96,82 @@ public class SettingsDialog {
     }
 
     private void showEditDialog(int pos) {
-        String pkg = appPackages.get(pos);
+        String pkg     = appPackages.get(pos);
         String current = aliases.aliasOf(pkg);
+
         EditText input = new EditText(launcher);
         input.setTypeface(Typeface.MONOSPACE);
         input.setText(current != null ? current : "");
-        input.setHint("alias  (vacío = quitar)");
-        input.setGravity(Gravity.START);
-        input.setBackgroundColor(Color.TRANSPARENT);
+        input.setHint("alias");
+        input.setHintTextColor(0x28FFFFFF);
         input.setTextColor(Color.WHITE);
-        input.setHintTextColor(0x44FFFFFF);
-        input.setPadding(dp(24), dp(24), dp(24), dp(24));
-        new AlertDialog.Builder(launcher)
-            .setTitle(appNames.get(pos))
-            .setView(input)
-            .setPositiveButton("ok", (d, w) -> {
-                String val = input.getText().toString().trim();
-                if (current != null) aliases.remove(current);
-                if (!val.isEmpty()) aliases.set(val, pkg);
-                list.invalidateViews();
-            })
-            .setNeutralButton("desinstalar", (d, w) -> {
-                dialog.dismiss();
-                launcher.startActivity(new Intent(Intent.ACTION_DELETE,
-                        Uri.parse("package:" + pkg)));
-            })
-            .setNegativeButton("cancelar", null)
-            .show();
+        input.setTextSize(16f);
+        input.setBackgroundColor(Color.TRANSPARENT);
+        input.setPadding(0, dp(14), 0, dp(14));
+
+        GradientDrawable cardBg = new GradientDrawable();
+        cardBg.setColor(0xFF0A0A0A);
+        cardBg.setStroke(1, 0x18FFFFFF);
+        cardBg.setCornerRadius(dp(8));
+
+        LinearLayout card = new LinearLayout(launcher);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackground(cardBg);
+        card.setPadding(dp(20), dp(20), dp(20), dp(16));
+
+        TextView appLabel = new TextView(launcher);
+        appLabel.setText(appNames.get(pos));
+        appLabel.setTextColor(0x55FFFFFF);
+        appLabel.setTextSize(14f);
+        appLabel.setTypeface(Typeface.MONOSPACE);
+        appLabel.setLetterSpacing(0.02f);
+        appLabel.setPadding(0, 0, 0, dp(16));
+        card.addView(appLabel);
+        card.addView(divider());
+        card.addView(input);
+        card.addView(divider());
+
+        Dialog d = new Dialog(launcher);
+
+        LinearLayout actions = new LinearLayout(launcher);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        TextView btnCancel = actionBtn("cancelar", 0x40FFFFFF);
+        TextView btnOk     = actionBtn("ok", 0xCCFFFFFF);
+        btnCancel.setOnClickListener(v -> d.dismiss());
+        btnOk.setOnClickListener(v -> {
+            String val = input.getText().toString().trim();
+            if (current != null) aliases.remove(current);
+            if (!val.isEmpty()) aliases.set(val, pkg);
+            list.invalidateViews();
+            d.dismiss();
+        });
+        actions.addView(btnCancel, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        actions.addView(btnOk,     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        card.addView(actions);
+
+        TextView btnUninstall = actionBtn("desinstalar", 0x44CC4444);
+        btnUninstall.setOnClickListener(v -> {
+            d.dismiss(); dialog.dismiss();
+            launcher.startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg)));
+        });
+        card.addView(btnUninstall);
+
+        LinearLayout wrapper = new LinearLayout(launcher);
+        wrapper.setPadding(dp(80), 0, dp(80), 0);
+        wrapper.addView(card);
+
+        d.setContentView(wrapper);
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            d.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
+                    | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        d.show();
     }
 
     private void loadApps() {
-        appNames.clear();
-        appPackages.clear();
+        appNames.clear(); appPackages.clear();
         PackageManager pm = launcher.getPackageManager();
         Intent main = new Intent(Intent.ACTION_MAIN, null);
         main.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -145,6 +189,24 @@ public class SettingsDialog {
         aliases.cleanOrphans(appPackages);
     }
 
+    private View divider() {
+        View v = new View(launcher);
+        v.setBackgroundColor(0x12FFFFFF);
+        v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        return v;
+    }
+
+    private TextView actionBtn(String text, int color) {
+        TextView tv = new TextView(launcher);
+        tv.setText(text);
+        tv.setTextColor(color);
+        tv.setTextSize(12f);
+        tv.setTypeface(Typeface.MONOSPACE);
+        tv.setGravity(Gravity.CENTER);
+        tv.setPadding(0, dp(16), 0, dp(12));
+        return tv;
+    }
+
     private TextView mono(String text, int color, int fixedPx) {
         TextView tv = new TextView(launcher);
         tv.setText(text);
@@ -155,7 +217,5 @@ public class SettingsDialog {
         return tv;
     }
 
-    private int dp(int dp) {
-        return QuickSearchLayout.dp(launcher, dp);
-    }
+    private int dp(int dp) { return QuickSearchLayout.dp(launcher, dp); }
 }

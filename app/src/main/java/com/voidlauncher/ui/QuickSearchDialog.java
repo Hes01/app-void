@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -72,6 +73,12 @@ public class QuickSearchDialog {
                     }
                 });
         layout.list.setOnTouchListener((v, e) -> { gd.onTouchEvent(e); return false; });
+        layout.list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override public void onScrollStateChanged(AbsListView v, int state) {
+                if (state != SCROLL_STATE_IDLE) hideKeyboard();
+            }
+            @Override public void onScroll(AbsListView v, int f, int c, int t) {}
+        });
         layout.input.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
@@ -233,6 +240,10 @@ public class QuickSearchDialog {
     private void setInputColor(int color) {
         if (searchInput == null) return;
         searchInput.setTextColor(color);
+    }
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && searchInput != null) imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
     }
     private String displayName(int i) { String a = aliases.aliasOf(packages[i]); return a != null ? a : names[i]; }
     private View hapticView() { return launcher.getWindow().getDecorView(); }
