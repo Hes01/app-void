@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.view.View;
 import com.voidlauncher.core.AppLauncher;
@@ -38,6 +39,7 @@ public class QuickSearchDialog {
     private ArrayAdapter<String>   adapter;
     private Dialog                 dialog;
     private TextView               label;
+    private EditText               searchInput;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
                              String[] packages, ContextualApps contextual,
@@ -48,8 +50,9 @@ public class QuickSearchDialog {
 
     public void show() {
         QuickSearchLayout layout = QuickSearchLayout.build(launcher);
-        label   = layout.label;
-        adapter = buildAdapter();
+        label       = layout.label;
+        searchInput = layout.input;
+        adapter     = buildAdapter();
         layout.list.setAdapter(adapter);
         layout.list.setOnItemClickListener((p, v, pos, id) -> {
             String pkg = filteredPkgs.get(pos);
@@ -120,6 +123,7 @@ public class QuickSearchDialog {
     private void filter(String query) {
         filteredNames.clear(); filteredPkgs.clear();
         String q = query.toLowerCase().trim();
+        setInputColor(!q.isEmpty() && q.startsWith(".") ? 0xB3E8E8E8 : 0xFFE8E8E8);
         if (q.isEmpty()) {
             setLabelColor(0xFF4A4A4A);
             for (String pkg : contextual.getTop())
@@ -226,6 +230,10 @@ public class QuickSearchDialog {
     private void setLabelColor(int color) {
         if (label == null) return;
         label.setTextColor(color);
+    }
+    private void setInputColor(int color) {
+        if (searchInput == null) return;
+        searchInput.setTextColor(color);
     }
     private String displayName(int i) { String a = aliases.aliasOf(packages[i]); return a != null ? a : names[i]; }
     private View hapticView() { return launcher.getWindow().getDecorView(); }
