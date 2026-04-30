@@ -73,7 +73,7 @@ class QuickSearchLayout {
 
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(0xFF0A0A0A);
+        root.setBackgroundColor(0xFF000000);
         root.addView(list, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         root.addView(separator, new LinearLayout.LayoutParams(
@@ -99,7 +99,7 @@ class QuickSearchLayout {
 
     private static ListView buildList(Context ctx) {
         ListView lv = new ListView(ctx);
-        lv.setBackgroundColor(0xFF0A0A0A);
+        lv.setBackgroundColor(0xFF000000);
         lv.setDivider(null);
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER);
