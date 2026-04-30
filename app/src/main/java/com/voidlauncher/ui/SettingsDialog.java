@@ -8,7 +8,6 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
@@ -60,23 +59,16 @@ public class SettingsDialog {
     private LinearLayout buildLayout() {
         LinearLayout root = new LinearLayout(launcher);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(0xFF000000);
-        root.setPadding(dp(24), 0, dp(24), 0);
+        root.setBackgroundColor(Color.BLACK);
+        root.setPadding(48, 72, 48, 0);
 
         TextView title = new TextView(launcher);
-        title.setText("· VOID");
-        title.setTextColor(0x22FFFFFF);
-        title.setTextSize(9f);
+        title.setText(". void");
+        title.setTextColor(0x55FFFFFF);
+        title.setTextSize(14f);
         title.setTypeface(Typeface.MONOSPACE);
-        title.setLetterSpacing(0.28f);
-        title.setPadding(0, dp(52), 0, dp(28));
+        title.setPadding(0, 0, 0, 40);
         root.addView(title);
-
-        View sep = new View(launcher);
-        sep.setBackgroundColor(0xFF111111);
-        root.addView(sep, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 1));
-
         root.addView(buildList());
         return root;
     }
@@ -84,54 +76,23 @@ public class SettingsDialog {
     private ListView buildList() {
         adapter = new ArrayAdapter<String>(launcher, 0, appNames) {
             @Override public View getView(int pos, View cv, ViewGroup parent) {
-                String alias = aliases.aliasOf(appPackages.get(pos));
                 LinearLayout row = new LinearLayout(launcher);
                 row.setOrientation(LinearLayout.HORIZONTAL);
-                row.setGravity(Gravity.CENTER_VERTICAL);
-                row.setPadding(0, dp(14), 0, dp(14));
-                row.addView(nameView(appNames.get(pos)));
-                row.addView(aliasView(alias));
+                row.setPadding(0, dp(11), 0, dp(11));
+                String alias = aliases.aliasOf(appPackages.get(pos));
+                row.addView(mono(alias != null ? alias : "", alias != null ? Color.WHITE : 0x33FFFFFF, dp(72)));
+                row.addView(mono(appNames.get(pos), alias != null ? 0xFFFFFFFF : 0x99FFFFFF, 0));
                 return row;
             }
         };
         list = new ListView(launcher);
-        list.setBackgroundColor(0xFF000000);
-        list.setDivider(new ColorDrawable(0xFF111111));
-        list.setDividerHeight(1);
+        list.setBackgroundColor(Color.BLACK);
+        list.setDivider(null);
         list.setSelector(android.R.color.transparent);
         list.setOverScrollMode(View.OVER_SCROLL_NEVER);
         list.setAdapter(adapter);
         list.setOnItemClickListener((p, v, pos, id) -> showEditDialog(pos));
         return list;
-    }
-
-    private TextView nameView(String name) {
-        TextView tv = new TextView(launcher);
-        tv.setText(name);
-        tv.setTextColor(0x60FFFFFF);
-        tv.setTextSize(13f);
-        tv.setTypeface(Typeface.MONOSPACE);
-        tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        return tv;
-    }
-
-    private TextView aliasView(String alias) {
-        TextView tv = new TextView(launcher);
-        boolean set = alias != null && !alias.isEmpty();
-        tv.setText(set ? alias : "—");
-        tv.setTextColor(set ? 0xBBFFFFFF : 0x18FFFFFF);
-        tv.setTextSize(11f);
-        tv.setTypeface(Typeface.MONOSPACE);
-        tv.setGravity(Gravity.END);
-        if (set) {
-            GradientDrawable bg = new GradientDrawable();
-            bg.setColor(0x0AFFFFFF);
-            bg.setStroke(1, 0x18FFFFFF);
-            bg.setCornerRadius(dp(4));
-            tv.setBackground(bg);
-            tv.setPadding(dp(8), dp(3), dp(8), dp(3));
-        }
-        return tv;
     }
 
     private void showEditDialog(int pos) {
@@ -144,7 +105,7 @@ public class SettingsDialog {
         input.setGravity(Gravity.START);
         input.setBackgroundColor(Color.TRANSPARENT);
         input.setTextColor(Color.WHITE);
-        input.setHintTextColor(0x33FFFFFF);
+        input.setHintTextColor(0x44FFFFFF);
         input.setPadding(dp(24), dp(24), dp(24), dp(24));
         new AlertDialog.Builder(launcher)
             .setTitle(appNames.get(pos))
@@ -165,13 +126,18 @@ public class SettingsDialog {
     }
 
     private void loadApps() {
-        appNames.clear(); appPackages.clear();
+        appNames.clear();
+        appPackages.clear();
         PackageManager pm = launcher.getPackageManager();
         Intent main = new Intent(Intent.ACTION_MAIN, null);
         main.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> infos = pm.queryIntentActivities(main, 0);
-        Collections.sort(infos, (a, b) ->
-                a.loadLabel(pm).toString().compareToIgnoreCase(b.loadLabel(pm).toString()));
+        Collections.sort(infos, (a, b) -> {
+            boolean ha = aliases.aliasOf(a.activityInfo.packageName) != null;
+            boolean hb = aliases.aliasOf(b.activityInfo.packageName) != null;
+            if (ha != hb) return ha ? -1 : 1;
+            return a.loadLabel(pm).toString().compareToIgnoreCase(b.loadLabel(pm).toString());
+        });
         for (ResolveInfo r : infos) {
             appNames.add(r.loadLabel(pm).toString());
             appPackages.add(r.activityInfo.packageName);
@@ -179,5 +145,17 @@ public class SettingsDialog {
         aliases.cleanOrphans(appPackages);
     }
 
-    private int dp(int dp) { return QuickSearchLayout.dp(launcher, dp); }
+    private TextView mono(String text, int color, int fixedPx) {
+        TextView tv = new TextView(launcher);
+        tv.setText(text);
+        tv.setTextColor(color);
+        tv.setTextSize(14f);
+        tv.setTypeface(Typeface.MONOSPACE);
+        if (fixedPx > 0) tv.setWidth(fixedPx);
+        return tv;
+    }
+
+    private int dp(int dp) {
+        return QuickSearchLayout.dp(launcher, dp);
+    }
 }
