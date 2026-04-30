@@ -148,7 +148,6 @@ public class QuickSearchDialog {
             if (filteredNames.isEmpty()) {
                 VibrationFeedback.onNoResults(hapticView());
                 setLabelColor(0xFFCC4444);
-                filteredNames.add("sin resultados"); filteredPkgs.add("");
             } else {
                 setLabelColor(0xFFE8E8E8);
             }
