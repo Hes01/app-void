@@ -90,7 +90,7 @@ class QuickSearchLayout {
         et.setTypeface(Typeface.MONOSPACE);
         et.setBackgroundColor(Color.TRANSPARENT);
         et.setSingleLine(true);
-        et.setHint(".all  →  todo");
+        et.setHint("");
         et.setHintTextColor(0x28FFFFFF);
         et.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         et.setPadding(0, 0, 0, 0);
