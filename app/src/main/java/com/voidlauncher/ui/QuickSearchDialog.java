@@ -37,6 +37,7 @@ public class QuickSearchDialog {
 
     private final List<String>     filteredNames = new ArrayList<>();
     private final List<String>     filteredPkgs  = new ArrayList<>();
+    private boolean                activeSearch  = false;
     private ArrayAdapter<String>   adapter;
     private Dialog                 dialog;
     private TextView               label;
@@ -114,7 +115,7 @@ public class QuickSearchDialog {
                 TextView tv = cv instanceof TextView ? (TextView) cv : new TextView(launcher);
                 tv.setText(getItem(pos));
                 boolean empty = filteredPkgs.size() > pos && filteredPkgs.get(pos).isEmpty();
-                boolean first = (pos == 0) && !empty;
+                boolean first = activeSearch && (pos == 0) && !empty;
                 tv.setTextColor(first ? 0xFFE8E8E8 : 0xFF4A4A4A);
                 tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
@@ -132,11 +133,13 @@ public class QuickSearchDialog {
         String q = query.toLowerCase().trim();
         setInputColor(!q.isEmpty() && q.startsWith(".") ? 0xB3E8E8E8 : 0xFFE8E8E8);
         if (q.isEmpty()) {
+            activeSearch = false;
             setLabelColor(0xFF4A4A4A);
             for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
+            activeSearch = false;
             setLabelColor(0xFF4A4A4A);
             for (int i = names.length - 1; i >= 0; i--) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
@@ -145,6 +148,7 @@ public class QuickSearchDialog {
             setLabelColor(0xFF4A4A4A);
             routeCommand(q.substring(1).trim()); return;
         } else if (q.matches(".*[a-z0-9].*")) {
+            activeSearch = true;
             for (int i = 0; i < names.length; i++) {
                 String alias = aliases.aliasOf(packages[i]);
                 if ((alias != null && alias.contains(q)) || names[i].toLowerCase().contains(q)) {
