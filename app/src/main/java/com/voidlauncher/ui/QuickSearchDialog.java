@@ -28,16 +28,18 @@ import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.core.CommandRouter;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
+import com.voidlauncher.data.HiddenAppsRepository;
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuickSearchDialog {
 
-    private final LauncherActivity launcher;
-    private final String[]         names;
-    private final String[]         packages;
-    private final ContextualApps   contextual;
-    private final AliasRepository  aliases;
+    private final LauncherActivity     launcher;
+    private final String[]             names;
+    private final String[]             packages;
+    private final ContextualApps       contextual;
+    private final AliasRepository      aliases;
+    private final HiddenAppsRepository hidden;
 
     private final List<String>     filteredNames = new ArrayList<>();
     private final List<String>     filteredPkgs  = new ArrayList<>();
@@ -50,9 +52,10 @@ public class QuickSearchDialog {
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
                              String[] packages, ContextualApps contextual,
-                             AliasRepository aliases) {
+                             AliasRepository aliases, HiddenAppsRepository hidden) {
         this.launcher = launcher; this.names = names;
-        this.packages = packages; this.contextual = contextual; this.aliases = aliases;
+        this.packages = packages; this.contextual = contextual;
+        this.aliases  = aliases;  this.hidden = hidden;
     }
 
     public void show() {
@@ -176,19 +179,21 @@ public class QuickSearchDialog {
             setLabelColor(0xFF4A4A4A);
             for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
-                    if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
+                    if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
             activeSearch = false;
             setLabelColor(0xFF4A4A4A);
-            for (int i = names.length - 1; i >= 0; i--) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
+            for (int i = names.length - 1; i >= 0; i--)
+                if (!hidden.isHidden(packages[i])) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
-            new SettingsDialog(launcher, aliases, dialog).show(); return;
+            new SettingsDialog(launcher, aliases, hidden, dialog).show(); return;
         } else if (q.startsWith(".")) {
             setLabelColor(0xFF4A4A4A);
             routeCommand(q.substring(1).trim()); return;
         } else if (q.matches(".*[a-z0-9].*")) {
             activeSearch = true;
             for (int i = 0; i < names.length; i++) {
+                if (hidden.isHidden(packages[i])) continue;
                 String alias = aliases.aliasOf(packages[i]);
                 if ((alias != null && alias.contains(q)) || names[i].toLowerCase().contains(q)) {
                     filteredNames.add(alias != null ? alias : names[i]); filteredPkgs.add(packages[i]);

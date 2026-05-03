@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.voidlauncher.core.PluginRegistry;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
+import com.voidlauncher.data.HiddenAppsRepository;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -26,11 +27,12 @@ import java.util.Locale;
 
 public class LauncherActivity extends Activity implements GestureView.Listener {
 
-    private String[]          appNames;
-    private String[]          appPackages;
-    private ContextualApps    contextual;
-    private AliasRepository   aliases;
-    private android.view.View launchBar;
+    private String[]             appNames;
+    private String[]             appPackages;
+    private ContextualApps       contextual;
+    private AliasRepository      aliases;
+    private HiddenAppsRepository hidden;
+    private android.view.View    launchBar;
 
     private TextView          tvClock;
     private TextView          tvDate;
@@ -67,6 +69,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
         contextual = new ContextualApps(this);
         aliases    = new AliasRepository(this);
+        hidden     = new HiddenAppsRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
@@ -133,7 +136,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     @Override
     public void onTap() {
-        new QuickSearchDialog(this, appNames, appPackages, contextual, aliases).show();
+        new QuickSearchDialog(this, appNames, appPackages, contextual, aliases, hidden).show();
     }
 
     public void onAppLaunched(String pkg) {
