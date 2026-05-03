@@ -9,47 +9,60 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.view.View;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.core.CommandRouter;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
+import com.voidlauncher.data.HiddenAppsRepository;
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuickSearchDialog {
 
-    private final LauncherActivity launcher;
-    private final String[]         names;
-    private final String[]         packages;
-    private final ContextualApps   contextual;
-    private final AliasRepository  aliases;
+    private final LauncherActivity     launcher;
+    private final String[]             names;
+    private final String[]             packages;
+    private final ContextualApps       contextual;
+    private final AliasRepository      aliases;
+    private final HiddenAppsRepository hidden;
 
     private final List<String>     filteredNames = new ArrayList<>();
     private final List<String>     filteredPkgs  = new ArrayList<>();
+    private boolean                activeSearch  = false;
+    private boolean                isTopMode     = false;
     private ArrayAdapter<String>   adapter;
     private Dialog                 dialog;
     private TextView               label;
+    private EditText               searchInput;
 
     public QuickSearchDialog(LauncherActivity launcher, String[] names,
                              String[] packages, ContextualApps contextual,
-                             AliasRepository aliases) {
+                             AliasRepository aliases, HiddenAppsRepository hidden) {
         this.launcher = launcher; this.names = names;
-        this.packages = packages; this.contextual = contextual; this.aliases = aliases;
+        this.packages = packages; this.contextual = contextual;
+        this.aliases  = aliases;  this.hidden = hidden;
     }
 
     public void show() {
         QuickSearchLayout layout = QuickSearchLayout.build(launcher);
-        label   = layout.label;
-        adapter = buildAdapter();
+        label       = layout.label;
+        searchInput = layout.input;
+        adapter     = buildAdapter();
         layout.list.setAdapter(adapter);
         layout.list.setOnItemClickListener((p, v, pos, id) -> {
             String pkg = filteredPkgs.get(pos);
@@ -69,6 +82,12 @@ public class QuickSearchDialog {
                     }
                 });
         layout.list.setOnTouchListener((v, e) -> { gd.onTouchEvent(e); return false; });
+        layout.list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override public void onScrollStateChanged(AbsListView v, int state) {
+                if (state != SCROLL_STATE_IDLE) hideKeyboard();
+            }
+            @Override public void onScroll(AbsListView v, int f, int c, int t) {}
+        });
         layout.input.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
@@ -88,6 +107,8 @@ public class QuickSearchDialog {
         }
         filter("");
         dialog.show();
+        VibrationFeedback.onOpen(hapticView());
+        SearchHints.showIfNeeded(launcher, layout.hintRow, layout.hintText, layout.input);
         layout.input.requestFocus();
         layout.input.postDelayed(() -> {
             InputMethodManager imm = (InputMethodManager)
@@ -102,14 +123,46 @@ public class QuickSearchDialog {
                 TextView tv = cv instanceof TextView ? (TextView) cv : new TextView(launcher);
                 tv.setText(getItem(pos));
                 boolean empty = filteredPkgs.size() > pos && filteredPkgs.get(pos).isEmpty();
-                boolean first = (pos == 0) && !empty;
-                tv.setTextColor(first ? 0xFFE8E8E8 : 0xFF4A4A4A);
+                boolean first = activeSearch && (pos == 0) && !empty;
                 tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
                 tv.setLetterSpacing(0.05f);
                 int h = QuickSearchLayout.dp(launcher, 11);
                 int v = QuickSearchLayout.dp(launcher, 16);
                 tv.setPadding(v, h, v, h);
+                if (!activeSearch && !empty) {
+                    String pkg   = filteredPkgs.get(pos);
+                    String alias = aliases.aliasOf(pkg);
+                    if (alias != null) {
+                        int rankColor = isTopMode && pos < QuickSearchLayout.TOP_COLORS.length
+                                ? QuickSearchLayout.TOP_COLORS[pos] : 0xFF4A4A4A;
+                        String full      = getRealName(pkg) + "   " + alias;
+                        int aliasStart   = full.length() - alias.length();
+                        SpannableString ss = new SpannableString(full);
+                        ss.setSpan(new AbsoluteSizeSpan(13, true),
+                                aliasStart, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        if (isTopMode) {
+                            tv.setTextColor(rankColor);
+                        } else {
+                            ss.setSpan(new ForegroundColorSpan(rankColor),
+                                    aliasStart, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            tv.setTextColor(0xFF666666);
+                        }
+                        tv.setText(ss);
+                        return tv;
+                    }
+                    if (!isTopMode) {
+                        tv.setTextColor(0xFF666666);
+                        tv.setText(getItem(pos));
+                        return tv;
+                    }
+                }
+                int color;
+                if (isTopMode && !empty && pos < QuickSearchLayout.TOP_COLORS.length)
+                    color = QuickSearchLayout.TOP_COLORS[pos];
+                else color = first ? 0xFFE8E8E8 : 0xFF4A4A4A;
+                tv.setTextColor(color);
+                tv.setText(getItem(pos));
                 return tv;
             }
         };
@@ -118,21 +171,29 @@ public class QuickSearchDialog {
     private void filter(String query) {
         filteredNames.clear(); filteredPkgs.clear();
         String q = query.toLowerCase().trim();
+        isTopMode = false;
+        setInputColor(!q.isEmpty() && q.startsWith(".") ? 0xB3E8E8E8 : 0xFFE8E8E8);
         if (q.isEmpty()) {
+            activeSearch = false;
+            isTopMode    = true;
             setLabelColor(0xFF4A4A4A);
             for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
-                    if (packages[i].equals(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
+                    if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
+            activeSearch = false;
             setLabelColor(0xFF4A4A4A);
-            for (int i = names.length - 1; i >= 0; i--) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
+            for (int i = names.length - 1; i >= 0; i--)
+                if (!hidden.isHidden(packages[i])) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
-            new SettingsDialog(launcher, aliases, dialog).show(); return;
+            new SettingsDialog(launcher, aliases, hidden, dialog).show(); return;
         } else if (q.startsWith(".")) {
             setLabelColor(0xFF4A4A4A);
             routeCommand(q.substring(1).trim()); return;
         } else if (q.matches(".*[a-z0-9].*")) {
+            activeSearch = true;
             for (int i = 0; i < names.length; i++) {
+                if (hidden.isHidden(packages[i])) continue;
                 String alias = aliases.aliasOf(packages[i]);
                 if ((alias != null && alias.contains(q)) || names[i].toLowerCase().contains(q)) {
                     filteredNames.add(alias != null ? alias : names[i]); filteredPkgs.add(packages[i]);
@@ -140,8 +201,8 @@ public class QuickSearchDialog {
             }
             if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
             if (filteredNames.isEmpty()) {
+                VibrationFeedback.onNoResults(hapticView());
                 setLabelColor(0xFFCC4444);
-                filteredNames.add("sin resultados"); filteredPkgs.add("");
             } else {
                 setLabelColor(0xFFE8E8E8);
             }
@@ -153,6 +214,7 @@ public class QuickSearchDialog {
         CommandRouter cmd = CommandRouter.parse(raw);
         String pkg = aliases.resolve(cmd.alias);
         if (pkg == null) { adapter.notifyDataSetChanged(); return; }
+        VibrationFeedback.onCommand(hapticView());
 
         if (cmd.isUninstall()) {
             dialog.dismiss();
@@ -170,6 +232,7 @@ public class QuickSearchDialog {
     }
 
     private void launchWithArgs(String pkg, String args) {
+        VibrationFeedback.onLaunch(hapticView());
         dialog.dismiss(); launcher.onAppLaunched(pkg);
         Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(pkg);
         if (intent == null) return;
@@ -214,12 +277,28 @@ public class QuickSearchDialog {
             launcher.startActivity(intent);
             launcher.overridePendingTransition(0, 0);
         } else {
+            VibrationFeedback.onLaunch(hapticView());
             dialog.dismiss(); launcher.onAppLaunched(pkgOrCmd); AppLauncher.launch(launcher, pkgOrCmd);
         }
     }
+    private String getRealName(String pkg) {
+        for (int i = 0; i < packages.length; i++)
+            if (packages[i].equals(pkg)) return names[i];
+        return pkg;
+    }
+
     private void setLabelColor(int color) {
         if (label == null) return;
         label.setTextColor(color);
     }
+    private void setInputColor(int color) {
+        if (searchInput == null) return;
+        searchInput.setTextColor(color);
+    }
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && searchInput != null) imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
+    }
     private String displayName(int i) { String a = aliases.aliasOf(packages[i]); return a != null ? a : names[i]; }
+    private View hapticView() { return launcher.getWindow().getDecorView(); }
 }

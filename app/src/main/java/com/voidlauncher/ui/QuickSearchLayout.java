@@ -16,12 +16,17 @@ class QuickSearchLayout {
     final EditText     input;
     final ListView     list;
     final TextView     label;
+    final LinearLayout hintRow;
+    final TextView     hintText;
 
-    private QuickSearchLayout(LinearLayout root, EditText input, ListView list, TextView label) {
-        this.root  = root;
-        this.input = input;
-        this.list  = list;
-        this.label = label;
+    private QuickSearchLayout(LinearLayout root, EditText input, ListView list,
+                               TextView label, LinearLayout hintRow, TextView hintText) {
+        this.root     = root;
+        this.input    = input;
+        this.list     = list;
+        this.label    = label;
+        this.hintRow  = hintRow;
+        this.hintText = hintText;
     }
 
     static QuickSearchLayout build(Context ctx) {
@@ -35,11 +40,32 @@ class QuickSearchLayout {
         label.setTypeface(Typeface.MONOSPACE);
         label.setLetterSpacing(0.2f);
 
+        TextView dot = new TextView(ctx);
+        dot.setText("·");
+        dot.setTextColor(0xFF6A6A6A);
+        dot.setTextSize(16f);
+        dot.setTypeface(Typeface.MONOSPACE);
+        dot.setPadding(0, 0, dp(ctx, 10), 0);
+
+        TextView hintText = new TextView(ctx);
+        hintText.setTextColor(0x88E8E8E8);
+        hintText.setTextSize(13f);
+        hintText.setTypeface(Typeface.MONOSPACE);
+        hintText.setLetterSpacing(0.04f);
+
+        LinearLayout hintRow = new LinearLayout(ctx);
+        hintRow.setOrientation(LinearLayout.HORIZONTAL);
+        hintRow.setGravity(Gravity.CENTER_VERTICAL);
+        hintRow.setPadding(0, dp(ctx, 10), 0, dp(ctx, 6));
+        hintRow.addView(dot);
+        hintRow.addView(hintText);
+        hintRow.setVisibility(View.GONE);
+
         LinearLayout inputRow = new LinearLayout(ctx);
         inputRow.setOrientation(LinearLayout.VERTICAL);
         inputRow.setPadding(dp(ctx, 16), dp(ctx, 14), dp(ctx, 16), dp(ctx, 14));
-
         inputRow.addView(label);
+        inputRow.addView(hintRow);
         inputRow.addView(input);
 
         View separator = new View(ctx);
@@ -54,7 +80,7 @@ class QuickSearchLayout {
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
         root.addView(inputRow);
 
-        return new QuickSearchLayout(root, input, list, label);
+        return new QuickSearchLayout(root, input, list, label, hintRow, hintText);
     }
 
     private static EditText buildInput(Context ctx) {
@@ -64,7 +90,7 @@ class QuickSearchLayout {
         et.setTypeface(Typeface.MONOSPACE);
         et.setBackgroundColor(Color.TRANSPARENT);
         et.setSingleLine(true);
-        et.setHint(".all  →  todo");
+        et.setHint("");
         et.setHintTextColor(0x28FFFFFF);
         et.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         et.setPadding(0, 0, 0, 0);
@@ -83,6 +109,14 @@ class QuickSearchLayout {
         lv.setClipToPadding(false);
         return lv;
     }
+
+    static final int[] TOP_COLORS = {
+        0xFF888888,  // rank 1 — más usado
+        0xFF4A4A4A,  // rank 2
+        0xFF363636,  // rank 3
+        0xFF282828,  // rank 4
+        0xFF1E1E1E,  // rank 5 — menos usado
+    };
 
     static int dp(Context ctx, int dp) {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
