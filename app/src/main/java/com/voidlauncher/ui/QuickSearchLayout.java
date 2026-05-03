@@ -110,6 +110,14 @@ class QuickSearchLayout {
         return lv;
     }
 
+    static final int[] TOP_COLORS = {
+        0xFF888888,  // rank 1 — más usado
+        0xFF4A4A4A,  // rank 2
+        0xFF363636,  // rank 3
+        0xFF282828,  // rank 4
+        0xFF1E1E1E,  // rank 5 — menos usado
+    };
+
     static int dp(Context ctx, int dp) {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
     }

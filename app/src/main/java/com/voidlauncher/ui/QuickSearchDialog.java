@@ -38,6 +38,7 @@ public class QuickSearchDialog {
     private final List<String>     filteredNames = new ArrayList<>();
     private final List<String>     filteredPkgs  = new ArrayList<>();
     private boolean                activeSearch  = false;
+    private boolean                isTopMode     = false;
     private ArrayAdapter<String>   adapter;
     private Dialog                 dialog;
     private TextView               label;
@@ -116,7 +117,11 @@ public class QuickSearchDialog {
                 tv.setText(getItem(pos));
                 boolean empty = filteredPkgs.size() > pos && filteredPkgs.get(pos).isEmpty();
                 boolean first = activeSearch && (pos == 0) && !empty;
-                tv.setTextColor(first ? 0xFFE8E8E8 : 0xFF4A4A4A);
+                int color;
+                if (isTopMode && !empty && pos < QuickSearchLayout.TOP_COLORS.length)
+                    color = QuickSearchLayout.TOP_COLORS[pos];
+                else color = first ? 0xFFE8E8E8 : 0xFF4A4A4A;
+                tv.setTextColor(color);
                 tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
                 tv.setLetterSpacing(0.05f);
@@ -131,9 +136,11 @@ public class QuickSearchDialog {
     private void filter(String query) {
         filteredNames.clear(); filteredPkgs.clear();
         String q = query.toLowerCase().trim();
+        isTopMode = false;
         setInputColor(!q.isEmpty() && q.startsWith(".") ? 0xB3E8E8E8 : 0xFFE8E8E8);
         if (q.isEmpty()) {
             activeSearch = false;
+            isTopMode    = true;
             setLabelColor(0xFF4A4A4A);
             for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
