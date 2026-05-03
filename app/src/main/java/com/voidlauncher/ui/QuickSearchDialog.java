@@ -9,7 +9,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -117,17 +121,45 @@ public class QuickSearchDialog {
                 tv.setText(getItem(pos));
                 boolean empty = filteredPkgs.size() > pos && filteredPkgs.get(pos).isEmpty();
                 boolean first = activeSearch && (pos == 0) && !empty;
-                int color;
-                if (isTopMode && !empty && pos < QuickSearchLayout.TOP_COLORS.length)
-                    color = QuickSearchLayout.TOP_COLORS[pos];
-                else color = first ? 0xFFE8E8E8 : 0xFF4A4A4A;
-                tv.setTextColor(color);
                 tv.setTextSize(first ? 17f : 15f);
                 tv.setTypeface(Typeface.MONOSPACE);
                 tv.setLetterSpacing(0.05f);
                 int h = QuickSearchLayout.dp(launcher, 11);
                 int v = QuickSearchLayout.dp(launcher, 16);
                 tv.setPadding(v, h, v, h);
+                if (!activeSearch && !empty) {
+                    String pkg   = filteredPkgs.get(pos);
+                    String alias = aliases.aliasOf(pkg);
+                    if (alias != null) {
+                        int rankColor = isTopMode && pos < QuickSearchLayout.TOP_COLORS.length
+                                ? QuickSearchLayout.TOP_COLORS[pos] : 0xFF4A4A4A;
+                        String full      = getRealName(pkg) + "   " + alias;
+                        int aliasStart   = full.length() - alias.length();
+                        SpannableString ss = new SpannableString(full);
+                        ss.setSpan(new AbsoluteSizeSpan(13, true),
+                                aliasStart, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        if (isTopMode) {
+                            tv.setTextColor(rankColor);
+                        } else {
+                            ss.setSpan(new ForegroundColorSpan(rankColor),
+                                    aliasStart, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            tv.setTextColor(0xFF666666);
+                        }
+                        tv.setText(ss);
+                        return tv;
+                    }
+                    if (!isTopMode) {
+                        tv.setTextColor(0xFF666666);
+                        tv.setText(getItem(pos));
+                        return tv;
+                    }
+                }
+                int color;
+                if (isTopMode && !empty && pos < QuickSearchLayout.TOP_COLORS.length)
+                    color = QuickSearchLayout.TOP_COLORS[pos];
+                else color = first ? 0xFFE8E8E8 : 0xFF4A4A4A;
+                tv.setTextColor(color);
+                tv.setText(getItem(pos));
                 return tv;
             }
         };
@@ -244,6 +276,12 @@ public class QuickSearchDialog {
             dialog.dismiss(); launcher.onAppLaunched(pkgOrCmd); AppLauncher.launch(launcher, pkgOrCmd);
         }
     }
+    private String getRealName(String pkg) {
+        for (int i = 0; i < packages.length; i++)
+            if (packages[i].equals(pkg)) return names[i];
+        return pkg;
+    }
+
     private void setLabelColor(int color) {
         if (label == null) return;
         label.setTextColor(color);
