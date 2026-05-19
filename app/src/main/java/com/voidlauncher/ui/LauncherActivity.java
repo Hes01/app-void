@@ -105,8 +105,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         new QuickSearchDialog(this, appNames, appPackages, contextual, aliases, hidden).show();
     }
 
-    public void onAppLaunched(String pkg) {
-        contextual.record(pkg);
+    public void onAppLaunched(String pkg, boolean record) {
+        if (record) contextual.record(pkg);
         LaunchBar.show(launchBar, this, pkg);
     }
 

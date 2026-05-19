@@ -33,10 +33,12 @@ public class QuickSearchDialog {
     private final List<String> filteredNames = new ArrayList<>(), filteredPkgs = new ArrayList<>();
     private QuickSearchAdapter adapter; private QuickSearchPlugin plugin;
     private Dialog dialog; private TextView label; private EditText searchInput;
+    private boolean autoLaunch, contextualOn, vibrationOn;
 
     public QuickSearchDialog(LauncherActivity l, String[] n, String[] p,
                              ContextualApps c, AliasRepository a, HiddenAppsRepository h) {
         launcher=l; names=n; packages=p; contextual=c; aliases=a; hidden=h;
+        autoLaunch=l.getSharedPreferences("void_config",0).getBoolean("auto_launch",true); contextualOn=l.getSharedPreferences("void_config",0).getBoolean("contextual",true); vibrationOn=l.getSharedPreferences("void_config",0).getBoolean("vibration",false);
     }
 
     public void show() {
@@ -64,7 +66,7 @@ public class QuickSearchDialog {
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
             dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
         }
-        filter(""); dialog.show(); VibrationFeedback.onOpen(hapticView());
+        filter(""); dialog.show(); if (vibrationOn) VibrationFeedback.onOpen(hapticView());
         SearchHints.showIfNeeded(launcher, layout.hintRow, layout.hintText, layout.input);
         QuickSearchLayout.showKeyboard(launcher, layout.input);
     }
@@ -89,8 +91,8 @@ public class QuickSearchDialog {
         String q = query.toLowerCase().trim();
         adapter.isTopMode = false; setInputColor(!q.isEmpty() && q.startsWith(".") ? VoidTheme.FG2 : VoidTheme.FG);
         if (q.isEmpty()) {
-            adapter.activeSearch = false; adapter.isTopMode = true; setLabelColor(VoidTheme.FG4);
-            for (String pkg : contextual.getTop())
+            adapter.activeSearch = false; adapter.isTopMode = contextualOn; setLabelColor(VoidTheme.FG4);
+            if (contextualOn) for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
@@ -109,8 +111,8 @@ public class QuickSearchDialog {
                 if ((alias != null && alias.contains(q)) || names[i].toLowerCase().contains(q))
                     { filteredNames.add(alias != null ? alias : names[i]); filteredPkgs.add(packages[i]); }
             }
-            if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
-            if (filteredNames.isEmpty()) { VibrationFeedback.onNoResults(hapticView()); setLabelColor(VoidTheme.ERROR); }
+            if (autoLaunch && filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
+            if (filteredNames.isEmpty()) { if (vibrationOn) VibrationFeedback.onNoResults(hapticView()); setLabelColor(VoidTheme.ERROR); }
             else setLabelColor(VoidTheme.FG);
         }
         adapter.notifyDataSetChanged();
@@ -119,18 +121,18 @@ public class QuickSearchDialog {
     private void launch(String pkgOrCmd) {
         if (pkgOrCmd.contains("\t")) { String[] p = pkgOrCmd.split("\t", 2); launchWithArgs(p[0], p[1]); return; }
         if (pkgOrCmd.contains(":")) {
-            String[] p = pkgOrCmd.split(":", 2); dialog.dismiss(); launcher.onAppLaunched(p[0]);
+            String[] p = pkgOrCmd.split(":", 2); dialog.dismiss(); launcher.onAppLaunched(p[0], contextualOn);
             Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(p[0]);
             if (intent == null) return;
             try { intent.putExtra("void.extra.id", Integer.parseInt(p[1])); } catch (NumberFormatException ignored) {}
             launcher.startActivity(intent); launcher.overridePendingTransition(0, 0); return;
         }
-        VibrationFeedback.onLaunch(hapticView()); dialog.dismiss();
-        launcher.onAppLaunched(pkgOrCmd); AppLauncher.launch(launcher, pkgOrCmd);
+        if (vibrationOn) VibrationFeedback.onLaunch(hapticView()); dialog.dismiss();
+        launcher.onAppLaunched(pkgOrCmd, contextualOn); AppLauncher.launch(launcher, pkgOrCmd);
     }
 
     private void launchWithArgs(String pkg, String args) {
-        VibrationFeedback.onLaunch(hapticView()); dialog.dismiss(); launcher.onAppLaunched(pkg);
+        if (vibrationOn) VibrationFeedback.onLaunch(hapticView()); dialog.dismiss(); launcher.onAppLaunched(pkg, contextualOn);
         Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(pkg);
         if (intent == null) return;
         if (args != null && !args.isEmpty()) intent.putExtra(CommandRouter.EXTRA_ARGS, args);
