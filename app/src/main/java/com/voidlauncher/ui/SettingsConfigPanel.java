@@ -41,8 +41,8 @@ class SettingsConfigPanel {
 
         content.addView(section("privacidad"));
         content.addView(actionRow("borrar historial horario", this::clearHistory));
-        content.addView(actionRow("exportar alias",           () -> toast("próximamente")));
-        content.addView(actionRow("importar alias",           () -> toast("próximamente")));
+        content.addView(actionRow("exportar alias",           () -> AliasTransferDialog.showExport(ctx)));
+        content.addView(actionRow("importar alias",           () -> AliasTransferDialog.showImport(ctx)));
 
         ScrollView sv = new ScrollView(ctx);
         sv.addView(content); return sv;

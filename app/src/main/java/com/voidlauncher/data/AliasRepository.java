@@ -35,6 +35,8 @@ public class AliasRepository {
         return null;
     }
 
+    public Map<String, ?> getAll() { return prefs.getAll(); }
+
     public void cleanOrphans(List<String> installedPackages) {
         SharedPreferences.Editor editor = prefs.edit();
         for (Map.Entry<String, ?> e : prefs.getAll().entrySet()) {
