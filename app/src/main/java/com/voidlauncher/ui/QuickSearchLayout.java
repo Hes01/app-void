@@ -2,6 +2,8 @@ package com.voidlauncher.ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -102,5 +104,13 @@ class QuickSearchLayout {
 
     static int dp(Context ctx, int dp) {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
+    }
+
+    static void showKeyboard(Context ctx, EditText et) {
+        et.requestFocus();
+        et.postDelayed(() -> {
+            InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+        }, 200);
     }
 }
