@@ -69,7 +69,10 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
         TextView[] clockRef = new TextView[1], dateRef = new TextView[1];
-        root.addView(ClockView.build(this, clockRef, dateRef));
+        View clockView = ClockView.build(this, clockRef, dateRef);
+        if (!getSharedPreferences("void_config", MODE_PRIVATE).getBoolean("show_clock", true))
+            clockView.setVisibility(View.GONE);
+        root.addView(clockView);
         tvClock = clockRef[0]; tvDate = dateRef[0];
 
         launchBar = LaunchBar.attach(root);

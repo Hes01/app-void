@@ -31,12 +31,13 @@ class SettingsConfigPanel {
 
         content.addView(section("apariencia"));
         content.addView(themeRow(onThemeChanged));
-        content.addView(toggleRow("nombre real en .all",   "show_real_name", true));
+        content.addView(toggleRow("mostrar reloj",         "show_clock",     true,  onThemeChanged));
+        content.addView(toggleRow("nombre real en .all",   "show_real_name", true,  null));
 
         content.addView(section("comportamiento"));
-        content.addView(toggleRow("abrir si 1 resultado",  "auto_launch",    true));
-        content.addView(toggleRow("aprendizaje horario",   "contextual",     true));
-        content.addView(toggleRow("vibración al abrir",    "vibration",      false));
+        content.addView(toggleRow("abrir si 1 resultado",  "auto_launch",    true,  null));
+        content.addView(toggleRow("aprendizaje horario",   "contextual",     true,  null));
+        content.addView(toggleRow("vibración al abrir",    "vibration",      false, null));
 
         content.addView(section("privacidad"));
         content.addView(actionRow("borrar historial horario", this::clearHistory));
@@ -79,7 +80,7 @@ class SettingsConfigPanel {
         return tv;
     }
 
-    private View toggleRow(String label, String key, boolean def) {
+    private View toggleRow(String label, String key, boolean def, Runnable onChange) {
         boolean on = prefs.getBoolean(key, def);
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
@@ -92,6 +93,7 @@ class SettingsConfigPanel {
             boolean cur = prefs.getBoolean(key, def);
             prefs.edit().putBoolean(key, !cur).apply();
             styleToggle(tvToggle, !cur);
+            if (onChange != null) onChange.run();
         });
         row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(tvToggle);
