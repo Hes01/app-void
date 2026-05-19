@@ -1,5 +1,6 @@
 package com.voidlauncher.ui;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -21,6 +22,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
     private final String[]         allPkgs;
     boolean activeSearch;
     boolean isTopMode;
+    private final boolean showRealName;
 
     QuickSearchAdapter(LauncherActivity launcher, List<String> filteredNames,
                        List<String> filteredPkgs, AliasRepository aliases,
@@ -28,6 +30,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
         super(launcher, 0, filteredNames);
         this.launcher     = launcher; this.filteredPkgs = filteredPkgs;
         this.aliases      = aliases;  this.allNames     = allNames; this.allPkgs = allPkgs;
+        this.showRealName = launcher.getSharedPreferences("void_config", Context.MODE_PRIVATE).getBoolean("show_real_name", true);
     }
 
     @Override
@@ -49,6 +52,10 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
             if (alias != null) {
                 int rankColor = isTopMode && pos < VoidTheme.TOP_COLORS.length
                         ? VoidTheme.TOP_COLORS[pos] : VoidTheme.FG4;
+                if (!showRealName) {
+                    tv.setTextColor(isTopMode ? rankColor : VoidTheme.FG3);
+                    tv.setText(alias); return tv;
+                }
                 String full  = getRealName(pkg) + "   " + alias;
                 int    start = full.length() - alias.length();
                 SpannableString ss = new SpannableString(full);
