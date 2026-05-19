@@ -53,7 +53,7 @@ public class SettingsDialog {
         header.setLetterSpacing(0.1f); header.setPadding(dp(20), dp(28), dp(20), dp(16));
 
         View appsPanel   = new SettingsAppsPanel(launcher, appNames, appPkgs, aliases, hidden).build();
-        View configPanel = new SettingsConfigPanel(launcher).build(launcher::refreshPattern);
+        View configPanel = new SettingsConfigPanel(launcher).build(launcher::refreshPattern, launcher::recreate);
         configPanel.setVisibility(View.GONE);
 
         FrameLayout panels = new FrameLayout(launcher);

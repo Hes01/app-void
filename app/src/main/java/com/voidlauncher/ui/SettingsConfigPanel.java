@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.voidlauncher.data.ThemeRepository;
 
 class SettingsConfigPanel {
     private static final String PREFS = "void_config";
@@ -20,7 +21,7 @@ class SettingsConfigPanel {
         this.prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    View build(Runnable onPatternChanged) {
+    View build(Runnable onPatternChanged, Runnable onThemeChanged) {
         LinearLayout content = new LinearLayout(ctx);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(20), 0, dp(20), dp(20));
@@ -29,6 +30,7 @@ class SettingsConfigPanel {
         content.addView(WallpaperSelector.build(ctx, onPatternChanged));
 
         content.addView(section("apariencia"));
+        content.addView(themeRow(onThemeChanged));
         content.addView(toggleRow("nombre real en .all",   "show_real_name", true));
 
         content.addView(section("comportamiento"));
@@ -43,6 +45,30 @@ class SettingsConfigPanel {
 
         ScrollView sv = new ScrollView(ctx);
         sv.addView(content); return sv;
+    }
+
+    private View themeRow(Runnable onThemeChanged) {
+        ThemeRepository repo = new ThemeRepository(ctx);
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(13), 0, dp(13));
+        TextView tvLabel = new TextView(ctx);
+        tvLabel.setText("tema"); tvLabel.setTextColor(VoidTheme.FG3);
+        tvLabel.setTextSize(VoidTheme.TEXT_MD); tvLabel.setTypeface(Typeface.MONOSPACE);
+        TextView tvVal = new TextView(ctx);
+        tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM);
+        tvVal.setTextColor(VoidTheme.FG);
+        tvVal.setText("[ " + ThemeRepository.LABELS[repo.getMode()] + " ]");
+        tvVal.setOnClickListener(v -> {
+            int next = (repo.getMode() + 1) % 3;
+            repo.setMode(next);
+            tvVal.setText("[ " + ThemeRepository.LABELS[next] + " ]");
+            VoidTheme.apply(next);
+            if (onThemeChanged != null) onThemeChanged.run();
+        });
+        row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(tvVal);
+        return withDivider(row);
     }
 
     private View section(String label) {

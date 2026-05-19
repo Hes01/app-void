@@ -18,6 +18,7 @@ import com.voidlauncher.core.PluginRegistry;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
 import com.voidlauncher.data.HiddenAppsRepository;
+import com.voidlauncher.data.ThemeRepository;
 import com.voidlauncher.data.WallpaperRepository;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -56,6 +57,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        VoidTheme.apply(new ThemeRepository(this).getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         contextual = new ContextualApps(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
@@ -82,6 +84,10 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     @Override
     protected void onResume() {
         super.onResume();
+        ThemeRepository tr = new ThemeRepository(this);
+        if (tr.getMode() == ThemeRepository.AUTO && VoidTheme.isDaytime() != VoidTheme.isDay) {
+            VoidTheme.apply(ThemeRepository.AUTO); recreate(); return;
+        }
         hideSystemUI();
         clockHandler.post(clockTick);
         verifyPlugins();
