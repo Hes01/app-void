@@ -18,6 +18,7 @@ import com.voidlauncher.core.PluginRegistry;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.ContextualApps;
 import com.voidlauncher.data.HiddenAppsRepository;
+import com.voidlauncher.data.WallpaperRepository;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -29,6 +30,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private String[] appNames, appPackages;
     private ContextualApps contextual; private AliasRepository aliases;
     private HiddenAppsRepository hidden; private View launchBar;
+    private PatternView patternView;
     private TextView tvClock, tvDate;
     private final Handler clockHandler = new Handler();
     private SimpleDateFormat timeFmt, dateFmt;
@@ -61,6 +63,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
         FrameLayout root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
+        patternView = new PatternView(this, new WallpaperRepository(this)); root.addView(patternView);
         GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
         TextView[] clockRef = new TextView[1], dateRef = new TextView[1];
@@ -97,6 +100,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         contextual.record(pkg);
         LaunchBar.show(launchBar);
     }
+
+    public void refreshPattern() { patternView.refresh(); }
 
     private void verifyPlugins() {
         Intent main = new Intent(Intent.ACTION_MAIN, null); main.addCategory(Intent.CATEGORY_LAUNCHER);

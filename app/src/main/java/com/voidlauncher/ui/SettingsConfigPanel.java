@@ -20,10 +20,13 @@ class SettingsConfigPanel {
         this.prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    View build() {
+    View build(Runnable onPatternChanged) {
         LinearLayout content = new LinearLayout(ctx);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(20), 0, dp(20), dp(20));
+
+        content.addView(section("fondo"));
+        content.addView(WallpaperSelector.build(ctx, onPatternChanged));
 
         content.addView(section("apariencia"));
         content.addView(toggleRow("nombre real en .all",   "show_real_name", true));
