@@ -98,7 +98,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     public void onAppLaunched(String pkg) {
         contextual.record(pkg);
-        LaunchBar.show(launchBar);
+        LaunchBar.show(launchBar, this, pkg);
     }
 
     public void refreshPattern() { patternView.refresh(); }
