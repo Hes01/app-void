@@ -48,9 +48,10 @@ class SettingsAppsPanel {
 
     private View buildSearch() {
         EditText et = new EditText(launcher);
-        et.setTypeface(Typeface.MONOSPACE); et.setTextColor(0xFFBBBBBB);
-        et.setHintTextColor(0xFF222222); et.setHint("> buscar app o alias...");
-        et.setTextSize(14f); et.setBackgroundColor(0); et.setPadding(dp(20), dp(14), dp(20), dp(10));
+        et.setTypeface(Typeface.MONOSPACE); et.setTextColor(VoidTheme.FG2);
+        et.setHintTextColor(VoidTheme.FG5); et.setHint("> buscar app o alias...");
+        et.setTextSize(VoidTheme.TEXT_LG); et.setBackgroundColor(0);
+        et.setPadding(dp(20), dp(14), dp(20), dp(10));
         et.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             public void onTextChanged(CharSequence s, int a, int b, int c) {}
@@ -77,17 +78,17 @@ class SettingsAppsPanel {
 
     private TextView filterBtn(String text) {
         TextView tv = new TextView(launcher);
-        tv.setText(text); tv.setTextColor(0xFF2A2A2A); tv.setTextSize(10f);
+        tv.setText(text); tv.setTextColor(VoidTheme.FG5); tv.setTextSize(VoidTheme.TEXT_XS);
         tv.setTypeface(Typeface.MONOSPACE); tv.setLetterSpacing(0.15f);
         tv.setPadding(dp(10), dp(4), dp(10), dp(4));
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0); bg.setStroke(1, 0xFF1A1A1A); bg.setCornerRadius(dp(2));
+        bg.setColor(0); bg.setStroke(1, VoidTheme.LINE); bg.setCornerRadius(dp(2));
         tv.setBackground(bg); return tv;
     }
 
     private void setFilterActive(TextView tv, boolean on) {
-        tv.setTextColor(on ? 0xFFFFFFFF : 0xFF2A2A2A);
-        ((GradientDrawable) tv.getBackground()).setStroke(1, on ? 0xFF444444 : 0xFF1A1A1A);
+        tv.setTextColor(on ? VoidTheme.FG : VoidTheme.FG5);
+        ((GradientDrawable) tv.getBackground()).setStroke(1, on ? VoidTheme.FG3 : VoidTheme.LINE);
     }
 
     private ListView buildList() {
@@ -98,8 +99,8 @@ class SettingsAppsPanel {
             @Override public View getView(int pos, View cv, ViewGroup p) { return buildRow(filtered.get(pos)); }
         };
         ListView lv = new ListView(launcher);
-        lv.setBackgroundColor(0xFF0A0A0A); GradientDrawable div = new GradientDrawable();
-        div.setColor(0xFF0D0D0D); lv.setDivider(div); lv.setDividerHeight(1);
+        lv.setBackgroundColor(VoidTheme.BG); GradientDrawable div = new GradientDrawable();
+        div.setColor(VoidTheme.BG_CARD); lv.setDivider(div); lv.setDividerHeight(1);
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER); lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter); return lv;
@@ -111,18 +112,16 @@ class SettingsAppsPanel {
         LinearLayout row = new LinearLayout(launcher);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(20), dp(11), dp(20), dp(11));
-        TextView tvAlias = mono(alias != null ? alias : "—", alias != null ? 0xFF555555 : 0xFF1A1A1A, 13f, dp(56));
-        TextView tvName  = mono(names.get(i), alias != null ? 0xFFBBBBBB : 0xFF2A2A2A, 14f, 0);
-        TextView tvEye   = mono(isHid ? "●" : "○", isHid ? 0xFFA04040 : 0xFF252525, 12f, 0);
+        TextView tvAlias = mono(alias != null ? alias : "—", alias != null ? VoidTheme.FG4 : VoidTheme.FG5, VoidTheme.TEXT_MD, dp(56));
+        TextView tvName  = mono(names.get(i), alias != null ? VoidTheme.FG2 : VoidTheme.FG5, VoidTheme.TEXT_LG, 0);
+        TextView tvEye   = mono(isHid ? "●" : "○", isHid ? VoidTheme.ERROR : VoidTheme.FG5, VoidTheme.TEXT_BASE, 0);
         tvEye.setPadding(dp(8), 0, dp(8), 0);
         tvEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
-        TextView tvAct = mono(alias != null ? "×" : "+ alias", alias != null ? 0xFF1E1E1E : 0xFF1E3A1E, 11f, 0);
-        row.setOnClickListener(v -> new SettingsEditDialog(
-                launcher, aliases, pkg, names.get(i), this::refresh).show());
+        TextView tvAct = mono(alias != null ? "×" : "+ alias", alias != null ? VoidTheme.FG5 : VoidTheme.FG4, VoidTheme.TEXT_SM, 0);
+        row.setOnClickListener(v -> new SettingsEditDialog(launcher, aliases, pkg, names.get(i), this::refresh).show());
         row.addView(tvAlias);
         row.addView(tvName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        row.addView(tvEye); row.addView(tvAct);
-        return row;
+        row.addView(tvEye); row.addView(tvAct); return row;
     }
 
     private void applyFilter() {
@@ -141,7 +140,6 @@ class SettingsAppsPanel {
     }
 
     private void refresh() { applyFilter(); }
-
     private TextView mono(String text, int color, float size, int fixedPx) {
         TextView tv = new TextView(launcher);
         tv.setText(text); tv.setTextColor(color); tv.setTextSize(size); tv.setTypeface(Typeface.MONOSPACE);

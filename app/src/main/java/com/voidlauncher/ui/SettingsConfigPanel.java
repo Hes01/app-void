@@ -44,8 +44,8 @@ class SettingsConfigPanel {
 
     private View section(String label) {
         TextView tv = new TextView(ctx);
-        tv.setText(label.toUpperCase()); tv.setTextColor(0xFF222222);
-        tv.setTextSize(9f); tv.setTypeface(Typeface.MONOSPACE);
+        tv.setText(label.toUpperCase()); tv.setTextColor(VoidTheme.FG5);
+        tv.setTextSize(VoidTheme.TEXT_XS); tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.2f); tv.setPadding(0, dp(24), 0, dp(4));
         return tv;
     }
@@ -56,8 +56,8 @@ class SettingsConfigPanel {
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(13), 0, dp(13));
         TextView tvLabel = new TextView(ctx);
-        tvLabel.setText(label); tvLabel.setTextColor(0xFF666666);
-        tvLabel.setTextSize(13f); tvLabel.setTypeface(Typeface.MONOSPACE);
+        tvLabel.setText(label); tvLabel.setTextColor(VoidTheme.FG3);
+        tvLabel.setTextSize(VoidTheme.TEXT_MD); tvLabel.setTypeface(Typeface.MONOSPACE);
         TextView tvToggle = toggle(on);
         tvToggle.setOnClickListener(v -> {
             boolean cur = prefs.getBoolean(key, def);
@@ -74,11 +74,11 @@ class SettingsConfigPanel {
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(13), 0, dp(13)); row.setOnClickListener(v -> action.run());
         TextView tvLabel = new TextView(ctx);
-        tvLabel.setText(label); tvLabel.setTextColor(0xFF666666);
-        tvLabel.setTextSize(13f); tvLabel.setTypeface(Typeface.MONOSPACE);
+        tvLabel.setText(label); tvLabel.setTextColor(VoidTheme.FG3);
+        tvLabel.setTextSize(VoidTheme.TEXT_MD); tvLabel.setTypeface(Typeface.MONOSPACE);
         TextView tvVal = new TextView(ctx);
-        tvVal.setText("→"); tvVal.setTextColor(0xFF2A2A2A);
-        tvVal.setTextSize(12f); tvVal.setTypeface(Typeface.MONOSPACE);
+        tvVal.setText("→"); tvVal.setTextColor(VoidTheme.FG5);
+        tvVal.setTextSize(VoidTheme.TEXT_BASE); tvVal.setTypeface(Typeface.MONOSPACE);
         row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(tvVal);
         return withDivider(row);
@@ -86,19 +86,19 @@ class SettingsConfigPanel {
 
     private TextView toggle(boolean on) {
         TextView tv = new TextView(ctx);
-        tv.setTypeface(Typeface.MONOSPACE); tv.setTextSize(11f);
+        tv.setTypeface(Typeface.MONOSPACE); tv.setTextSize(VoidTheme.TEXT_SM);
         styleToggle(tv, on); return tv;
     }
 
     private void styleToggle(TextView tv, boolean on) {
         tv.setText(on ? "[ on ]" : "[ -- ]");
-        tv.setTextColor(on ? 0xFFFFFFFF : 0xFF333333);
+        tv.setTextColor(on ? VoidTheme.FG : VoidTheme.FG5);
     }
 
     private View withDivider(View content) {
         LinearLayout wrap = new LinearLayout(ctx);
         wrap.setOrientation(LinearLayout.VERTICAL); wrap.addView(content);
-        View d = new View(ctx); d.setBackgroundColor(0xFF0D0D0D);
+        View d = new View(ctx); d.setBackgroundColor(VoidTheme.BG_CARD);
         d.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
         wrap.addView(d); return wrap;
     }

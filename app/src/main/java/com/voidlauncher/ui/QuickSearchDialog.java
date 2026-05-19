@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -98,7 +97,7 @@ public class QuickSearchDialog {
         dialog.setContentView(layout.root, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG));
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
@@ -134,8 +133,8 @@ public class QuickSearchDialog {
                     String pkg   = filteredPkgs.get(pos);
                     String alias = aliases.aliasOf(pkg);
                     if (alias != null) {
-                        int rankColor = isTopMode && pos < QuickSearchLayout.TOP_COLORS.length
-                                ? QuickSearchLayout.TOP_COLORS[pos] : 0xFF4A4A4A;
+                        int rankColor = isTopMode && pos < VoidTheme.TOP_COLORS.length
+                                ? VoidTheme.TOP_COLORS[pos] : VoidTheme.FG4;
                         String full      = getRealName(pkg) + "   " + alias;
                         int aliasStart   = full.length() - alias.length();
                         SpannableString ss = new SpannableString(full);
@@ -146,7 +145,7 @@ public class QuickSearchDialog {
                         } else {
                             ss.setSpan(new ForegroundColorSpan(rankColor),
                                     aliasStart, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            tv.setTextColor(0xFF666666);
+                            tv.setTextColor(VoidTheme.FG3);
                         }
                         tv.setText(ss);
                         return tv;
@@ -158,9 +157,9 @@ public class QuickSearchDialog {
                     }
                 }
                 int color;
-                if (isTopMode && !empty && pos < QuickSearchLayout.TOP_COLORS.length)
-                    color = QuickSearchLayout.TOP_COLORS[pos];
-                else color = first ? 0xFFE8E8E8 : 0xFF4A4A4A;
+                if (isTopMode && !empty && pos < VoidTheme.TOP_COLORS.length)
+                    color = VoidTheme.TOP_COLORS[pos];
+                else color = first ? VoidTheme.FG : VoidTheme.FG4;
                 tv.setTextColor(color);
                 tv.setText(getItem(pos));
                 return tv;
@@ -172,23 +171,23 @@ public class QuickSearchDialog {
         filteredNames.clear(); filteredPkgs.clear();
         String q = query.toLowerCase().trim();
         isTopMode = false;
-        setInputColor(!q.isEmpty() && q.startsWith(".") ? 0xB3E8E8E8 : 0xFFE8E8E8);
+        setInputColor(!q.isEmpty() && q.startsWith(".") ? VoidTheme.FG2 : VoidTheme.FG);
         if (q.isEmpty()) {
             activeSearch = false;
             isTopMode    = true;
-            setLabelColor(0xFF4A4A4A);
+            setLabelColor(VoidTheme.FG4);
             for (String pkg : contextual.getTop())
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {
             activeSearch = false;
-            setLabelColor(0xFF4A4A4A);
+            setLabelColor(VoidTheme.FG4);
             for (int i = names.length - 1; i >= 0; i--)
                 if (!hidden.isHidden(packages[i])) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
             new SettingsDialog(launcher, aliases, hidden, dialog).show(); return;
         } else if (q.startsWith(".")) {
-            setLabelColor(0xFF4A4A4A);
+            setLabelColor(VoidTheme.FG4);
             routeCommand(q.substring(1).trim()); return;
         } else if (q.matches(".*[a-z0-9].*")) {
             activeSearch = true;
@@ -202,9 +201,9 @@ public class QuickSearchDialog {
             if (filteredNames.size() == 1) { launch(filteredPkgs.get(0)); return; }
             if (filteredNames.isEmpty()) {
                 VibrationFeedback.onNoResults(hapticView());
-                setLabelColor(0xFFCC4444);
+                setLabelColor(VoidTheme.ERROR);
             } else {
-                setLabelColor(0xFFE8E8E8);
+                setLabelColor(VoidTheme.FG);
             }
         }
         adapter.notifyDataSetChanged();

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
@@ -75,7 +74,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(0xFF0A0A0A);
+        root.setBackgroundColor(VoidTheme.BG);
 
         GestureView gestureView = new GestureView(this);
         gestureView.setListener(this);

@@ -33,28 +33,28 @@ class SettingsEditDialog {
         String current = aliases.aliasOf(pkg);
         EditText input = new EditText(launcher);
         input.setTypeface(Typeface.MONOSPACE); input.setText(current != null ? current : "");
-        input.setHint("alias"); input.setHintTextColor(0x28FFFFFF);
-        input.setTextColor(Color.WHITE); input.setTextSize(16f);
+        input.setHint("alias"); input.setHintTextColor(VoidTheme.FG5);
+        input.setTextColor(VoidTheme.FG); input.setTextSize(VoidTheme.TEXT_XL);
         input.setBackgroundColor(Color.TRANSPARENT); input.setPadding(0, dp(14), 0, dp(14));
 
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xFF0A0A0A); bg.setStroke(1, 0x18FFFFFF); bg.setCornerRadius(dp(8));
+        bg.setColor(VoidTheme.BG); bg.setStroke(1, VoidTheme.LINE); bg.setCornerRadius(dp(8));
 
         LinearLayout card = new LinearLayout(launcher);
         card.setOrientation(LinearLayout.VERTICAL); card.setBackground(bg);
         card.setPadding(dp(20), dp(20), dp(20), dp(16));
 
         TextView label = new TextView(launcher);
-        label.setText(appName); label.setTextColor(0x55FFFFFF);
-        label.setTextSize(14f); label.setTypeface(Typeface.MONOSPACE);
+        label.setText(appName); label.setTextColor(VoidTheme.FG4);
+        label.setTextSize(VoidTheme.TEXT_LG); label.setTypeface(Typeface.MONOSPACE);
         label.setPadding(0, 0, 0, dp(16));
         card.addView(label); card.addView(divider()); card.addView(input); card.addView(divider());
 
         Dialog d = new Dialog(launcher);
         LinearLayout actions = new LinearLayout(launcher);
         actions.setOrientation(LinearLayout.HORIZONTAL);
-        TextView cancel = btn("cancelar", 0x40FFFFFF);
-        TextView ok     = btn("ok", 0xCCFFFFFF);
+        TextView cancel = btn("cancelar", VoidTheme.FG4);
+        TextView ok     = btn("ok",       VoidTheme.FG2);
         cancel.setOnClickListener(v -> d.dismiss());
         ok.setOnClickListener(v -> {
             String val = input.getText().toString().trim();
@@ -86,14 +86,14 @@ class SettingsEditDialog {
     }
 
     private View divider() {
-        View v = new View(launcher); v.setBackgroundColor(0x12FFFFFF);
+        View v = new View(launcher); v.setBackgroundColor(VoidTheme.LINE);
         v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
         return v;
     }
 
     private TextView btn(String text, int color) {
         TextView tv = new TextView(launcher);
-        tv.setText(text); tv.setTextColor(color); tv.setTextSize(12f);
+        tv.setText(text); tv.setTextColor(color); tv.setTextSize(VoidTheme.TEXT_BASE);
         tv.setTypeface(Typeface.MONOSPACE); tv.setGravity(Gravity.CENTER);
         tv.setPadding(0, dp(16), 0, dp(12)); return tv;
     }

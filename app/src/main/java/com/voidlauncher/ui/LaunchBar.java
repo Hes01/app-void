@@ -10,7 +10,7 @@ class LaunchBar {
     static View attach(FrameLayout root) {
         Context ctx = root.getContext();
         View bar = new View(ctx);
-        bar.setBackgroundColor(0xFF6A6A6A);
+        bar.setBackgroundColor(VoidTheme.FG3);
         bar.setAlpha(0f);
         bar.setScaleX(0f);
         bar.setPivotX(0f);

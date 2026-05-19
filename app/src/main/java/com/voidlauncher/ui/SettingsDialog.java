@@ -37,7 +37,7 @@ public class SettingsDialog {
         Dialog dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         dialog.setContentView(buildRoot());
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0xFF0A0A0A));
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG));
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT);
@@ -48,8 +48,8 @@ public class SettingsDialog {
 
     private LinearLayout buildRoot() {
         TextView header = new TextView(launcher);
-        header.setText(". void"); header.setTextColor(0xFF333333);
-        header.setTextSize(13f); header.setTypeface(Typeface.MONOSPACE);
+        header.setText(". void"); header.setTextColor(VoidTheme.FG5);
+        header.setTextSize(VoidTheme.TEXT_MD); header.setTypeface(Typeface.MONOSPACE);
         header.setLetterSpacing(0.1f); header.setPadding(dp(20), dp(28), dp(20), dp(16));
 
         View appsPanel   = new SettingsAppsPanel(launcher, appNames, appPkgs, aliases, hidden).build();
@@ -61,7 +61,7 @@ public class SettingsDialog {
         panels.addView(configPanel, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         LinearLayout root = new LinearLayout(launcher);
-        root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(0xFF0A0A0A);
+        root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(VoidTheme.BG);
         root.addView(header);
         root.addView(buildTabs(appsPanel, configPanel));
         root.addView(separator());
@@ -74,11 +74,11 @@ public class SettingsDialog {
         TextView tApps = tab("apps", true); TextView tConf = tab("config", false);
         tApps.setOnClickListener(v -> {
             appsPanel.setVisibility(View.VISIBLE); configPanel.setVisibility(View.GONE);
-            tApps.setTextColor(0xFFFFFFFF); tConf.setTextColor(0xFF2A2A2A);
+            tApps.setTextColor(VoidTheme.FG); tConf.setTextColor(VoidTheme.FG5);
         });
         tConf.setOnClickListener(v -> {
             appsPanel.setVisibility(View.GONE); configPanel.setVisibility(View.VISIBLE);
-            tApps.setTextColor(0xFF2A2A2A); tConf.setTextColor(0xFFFFFFFF);
+            tApps.setTextColor(VoidTheme.FG5); tConf.setTextColor(VoidTheme.FG);
         });
         LinearLayout tabs = new LinearLayout(launcher);
         tabs.setOrientation(LinearLayout.HORIZONTAL); tabs.setPadding(dp(20), 0, dp(20), 0);
@@ -89,14 +89,14 @@ public class SettingsDialog {
 
     private TextView tab(String text, boolean active) {
         TextView tv = new TextView(launcher);
-        tv.setText(text.toUpperCase()); tv.setTextColor(active ? 0xFFFFFFFF : 0xFF2A2A2A);
-        tv.setTextSize(11f); tv.setTypeface(Typeface.MONOSPACE);
+        tv.setText(text.toUpperCase()); tv.setTextColor(active ? VoidTheme.FG : VoidTheme.FG5);
+        tv.setTextSize(VoidTheme.TEXT_SM); tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.2f); tv.setGravity(Gravity.CENTER);
         tv.setPadding(0, dp(10), 0, dp(10)); return tv;
     }
 
     private View separator() {
-        View v = new View(launcher); v.setBackgroundColor(0xFF111111);
+        View v = new View(launcher); v.setBackgroundColor(VoidTheme.BG_CARD);
         v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
         return v;
     }

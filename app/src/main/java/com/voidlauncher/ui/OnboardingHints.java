@@ -30,7 +30,7 @@ class OnboardingHints {
         Context ctx = root.getContext();
 
         TextView tv = new TextView(ctx);
-        tv.setTextColor(0x88E8E8E8);
+        tv.setTextColor(VoidTheme.FG3);
         tv.setTextSize(13f);
         tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.05f);

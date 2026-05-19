@@ -1,7 +1,6 @@
 package com.voidlauncher.ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
@@ -21,12 +20,8 @@ class QuickSearchLayout {
 
     private QuickSearchLayout(LinearLayout root, EditText input, ListView list,
                                TextView label, LinearLayout hintRow, TextView hintText) {
-        this.root     = root;
-        this.input    = input;
-        this.list     = list;
-        this.label    = label;
-        this.hintRow  = hintRow;
-        this.hintText = hintText;
+        this.root = root; this.input = input; this.list = list;
+        this.label = label; this.hintRow = hintRow; this.hintText = hintText;
     }
 
     static QuickSearchLayout build(Context ctx) {
@@ -35,21 +30,19 @@ class QuickSearchLayout {
 
         TextView label = new TextView(ctx);
         label.setText("BUSCAR");
-        label.setTextColor(0xFF4A4A4A);
-        label.setTextSize(10f);
+        label.setTextColor(VoidTheme.FG4);
+        label.setTextSize(VoidTheme.TEXT_XS);
         label.setTypeface(Typeface.MONOSPACE);
         label.setLetterSpacing(0.2f);
 
         TextView dot = new TextView(ctx);
-        dot.setText("·");
-        dot.setTextColor(0xFF6A6A6A);
-        dot.setTextSize(16f);
-        dot.setTypeface(Typeface.MONOSPACE);
+        dot.setText("·"); dot.setTextColor(VoidTheme.FG3);
+        dot.setTextSize(VoidTheme.TEXT_XL); dot.setTypeface(Typeface.MONOSPACE);
         dot.setPadding(0, 0, dp(ctx, 10), 0);
 
         TextView hintText = new TextView(ctx);
-        hintText.setTextColor(0x88E8E8E8);
-        hintText.setTextSize(13f);
+        hintText.setTextColor(VoidTheme.FG3);
+        hintText.setTextSize(VoidTheme.TEXT_MD);
         hintText.setTypeface(Typeface.MONOSPACE);
         hintText.setLetterSpacing(0.04f);
 
@@ -57,23 +50,20 @@ class QuickSearchLayout {
         hintRow.setOrientation(LinearLayout.HORIZONTAL);
         hintRow.setGravity(Gravity.CENTER_VERTICAL);
         hintRow.setPadding(0, dp(ctx, 10), 0, dp(ctx, 6));
-        hintRow.addView(dot);
-        hintRow.addView(hintText);
+        hintRow.addView(dot); hintRow.addView(hintText);
         hintRow.setVisibility(View.GONE);
 
         LinearLayout inputRow = new LinearLayout(ctx);
         inputRow.setOrientation(LinearLayout.VERTICAL);
         inputRow.setPadding(dp(ctx, 16), dp(ctx, 14), dp(ctx, 16), dp(ctx, 14));
-        inputRow.addView(label);
-        inputRow.addView(hintRow);
-        inputRow.addView(input);
+        inputRow.addView(label); inputRow.addView(hintRow); inputRow.addView(input);
 
         View separator = new View(ctx);
-        separator.setBackgroundColor(0xFF1A1A1A);
+        separator.setBackgroundColor(VoidTheme.LINE);
 
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(0xFF0A0A0A);
+        root.setBackgroundColor(VoidTheme.BG);
         root.addView(list, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         root.addView(separator, new LinearLayout.LayoutParams(
@@ -85,13 +75,13 @@ class QuickSearchLayout {
 
     private static EditText buildInput(Context ctx) {
         EditText et = new EditText(ctx);
-        et.setTextColor(0xFFE8E8E8);
+        et.setTextColor(VoidTheme.FG);
         et.setTextSize(18f);
         et.setTypeface(Typeface.MONOSPACE);
-        et.setBackgroundColor(Color.TRANSPARENT);
+        et.setBackgroundColor(0);
         et.setSingleLine(true);
         et.setHint("");
-        et.setHintTextColor(0x28FFFFFF);
+        et.setHintTextColor(VoidTheme.FG5);
         et.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         et.setPadding(0, 0, 0, 0);
         return et;
@@ -99,7 +89,7 @@ class QuickSearchLayout {
 
     private static ListView buildList(Context ctx) {
         ListView lv = new ListView(ctx);
-        lv.setBackgroundColor(0xFF0A0A0A);
+        lv.setBackgroundColor(VoidTheme.BG);
         lv.setDivider(null);
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -109,14 +99,6 @@ class QuickSearchLayout {
         lv.setClipToPadding(false);
         return lv;
     }
-
-    static final int[] TOP_COLORS = {
-        0xFF888888,  // rank 1 — más usado
-        0xFF4A4A4A,  // rank 2
-        0xFF363636,  // rank 3
-        0xFF282828,  // rank 4
-        0xFF1E1E1E,  // rank 5 — menos usado
-    };
 
     static int dp(Context ctx, int dp) {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
