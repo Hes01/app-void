@@ -30,8 +30,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private String[] appNames, appPackages;
     private ContextualApps contextual; private AliasRepository aliases;
-    private HiddenAppsRepository hidden; private View launchBar;
-    private PatternView patternView;
+    private HiddenAppsRepository hidden; private View launchBar; private PatternView patternView;
+    private FrameLayout root; private View clockView;
     private TextView tvClock, tvDate;
     private final Handler clockHandler = new Handler();
     private SimpleDateFormat timeFmt, dateFmt;
@@ -64,12 +64,12 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
-        FrameLayout root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
+        root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
         patternView = new PatternView(this, new WallpaperRepository(this)); root.addView(patternView);
         GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
         TextView[] clockRef = new TextView[1], dateRef = new TextView[1];
-        View clockView = ClockView.build(this, clockRef, dateRef);
+        clockView = ClockView.build(this, clockRef, dateRef);
         if (!getSharedPreferences("void_config", MODE_PRIVATE).getBoolean("show_clock", true))
             clockView.setVisibility(View.GONE);
         root.addView(clockView);
@@ -110,7 +110,13 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         LaunchBar.show(launchBar, this, pkg);
     }
 
-    public void refreshPattern() { patternView.refresh(); }
+    public void applyUiChanges() {
+        root.setBackgroundColor(VoidTheme.BG);
+        tvClock.setTextColor(VoidTheme.FG); tvDate.setTextColor(VoidTheme.FG4);
+        boolean showClock = getSharedPreferences("void_config", MODE_PRIVATE).getBoolean("show_clock", true);
+        clockView.setVisibility(showClock ? View.VISIBLE : View.GONE);
+        patternView.refresh(); clockView.invalidate();
+    }
 
     private void verifyPlugins() {
         Intent main = new Intent(Intent.ACTION_MAIN, null); main.addCategory(Intent.CATEGORY_LAUNCHER);

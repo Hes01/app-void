@@ -49,6 +49,7 @@ class ClockView {
             @Override
             protected void dispatchDraw(Canvas canvas) {
                 super.dispatchDraw(canvas);
+                dotPaint.setColor(VoidTheme.FG);
                 float cx = getWidth() / 2f;
                 float cy = getHeight() / 2f;
                 Calendar c  = Calendar.getInstance();
