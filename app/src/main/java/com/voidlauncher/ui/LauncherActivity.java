@@ -26,18 +26,12 @@ import java.util.Locale;
 
 public class LauncherActivity extends Activity implements GestureView.Listener {
 
-    private String[]             appNames;
-    private String[]             appPackages;
-    private ContextualApps       contextual;
-    private AliasRepository      aliases;
-    private HiddenAppsRepository hidden;
-    private android.view.View    launchBar;
-
-    private TextView          tvClock;
-    private TextView          tvDate;
-    private final Handler     clockHandler = new Handler();
-    private SimpleDateFormat  timeFmt;
-    private SimpleDateFormat  dateFmt;
+    private String[] appNames, appPackages;
+    private ContextualApps contextual; private AliasRepository aliases;
+    private HiddenAppsRepository hidden; private View launchBar;
+    private TextView tvClock, tvDate;
+    private final Handler clockHandler = new Handler();
+    private SimpleDateFormat timeFmt, dateFmt;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
@@ -48,15 +42,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     };
 
     private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context ctx, Intent intent) {
+        @Override public void onReceive(Context ctx, Intent intent) {
             String pkg = intent.getData() != null ? intent.getData().getSchemeSpecificPart() : null;
             if (pkg == null) return;
-            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
-                PluginRegistry.onInstalled(ctx, pkg);
-            } else {
-                PluginRegistry.onRemoved(ctx, pkg, aliases);
-            }
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) PluginRegistry.onInstalled(ctx, pkg);
+            else PluginRegistry.onRemoved(ctx, pkg, aliases);
             loadInstalledApps();
         }
     };
@@ -65,36 +55,25 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        contextual = new ContextualApps(this);
-        aliases    = new AliasRepository(this);
-        hidden     = new HiddenAppsRepository(this);
+        contextual = new ContextualApps(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
         String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
         timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
-        FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(VoidTheme.BG);
+        FrameLayout root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
+        GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
-        GestureView gestureView = new GestureView(this);
-        gestureView.setListener(this);
-        root.addView(gestureView);
-
-        TextView[] clockRef = new TextView[1];
-        TextView[] dateRef  = new TextView[1];
+        TextView[] clockRef = new TextView[1], dateRef = new TextView[1];
         root.addView(ClockView.build(this, clockRef, dateRef));
-        tvClock = clockRef[0];
-        tvDate  = dateRef[0];
-        
+        tvClock = clockRef[0]; tvDate = dateRef[0];
+
         launchBar = LaunchBar.attach(root);
         setContentView(root);
         loadInstalledApps();
 
-        IntentFilter pkgFilter = new IntentFilter();
-        pkgFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        pkgFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        pkgFilter.addDataScheme("package");
-        registerReceiver(packageReceiver, pkgFilter);
+        IntentFilter f = new IntentFilter();
+        f.addAction(Intent.ACTION_PACKAGE_ADDED); f.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        f.addDataScheme("package"); registerReceiver(packageReceiver, f);
     }
 
     @Override
@@ -105,33 +84,9 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         verifyPlugins();
     }
 
-    private void verifyPlugins() {
-        PackageManager pm = getPackageManager();
-        Intent main = new Intent(Intent.ACTION_MAIN, null);
-        main.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> infos = pm.queryIntentActivities(main, PackageManager.GET_META_DATA);
-        for (ResolveInfo info : infos) {
-            String pkg = info.activityInfo.packageName;
-            String alias = PluginRegistry.readAlias(this, pkg);
-            if (alias != null && aliases.resolve(alias) == null && aliases.aliasOf(pkg) == null)
-                aliases.set(alias, pkg);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        clockHandler.removeCallbacks(clockTick);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try { unregisterReceiver(packageReceiver); } catch (Exception ignored) {}
-    }
-
-    @Override
-    public void onBackPressed() { /* launcher no retrocede */ }
+    @Override protected void onPause()   { super.onPause();   clockHandler.removeCallbacks(clockTick); }
+    @Override protected void onDestroy() { super.onDestroy(); try { unregisterReceiver(packageReceiver); } catch (Exception ignored) {} }
+    @Override public void onBackPressed() {}
 
     @Override
     public void onTap() {
@@ -143,15 +98,22 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         LaunchBar.show(launchBar);
     }
 
+    private void verifyPlugins() {
+        Intent main = new Intent(Intent.ACTION_MAIN, null); main.addCategory(Intent.CATEGORY_LAUNCHER);
+        for (ResolveInfo r : getPackageManager().queryIntentActivities(main, PackageManager.GET_META_DATA)) {
+            String pkg   = r.activityInfo.packageName;
+            String alias = PluginRegistry.readAlias(this, pkg);
+            if (alias != null && aliases.resolve(alias) == null && aliases.aliasOf(pkg) == null)
+                aliases.set(alias, pkg);
+        }
+    }
+
     private void loadInstalledApps() {
         PackageManager pm = getPackageManager();
-        Intent main = new Intent(Intent.ACTION_MAIN, null);
-        main.addCategory(Intent.CATEGORY_LAUNCHER);
+        Intent main = new Intent(Intent.ACTION_MAIN, null); main.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> infos = pm.queryIntentActivities(main, 0);
-        Collections.sort(infos, (a, b) -> a.loadLabel(pm).toString()
-                .compareToIgnoreCase(b.loadLabel(pm).toString()));
-        appNames    = new String[infos.size()];
-        appPackages = new String[infos.size()];
+        Collections.sort(infos, (a, b) -> a.loadLabel(pm).toString().compareToIgnoreCase(b.loadLabel(pm).toString()));
+        appNames = new String[infos.size()]; appPackages = new String[infos.size()];
         for (int i = 0; i < infos.size(); i++) {
             appNames[i]    = infos.get(i).loadLabel(pm).toString();
             appPackages[i] = infos.get(i).activityInfo.packageName;
