@@ -117,7 +117,18 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         boolean wantSeg = cm == 2, hasSeg = segClock != null;
         boolean wantFlip = cm == 3, hasFlip = flipClock != null;
         boolean wasHidden = clockView.getVisibility() == View.GONE;
-        if (wantSeg != hasSeg || wantFlip != hasFlip || (cm == 0) != wasHidden) { recreate(); return; }
+        if (wantSeg != hasSeg || wantFlip != hasFlip || (cm == 0) != wasHidden) {
+            clockHandler.removeCallbacks(clockTick);
+            int idx = root.indexOfChild(clockView); root.removeView(clockView);
+            segClock = null; flipClock = null; tvClock = null;
+            TextView[] dateRef = new TextView[1];
+            if (cm == 2) { SegmentClockView[] sr={null}; clockView=ClockView.buildSegment(this,sr,dateRef); segClock=sr[0]; }
+            else if (cm == 3) { FlipClockView[] fr={null}; clockView=ClockView.buildFlip(this,fr,dateRef); flipClock=fr[0]; }
+            else { TextView[] cr={null}; clockView=ClockView.build(this,cr,dateRef); tvClock=cr[0]; }
+            if (cm == 0) clockView.setVisibility(View.GONE);
+            tvDate = dateRef[0]; root.addView(clockView, idx);
+            clockHandler.post(clockTick);
+        }
         root.setBackgroundColor(VoidTheme.BG);
         if (tvClock != null) tvClock.setTextColor(VoidTheme.FG);
         tvDate.setTextColor(VoidTheme.FG4);
