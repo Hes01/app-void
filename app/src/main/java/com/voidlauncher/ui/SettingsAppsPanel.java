@@ -1,5 +1,6 @@
 package com.voidlauncher.ui;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
@@ -7,6 +8,7 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -121,7 +123,7 @@ class SettingsAppsPanel {
         tvEye.setPadding(dp(8), 0, dp(8), 0);
         tvEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
         TextView tvAct = mono(alias != null ? "×" : "+ alias", alias != null ? VoidTheme.FG5 : VoidTheme.FG4, VoidTheme.TEXT_SM, 0);
-        row.setOnClickListener(v -> new SettingsEditDialog(launcher, aliases, pkg, names.get(i), this::refresh).show());
+        row.setOnClickListener(v -> makeEditable(row, pkg));
         row.addView(tvAlias);
         row.addView(tvName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(tvEye); row.addView(tvAct); return row;
@@ -140,6 +142,29 @@ class SettingsAppsPanel {
             filtered.add(i);
         }
         if (adapter != null) adapter.notifyDataSetChanged();
+    }
+
+    private void makeEditable(LinearLayout row, String pkg) {
+        row.removeAllViews(); row.setBackgroundColor(VoidTheme.BG_CARD);
+        String current = aliases.aliasOf(pkg);
+        EditText et = new EditText(launcher); et.setTypeface(Typeface.MONOSPACE);
+        et.setTextColor(VoidTheme.FG); et.setTextSize(VoidTheme.TEXT_LG); et.setBackgroundColor(0);
+        et.setPadding(dp(20), dp(11), dp(8), dp(11)); et.setSingleLine(true);
+        et.setHint(launcher.getString(R.string.hint_alias)); et.setHintTextColor(VoidTheme.FG5);
+        if (current != null) { et.setText(current); }
+        TextView ok = mono("→", VoidTheme.FG2, VoidTheme.TEXT_LG, 0);
+        ok.setGravity(Gravity.CENTER); ok.setPadding(dp(12), dp(11), dp(20), dp(11));
+        ok.setOnClickListener(v -> {
+            String val = et.getText().toString().trim();
+            if (current != null) aliases.remove(current);
+            if (!val.isEmpty()) aliases.set(val, pkg);
+            InputMethodManager imm = (InputMethodManager) launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+            refresh();
+        });
+        row.addView(et, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(ok);
+        et.post(() -> { et.requestFocus(); if (current != null) et.setSelection(et.getText().length()); QuickSearchLayout.showKeyboard(launcher, et); });
     }
 
     private void refresh() { applyFilter(); }
