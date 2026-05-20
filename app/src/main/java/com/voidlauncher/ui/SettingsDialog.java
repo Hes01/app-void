@@ -94,7 +94,7 @@ public class SettingsDialog {
         tv.setText(text.toUpperCase()); tv.setTextColor(active ? VoidTheme.FG : VoidTheme.FG5);
         tv.setTextSize(VoidTheme.TEXT_SM); tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.2f); tv.setGravity(Gravity.CENTER);
-        tv.setPadding(0, dp(10), 0, dp(10)); return tv;
+        tv.setPadding(0, dp(10), 0, dp(10)); tv.setBackgroundColor(0); return tv;
     }
 
     private View separator() {
