@@ -5,17 +5,25 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import com.voidlauncher.data.WallpaperRepository;
 
 class WallpaperSelector {
 
-    private static final int CELL = 80;
+    private static final int COLS = 3;
+    private static final int MARGIN_DP = 3;
+    private static final int PADDING_DP = 2;
 
     static android.view.View build(Context ctx, Runnable onChanged) {
         WallpaperRepository repo = new WallpaperRepository(ctx);
         int[] ids = new int[Patterns.ALL.length + 1];
         ids[0] = WallpaperRepository.NONE;
         System.arraycopy(Patterns.ALL, 0, ids, 1, Patterns.ALL.length);
+
+        int screenW = ctx.getResources().getDisplayMetrics().widthPixels;
+        int margin = dp(ctx, MARGIN_DP);
+        int cellSize = (screenW - COLS * margin * 2) / COLS;
+        int previewSize = cellSize - dp(ctx, PADDING_DP) * 2;
 
         LinearLayout grid = new LinearLayout(ctx);
         grid.setOrientation(LinearLayout.VERTICAL);
@@ -26,7 +34,7 @@ class WallpaperSelector {
         LinearLayout row = null;
 
         for (int i = 0; i < ids.length; i++) {
-            if (i % 3 == 0) {
+            if (i % COLS == 0) {
                 row = new LinearLayout(ctx);
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 grid.addView(row);
@@ -34,7 +42,7 @@ class WallpaperSelector {
             int id = ids[i];
             LinearLayout wrapper = makeWrapper(ctx, id == current);
             wrappers[i] = wrapper;
-            wrapper.addView(makePreview(ctx, id));
+            wrapper.addView(makePreview(ctx, id, previewSize));
 
             final int fi = i;
             wrapper.setOnClickListener(v -> {
@@ -44,23 +52,26 @@ class WallpaperSelector {
                 if (onChanged != null) onChanged.run();
             });
 
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    dp(ctx, CELL + 4), dp(ctx, CELL + 4));
-            lp.setMargins(dp(ctx, 3), dp(ctx, 3), dp(ctx, 3), dp(ctx, 3));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(cellSize, cellSize);
+            lp.setMargins(margin, margin, margin, margin);
             row.addView(wrapper, lp);
         }
-        return grid;
+        int screenH = ctx.getResources().getDisplayMetrics().heightPixels;
+        ScrollView scroll = new ScrollView(ctx);
+        scroll.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, screenH * 2 / 5));
+        scroll.addView(grid);
+        return scroll;
     }
 
     private static LinearLayout makeWrapper(Context ctx, boolean selected) {
         LinearLayout w = new LinearLayout(ctx);
-        w.setPadding(dp(ctx, 2), dp(ctx, 2), dp(ctx, 2), dp(ctx, 2));
+        w.setPadding(dp(ctx, PADDING_DP), dp(ctx, PADDING_DP), dp(ctx, PADDING_DP), dp(ctx, PADDING_DP));
         w.setBackgroundColor(selected ? VoidTheme.FG4 : 0);
         return w;
     }
 
-    private static ImageView makePreview(Context ctx, int id) {
-        int size = dp(ctx, CELL);
+    private static ImageView makePreview(Context ctx, int id, int size) {
         Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
         c.drawColor(VoidTheme.BG);
