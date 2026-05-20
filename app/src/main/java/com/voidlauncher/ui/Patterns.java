@@ -8,29 +8,22 @@ import android.graphics.Path;
 class Patterns {
 
     static final int DOTS      = 1;  static final int HAIRLINES = 2;
-    static final int PLUS      = 3;  static final int TOPO      = 4;
-    static final int SEIGAIHA  = 5;  static final int ASANOHA   = 6;
-    static final int SHIPPO    = 7;  static final int KIKKO     = 8;
-    static final int KAGOME    = 9;  static final int TRUCHET   = 10;
-    static final int ISO       = 11; static final int OCTAGRAM  = 12;
-    static final int GUILLOCHE = 13; static final int DAMASK    = 14;
-    static final int GRAVURE   = 15; static final int MOIRE     = 16;
-    static final int ISLAMIC   = 17;
+    static final int TOPO      = 4;  static final int SHIPPO    = 7;
+    static final int TRUCHET   = 10; static final int DAMASK    = 14;
+    static final int GRAVURE   = 15; static final int ULAM      = 18;
+    static final int AIZAWA    = 19; static final int HILBERT   = 20;
 
-    static final int[]    ALL   = { DOTS,HAIRLINES,PLUS,TOPO,SEIGAIHA,ASANOHA,SHIPPO,KIKKO,KAGOME,TRUCHET,ISO,OCTAGRAM,GUILLOCHE,DAMASK,GRAVURE,MOIRE,ISLAMIC };
-    static final String[] NAMES = { "Dots","Hairlines","Plus","Topo","Seigaiha","Asanoha","Shippo","Kikko","Kagome","Truchet","Iso","Octagram","Guilloché","Damasco","Gravure","Moiré","Islámico" };
+    static final int[]    ALL   = { DOTS, HAIRLINES, TOPO, SHIPPO, TRUCHET, DAMASK, GRAVURE, ULAM, AIZAWA, HILBERT };
+    static final String[] NAMES = { "Dots", "Hairlines", "Topo", "Shippo", "Truchet", "Damasco", "Gravure", "Ulam", "Aizawa", "Hilbert" };
 
     static void draw(Canvas c, int id, int w, int h, Context ctx) {
         switch (id) {
             case DOTS:      drawDots(c, w, h, ctx);                break;
             case HAIRLINES: drawHairlines(c, w, h, ctx);           break;
-            case PLUS:      drawPlus(c, w, h, ctx);                break;
             case TOPO:      drawTopo(c, w, h, ctx);                break;
-            case GUILLOCHE:
             case DAMASK:
             case GRAVURE:
-            case MOIRE:
-            case ISLAMIC:   PatternsExtra2.draw(c, id, w, h, ctx); break;
+            case AIZAWA:    PatternsExtra2.draw(c, id, w, h, ctx); break;
             default:        PatternsExtra.draw(c, id, w, h, ctx);  break;
         }
     }
@@ -51,16 +44,6 @@ class Patterns {
         float len = (float) Math.sqrt(w * w + h * h);
         for (float i = -len; i < len; i += tile)
             c.drawLine(i, 0, i + h, h, p);
-    }
-
-    private static void drawPlus(Canvas c, int w, int h, Context ctx) {
-        float tile = dp(ctx, 22); float arm = dp(ctx, 3);
-        Paint p = stroke(0x661A1A1A, dp(ctx, 0.7f));
-        for (float y = tile / 2; y < h + tile; y += tile)
-            for (float x = tile / 2; x < w + tile; x += tile) {
-                c.drawLine(x - arm, y, x + arm, y, p);
-                c.drawLine(x, y - arm, x, y + arm, p);
-            }
     }
 
     private static void drawTopo(Canvas c, int w, int h, Context ctx) {
@@ -86,27 +69,6 @@ class Patterns {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG); p.setStyle(Paint.Style.STROKE); p.setColor(color); p.setStrokeWidth(w); return p;
     }
     static float dp(Context ctx, float dp) { return dp * ctx.getResources().getDisplayMetrics().density; }
-
-    static void drawStar6(Path p, float cx, float cy, float r) {
-        float r2 = r * 0.5f;
-        for (int i = 0; i < 6; i++) {
-            double a1 = Math.toRadians(i * 60 - 90); double a2 = Math.toRadians(i * 60 - 60);
-            if (i == 0) p.moveTo(cx + r*(float)Math.cos(a1), cy + r*(float)Math.sin(a1));
-            else        p.lineTo(cx + r*(float)Math.cos(a1), cy + r*(float)Math.sin(a1));
-            p.lineTo(cx + r2*(float)Math.cos(a2), cy + r2*(float)Math.sin(a2));
-        }
-        p.close();
-    }
-
-    static void drawHex(Path p, float cx, float cy, float r) {
-        p.reset();
-        for (int i = 0; i < 6; i++) {
-            double a = Math.toRadians(i * 60);
-            float x = cx + r*(float)Math.cos(a); float y = cy + r*(float)Math.sin(a);
-            if (i == 0) p.moveTo(x, y); else p.lineTo(x, y);
-        }
-        p.close();
-    }
 
     static void drawSquare(Path p, float cx, float cy, float half, float deg) {
         p.reset();

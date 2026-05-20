@@ -3,49 +3,16 @@ package com.voidlauncher.ui;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 
 class PatternsExtra {
 
     static void draw(Canvas c, int id, int w, int h, Context ctx) {
         switch (id) {
-            case Patterns.SEIGAIHA: drawSeigaiha(c, w, h, ctx); break;
-            case Patterns.ASANOHA:  drawAsanoha(c, w, h, ctx);  break;
-            case Patterns.SHIPPO:   drawShippo(c, w, h, ctx);   break;
-            case Patterns.KIKKO:    drawKikko(c, w, h, ctx);    break;
-            case Patterns.KAGOME:   drawKagome(c, w, h, ctx);   break;
-            case Patterns.TRUCHET:  drawTruchet(c, w, h, ctx);  break;
-            case Patterns.ISO:      drawIso(c, w, h, ctx);      break;
-            case Patterns.OCTAGRAM: drawOctagram(c, w, h, ctx); break;
+            case Patterns.SHIPPO:  drawShippo(c, w, h, ctx);  break;
+            case Patterns.TRUCHET: drawTruchet(c, w, h, ctx); break;
+            case Patterns.ULAM:    drawUlam(c, w, h, ctx);    break;
+            case Patterns.HILBERT: drawHilbert(c, w, h);      break;
         }
-    }
-
-    // ── Wagara ────────────────────────────────────────────────────────────────
-
-    private static void drawSeigaiha(Canvas c, int w, int h, Context ctx) {
-        float tile = Patterns.dp(ctx, 40); float r = tile / 2f;
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF1A2733));
-        Paint ink = Patterns.stroke(0x52D4DDE3, Patterns.dp(ctx, 1f));
-        for (float row = -1; row * tile * 0.75f < h + tile; row++) {
-            float ox = (row % 2 == 0) ? 0 : r;
-            for (float col = -1; col < w / tile + 2; col++) {
-                float cx = col * tile + ox; float cy = row * tile * 0.75f;
-                for (int a = 0; a < 3; a++) c.drawCircle(cx, cy, r - a * Patterns.dp(ctx, 4), ink);
-            }
-        }
-    }
-
-    private static void drawAsanoha(Canvas c, int w, int h, Context ctx) {
-        float tw = Patterns.dp(ctx, 31.18f); float th = Patterns.dp(ctx, 54);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFFECE6D8));
-        Paint ink = Patterns.stroke(0x381A1A1A, Patterns.dp(ctx, 0.8f));
-        Path star = new Path();
-        for (float ty = -th; ty < h + th; ty += th)
-            for (float tx = -tw; tx < w + tw; tx += tw) {
-                star.reset();
-                Patterns.drawStar6(star, tx + tw / 2, ty + th / 2, Patterns.dp(ctx, 14));
-                c.drawPath(star, ink);
-            }
     }
 
     private static void drawShippo(Canvas c, int w, int h, Context ctx) {
@@ -56,36 +23,6 @@ class PatternsExtra {
             for (float col = -1; col < w / tile + 2; col++) {
                 c.drawCircle(col * tile, row * tile, r, ink);
                 c.drawCircle(col * tile + r, row * tile + r, r, ink);
-            }
-    }
-
-    private static void drawKikko(Canvas c, int w, int h, Context ctx) {
-        float tw = Patterns.dp(ctx, 24); float th = Patterns.dp(ctx, 42);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF1A1A1A));
-        Paint ink = Patterns.stroke(0x2EECE6D8, Patterns.dp(ctx, 0.8f));
-        Path hex = new Path();
-        for (float row = -1; row < h / th + 2; row++)
-            for (float col = -1; col < w / tw + 2; col++) {
-                float cx = col * tw + (row % 2 == 0 ? 0 : tw / 2f);
-                Patterns.drawHex(hex, cx, row * th * 0.75f, tw / 2f);
-                c.drawPath(hex, ink);
-            }
-    }
-
-    // ── Optical ───────────────────────────────────────────────────────────────
-
-    private static void drawKagome(Canvas c, int w, int h, Context ctx) {
-        float tw = Patterns.dp(ctx, 28); float th = Patterns.dp(ctx, 24);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF2D3A2E));
-        Paint ink = Patterns.stroke(0x42E6E1CF, Patterns.dp(ctx, 0.8f));
-        Path tri = new Path();
-        for (float row = -1; row < h / th + 2; row++)
-            for (float col = -1; col < w / tw + 2; col++) {
-                float x = col * tw + (row % 2 == 0 ? 0 : tw / 2f); float y = row * th;
-                tri.reset(); tri.moveTo(x, y); tri.lineTo(x + tw/2, y + th); tri.lineTo(x - tw/2, y + th); tri.close();
-                c.drawPath(tri, ink);
-                tri.reset(); tri.moveTo(x, y + th); tri.lineTo(x + tw/2, y); tri.lineTo(x - tw/2, y); tri.close();
-                c.drawPath(tri, ink);
             }
     }
 
@@ -107,29 +44,75 @@ class PatternsExtra {
             }
     }
 
-    private static void drawIso(Canvas c, int w, int h, Context ctx) {
-        float tw = Patterns.dp(ctx, 48); float th = Patterns.dp(ctx, 83);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF15151A));
-        Paint ink = Patterns.stroke(0x729AA3B8, Patterns.dp(ctx, 0.7f));
-        float dx = (float)(tw / Math.sqrt(3));
-        for (float y = -th; y < h + th; y += th / 2f)
-            for (float x = -tw; x < w + tw; x += tw) {
-                c.drawLine(x, y, x + dx, y + th/2f, ink);
-                c.drawLine(x + tw, y, x + tw - dx, y + th/2f, ink);
-                c.drawLine(x, y + th/2f, x + tw, y + th/2f, ink);
+    // Espiral de Ulam: los primos dibujan diagonales ocultas sobre el vacío
+    private static void drawUlam(Canvas c, int w, int h, Context ctx) {
+        float cell = Patterns.dp(ctx, 8);
+        c.drawRect(0, 0, w, h, Patterns.fill(0xFF070A0F));
+        Paint dot = Patterns.fill(0x75A0BCD4);
+        float cx = w / 2f, cy = h / 2f;
+        float x = cx, y = cy, r = cell * 0.32f;
+        float[] dx = { cell, 0, -cell, 0 };
+        float[] dy = { 0, -cell, 0, cell };
+        int num = 1, dir = 0, segLen = 1, steps = 0, turns = 0;
+        int maxN = ((int)(w / cell) + 4) * ((int)(h / cell) + 4) * 3;
+        while (num <= maxN) {
+            if (x >= -cell && x <= w + cell && y >= -cell && y <= h + cell)
+                if (isPrime(num)) c.drawCircle(x, y, r, dot);
+            x += dx[dir]; y += dy[dir];
+            if (++steps == segLen) {
+                steps = 0; dir = (dir + 1) % 4;
+                if (++turns % 2 == 0) segLen++;
             }
+            num++;
+        }
     }
 
-    private static void drawOctagram(Canvas c, int w, int h, Context ctx) {
-        float tile = Patterns.dp(ctx, 40); float s = tile * 0.35f;
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF0E2A3A));
-        Paint ink = Patterns.stroke(0x59E6C989, Patterns.dp(ctx, 0.9f));
-        Path sq = new Path();
-        for (float row = -1; row < h / tile + 2; row++)
-            for (float col = -1; col < w / tile + 2; col++) {
-                float cx = col * tile + tile/2f; float cy = row * tile + tile/2f;
-                Patterns.drawSquare(sq, cx, cy, s, 0);   c.drawPath(sq, ink);
-                Patterns.drawSquare(sq, cx, cy, s, 45);  c.drawPath(sq, ink);
+    private static boolean isPrime(int n) {
+        if (n < 2) return false;
+        if (n == 2 || n == 3) return true;
+        if (n % 2 == 0 || n % 3 == 0) return false;
+        for (int i = 5; (long) i * i <= n; i += 6)
+            if (n % i == 0 || n % (i + 2) == 0) return false;
+        return true;
+    }
+
+    // Curva de Hilbert — fractal de relleno de espacio: pistas de cobre con fade radial
+    private static void drawHilbert(Canvas c, int w, int h) {
+        c.drawRect(0, 0, w, h, Patterns.fill(0xFF060804));
+        int n = 64;
+        float cell = (float) Math.min(w, h) / n;
+        float offX = (w - cell * n) / 2f, offY = (h - cell * n) / 2f;
+        float cx = w / 2f, cy = h / 2f, maxR = Math.min(w, h) * 0.52f;
+        Paint ink = new Paint(Paint.ANTI_ALIAS_FLAG);
+        ink.setStyle(Paint.Style.STROKE);
+        ink.setStrokeCap(Paint.Cap.SQUARE);
+        ink.setStrokeJoin(Paint.Join.BEVEL);
+        ink.setColor(0xFFD48020);
+        int[] p0 = {0, 0}, p1 = {0, 0};
+        hilbert(n, 0, p0);
+        for (int i = 1; i < n * n; i++) {
+            hilbert(n, i, p1);
+            float x0 = offX+(p0[0]+0.5f)*cell, y0 = offY+(p0[1]+0.5f)*cell;
+            float x1 = offX+(p1[0]+0.5f)*cell, y1 = offY+(p1[1]+0.5f)*cell;
+            float mx = (x0+x1)*0.5f, my = (y0+y1)*0.5f;
+            float dist = (float) Math.sqrt((mx-cx)*(mx-cx)+(my-cy)*(my-cy));
+            float fade = (float) Math.pow(Math.max(0f, 1f - dist/maxR), 1.5f);
+            ink.setAlpha((int)(fade * 200));
+            ink.setStrokeWidth(0.6f + fade * 1.2f);
+            c.drawLine(x0, y0, x1, y1, ink);
+            p0[0] = p1[0]; p0[1] = p1[1];
+        }
+    }
+
+    private static void hilbert(int n, int d, int[] xy) {
+        xy[0] = xy[1] = 0;
+        for (int s = 1, t = d; s < n; s *= 2) {
+            int rx = 1 & (t >> 1), ry = 1 & (t ^ rx);
+            if (ry == 0) {
+                if (rx == 1) { xy[0] = s-1-xy[0]; xy[1] = s-1-xy[1]; }
+                int tmp = xy[0]; xy[0] = xy[1]; xy[1] = tmp;
             }
+            xy[0] += s * rx; xy[1] += s * ry; t >>= 2;
+        }
     }
 }
