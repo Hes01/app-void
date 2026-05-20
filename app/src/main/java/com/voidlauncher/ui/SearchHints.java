@@ -2,6 +2,7 @@ package com.voidlauncher.ui;
 
 import android.content.Context;
 import android.text.Editable;
+import com.hes01.voidlauncher.R;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -12,16 +13,16 @@ class SearchHints {
 
     private static final String PREF = "void_search_hints";
     private static final String KEY  = "done";
-    private static final String TEXT = "bienvenido a void";
 
     static void showIfNeeded(Context ctx, LinearLayout hintRow, TextView hintText, EditText input) {
         if (ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).getBoolean(KEY, false)) return;
 
         View dot = hintRow.getChildAt(0);
         hintRow.setVisibility(View.VISIBLE);
+        String text = ctx.getString(R.string.welcome);
         hintRow.post(() -> {
             breathe(dot);
-            typewriter(hintText, 0, new boolean[]{true});
+            typewriter(hintText, text, 0, new boolean[]{true});
         });
 
         input.addTextChangedListener(new TextWatcher() {
@@ -43,10 +44,10 @@ class SearchHints {
                 .start();
     }
 
-    private static void typewriter(TextView tv, int i, boolean[] active) {
-        if (!active[0] || i > TEXT.length()) return;
-        tv.setText(TEXT.substring(0, i));
-        tv.postDelayed(() -> typewriter(tv, i + 1, active), 55);
+    private static void typewriter(TextView tv, String text, int i, boolean[] active) {
+        if (!active[0] || i > text.length()) return;
+        tv.setText(text.substring(0, i));
+        tv.postDelayed(() -> typewriter(tv, text, i + 1, active), 55);
     }
 
     private static void dismiss(Context ctx, LinearLayout hintRow, View dot) {

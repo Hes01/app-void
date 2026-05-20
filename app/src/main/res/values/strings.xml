@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VOID</string>
-    <string name="settings_title">VOID SETTINGS</string>
+
+    <!-- settings — secciones -->
+    <string name="section_background">fondo</string>
+    <string name="section_appearance">apariencia</string>
+    <string name="section_behavior">comportamiento</string>
+    <string name="section_privacy">privacidad</string>
+
+    <!-- settings — filas -->
+    <string name="pref_theme">tema</string>
+    <string name="pref_clock">reloj</string>
+    <string name="pref_real_name">nombre real en .all</string>
+    <string name="pref_auto_launch">abrir si 1 resultado</string>
+    <string name="pref_contextual">aprendizaje horario</string>
+    <string name="pref_vibration">vibración al abrir</string>
+
+    <!-- settings — acciones -->
+    <string name="action_clear_history">borrar historial horario</string>
+    <string name="action_export_aliases">exportar alias</string>
+    <string name="action_import_aliases">importar alias</string>
+    <string name="toast_history_cleared">historial borrado</string>
+
+    <!-- modos de reloj -->
+    <string name="clock_none">ninguno</string>
+    <string name="clock_text">texto</string>
+    <string name="clock_seg">7 seg</string>
+    <string name="clock_flip">flip</string>
+
+    <!-- modos de tema -->
+    <string name="theme_night">noche</string>
+    <string name="theme_day">día</string>
+    <string name="theme_auto">auto</string>
+
+    <!-- tabs de settings -->
+    <string name="tab_apps">apps</string>
+    <string name="tab_config">config</string>
+
+    <!-- diálogo de edición -->
+    <string name="hint_alias">alias</string>
+    <string name="btn_cancel">cancelar</string>
+    <string name="btn_ok">ok</string>
+
+    <!-- filtros de apps -->
+    <string name="filter_all">todas</string>
+    <string name="filter_aliased">con alias</string>
+    <string name="filter_no_alias">sin alias</string>
+    <string name="search_app_hint">> buscar app o alias…</string>
+
+    <!-- onboarding -->
+    <string name="hint_tap">tap  →  buscar</string>
+    <string name="hint_swipe">swipe ↓  →  cerrar</string>
+    <string name="hint_all">.all  →  todas las apps</string>
+    <string name="hint_void">.void  →  ajustes</string>
+    <string name="hint_alias_launch">alias .nombre  →  lanzar rápido</string>
+
+    <!-- bienvenida -->
+    <string name="welcome">bienvenido a void</string>
 </resources>

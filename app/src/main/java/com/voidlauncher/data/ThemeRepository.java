@@ -2,6 +2,7 @@ package com.voidlauncher.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.hes01.voidlauncher.R;
 
 public class ThemeRepository {
 
@@ -22,4 +23,7 @@ public class ThemeRepository {
 
     public int  getMode() { return prefs.getInt(KEY, NIGHT); }
     public void setMode(int mode) { prefs.edit().putInt(KEY, mode).apply(); }
+
+    private static final int[] LABEL_IDS = {R.string.theme_night, R.string.theme_day, R.string.theme_auto};
+    public static String label(Context ctx, int mode) { return ctx.getString(LABEL_IDS[mode]); }
 }

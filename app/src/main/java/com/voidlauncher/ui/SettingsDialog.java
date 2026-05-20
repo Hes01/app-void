@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import java.util.ArrayList;
@@ -71,7 +72,8 @@ public class SettingsDialog {
     }
 
     private LinearLayout buildTabs(View appsPanel, View configPanel) {
-        TextView tApps = tab("apps", true); TextView tConf = tab("config", false);
+        TextView tApps = tab(launcher.getString(R.string.tab_apps),   true);
+        TextView tConf = tab(launcher.getString(R.string.tab_config), false);
         tApps.setOnClickListener(v -> {
             appsPanel.setVisibility(View.VISIBLE); configPanel.setVisibility(View.GONE);
             tApps.setTextColor(VoidTheme.FG); tConf.setTextColor(VoidTheme.FG5);

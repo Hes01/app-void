@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.AliasRepository;
 
 class SettingsEditDialog {
@@ -33,7 +34,7 @@ class SettingsEditDialog {
         String current = aliases.aliasOf(pkg);
         EditText input = new EditText(launcher);
         input.setTypeface(Typeface.MONOSPACE); input.setText(current != null ? current : "");
-        input.setHint("alias"); input.setHintTextColor(VoidTheme.FG5);
+        input.setHint(launcher.getString(R.string.hint_alias)); input.setHintTextColor(VoidTheme.FG5);
         input.setTextColor(VoidTheme.FG); input.setTextSize(VoidTheme.TEXT_XL);
         input.setBackgroundColor(Color.TRANSPARENT); input.setPadding(0, dp(14), 0, dp(14));
 
@@ -53,8 +54,8 @@ class SettingsEditDialog {
         Dialog d = new Dialog(launcher);
         LinearLayout actions = new LinearLayout(launcher);
         actions.setOrientation(LinearLayout.HORIZONTAL);
-        TextView cancel = btn("cancelar", VoidTheme.FG4);
-        TextView ok     = btn("ok",       VoidTheme.FG2);
+        TextView cancel = btn(launcher.getString(R.string.btn_cancel), VoidTheme.FG4);
+        TextView ok     = btn(launcher.getString(R.string.btn_ok),     VoidTheme.FG2);
         cancel.setOnClickListener(v -> d.dismiss());
         ok.setOnClickListener(v -> {
             String val = input.getText().toString().trim();

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ class SettingsAppsPanel {
     private View buildSearch() {
         EditText et = new EditText(launcher);
         et.setTypeface(Typeface.MONOSPACE); et.setTextColor(VoidTheme.FG2);
-        et.setHintTextColor(VoidTheme.FG5); et.setHint("> buscar app o alias...");
+        et.setHintTextColor(VoidTheme.FG5); et.setHint(launcher.getString(R.string.search_app_hint));
         et.setTextSize(VoidTheme.TEXT_LG); et.setBackgroundColor(0);
         et.setPadding(dp(20), dp(14), dp(20), dp(10));
         et.addTextChangedListener(new TextWatcher() {
@@ -61,7 +62,9 @@ class SettingsAppsPanel {
     }
 
     private View buildFilters() {
-        TextView fAll = filterBtn("todas"), fAlias = filterBtn("con alias"), fNo = filterBtn("sin alias");
+        TextView fAll   = filterBtn(launcher.getString(R.string.filter_all));
+        TextView fAlias = filterBtn(launcher.getString(R.string.filter_aliased));
+        TextView fNo    = filterBtn(launcher.getString(R.string.filter_no_alias));
         setFilterActive(fAll, true);
         fAll.setOnClickListener(v   -> { filterMode = "all";     setFilterActive(fAll, true);  setFilterActive(fAlias, false); setFilterActive(fNo, false); applyFilter(); });
         fAlias.setOnClickListener(v -> { filterMode = "alias";   setFilterActive(fAll, false); setFilterActive(fAlias, true);  setFilterActive(fNo, false); applyFilter(); });

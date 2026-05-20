@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.ThemeRepository;
 
 class SettingsConfigPanel {
@@ -26,23 +27,23 @@ class SettingsConfigPanel {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(20), 0, dp(20), dp(20));
 
-        content.addView(section("fondo"));
+        content.addView(section(ctx.getString(R.string.section_background)));
         content.addView(WallpaperSelector.build(ctx, onPatternChanged));
 
-        content.addView(section("apariencia"));
+        content.addView(section(ctx.getString(R.string.section_appearance)));
         content.addView(themeRow(onThemeChanged));
         content.addView(clockModeRow(onThemeChanged));
-        content.addView(toggleRow("nombre real en .all",   "show_real_name", true,  null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_real_name),    "show_real_name", true,  null));
 
-        content.addView(section("comportamiento"));
-        content.addView(toggleRow("abrir si 1 resultado",  "auto_launch",    true,  null));
-        content.addView(toggleRow("aprendizaje horario",   "contextual",     true,  null));
-        content.addView(toggleRow("vibración al abrir",    "vibration",      false, null));
+        content.addView(section(ctx.getString(R.string.section_behavior)));
+        content.addView(toggleRow(ctx.getString(R.string.pref_auto_launch),  "auto_launch",    true,  null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_contextual),   "contextual",     true,  null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_vibration),    "vibration",      false, null));
 
-        content.addView(section("privacidad"));
-        content.addView(actionRow("borrar historial horario", this::clearHistory));
-        content.addView(actionRow("exportar alias",           () -> AliasTransferDialog.showExport(ctx)));
-        content.addView(actionRow("importar alias",           () -> AliasTransferDialog.showImport(ctx)));
+        content.addView(section(ctx.getString(R.string.section_privacy)));
+        content.addView(actionRow(ctx.getString(R.string.action_clear_history),  this::clearHistory));
+        content.addView(actionRow(ctx.getString(R.string.action_export_aliases), () -> AliasTransferDialog.showExport(ctx)));
+        content.addView(actionRow(ctx.getString(R.string.action_import_aliases), () -> AliasTransferDialog.showImport(ctx)));
 
         ScrollView sv = new ScrollView(ctx);
         sv.addView(content); return sv;
@@ -56,15 +57,15 @@ class SettingsConfigPanel {
         TextView tvVal = new TextView(ctx);
         tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM);
         tvVal.setTextColor(VoidTheme.FG);
-        tvVal.setText("[ " + ThemeRepository.LABELS[repo.getMode()] + " ]");
+        tvVal.setText("[ " + ThemeRepository.label(ctx, repo.getMode()) + " ]");
         tvVal.setOnClickListener(v -> {
             int next = (repo.getMode() + 1) % 3;
             repo.setMode(next);
-            tvVal.setText("[ " + ThemeRepository.LABELS[next] + " ]");
+            tvVal.setText("[ " + ThemeRepository.label(ctx, next) + " ]");
             VoidTheme.apply(next);
             if (onThemeChanged != null) onThemeChanged.run();
         });
-        row.addView(label("tema"), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(label(ctx.getString(R.string.pref_theme)), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(tvVal);
         return withDivider(row);
     }
@@ -78,11 +79,12 @@ class SettingsConfigPanel {
     }
 
     private View clockModeRow(Runnable cb) {
-        String[] L = {"ninguno", "texto", "7 seg", "flip"};
+        String[] L = {ctx.getString(R.string.clock_none), ctx.getString(R.string.clock_text),
+                       ctx.getString(R.string.clock_seg),  ctx.getString(R.string.clock_flip)};
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(13), 0, dp(13));
-        TextView tvLabel = label("reloj"); row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        TextView tvLabel = label(ctx.getString(R.string.pref_clock)); row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         TextView tvVal = new TextView(ctx); tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM); tvVal.setTextColor(VoidTheme.FG);
         Runnable[] refresh = {null};
         refresh[0] = () -> tvVal.setText("[ " + L[prefs.getInt("clock_mode", 1)] + " ]");
@@ -141,7 +143,7 @@ class SettingsConfigPanel {
 
     private void clearHistory() {
         ctx.getSharedPreferences("void_contextual", Context.MODE_PRIVATE).edit().clear().apply();
-        toast("historial borrado");
+        toast(ctx.getString(R.string.toast_history_cleared));
     }
 
     private void toast(String msg) { Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show(); }

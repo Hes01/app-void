@@ -1,6 +1,7 @@
 package com.voidlauncher.ui;
 
 import android.animation.Animator;
+import com.hes01.voidlauncher.R;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -13,13 +14,15 @@ class OnboardingHints {
     private static final String PREF = "void_onboarding";
     private static final String KEY  = "done";
 
-    private static final String[] HINTS = {
-        "tap  →  buscar",
-        "swipe ↓  →  cerrar",
-        ".all  →  todas las apps",
-        ".void  →  ajustes",
-        "alias .nombre  →  lanzar rápido",
-    };
+    private static String[] hints(Context ctx) {
+        return new String[]{
+            ctx.getString(R.string.hint_tap),
+            ctx.getString(R.string.hint_swipe),
+            ctx.getString(R.string.hint_all),
+            ctx.getString(R.string.hint_void),
+            ctx.getString(R.string.hint_alias_launch)
+        };
+    }
 
     static boolean isDone(Context ctx) {
         return ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
@@ -44,11 +47,11 @@ class OnboardingHints {
         lp.bottomMargin = QuickSearchLayout.dp(ctx, 80);
         root.addView(tv, lp);
 
-        cycleHint(root, tv, 0);
+        cycleHint(root, tv, hints(ctx), 0);
     }
 
-    private static void cycleHint(FrameLayout root, TextView tv, int index) {
-        if (index >= HINTS.length) {
+    private static void cycleHint(FrameLayout root, TextView tv, String[] hints, int index) {
+        if (index >= hints.length) {
             tv.animate().alpha(0f).setDuration(600)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override public void onAnimationEnd(Animator a) {
@@ -60,7 +63,7 @@ class OnboardingHints {
                     }).start();
             return;
         }
-        tv.setText(HINTS[index]);
+        tv.setText(hints[index]);
         tv.animate().alpha(1f).setDuration(500)
                 .setListener(new AnimatorListenerAdapter() {
                     @Override public void onAnimationEnd(Animator a) {
@@ -68,7 +71,7 @@ class OnboardingHints {
                             tv.animate().alpha(0f).setDuration(500)
                                     .setListener(new AnimatorListenerAdapter() {
                                         @Override public void onAnimationEnd(Animator a2) {
-                                            cycleHint(root, tv, index + 1);
+                                            cycleHint(root, tv, hints, index + 1);
                                         }
                                     }).start(),
                         2000);
