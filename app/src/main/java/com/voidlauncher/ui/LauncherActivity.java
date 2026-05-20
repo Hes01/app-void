@@ -32,6 +32,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private ContextualApps contextual; private AliasRepository aliases;
     private HiddenAppsRepository hidden; private View launchBar; private PatternView patternView;
     private FrameLayout root; private View clockView; private SegmentClockView segClock;
+    private FlipClockView flipClock;
     private TextView tvClock, tvDate;
     private final Handler clockHandler = new Handler();
     private SimpleDateFormat timeFmt, dateFmt;
@@ -41,6 +42,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
             Date now = new Date();
             if (tvClock != null) tvClock.setText(timeFmt.format(now));
             if (segClock != null) segClock.invalidate();
+            if (flipClock != null) flipClock.tick();
             tvDate.setText(dateFmt.format(now).toUpperCase(Locale.getDefault()));
             clockHandler.postDelayed(this, 1000);
         }
@@ -72,6 +74,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         TextView[] dateRef = new TextView[1];
         int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
         if (cm == 2) { SegmentClockView[] sr = {null}; clockView = ClockView.buildSegment(this, sr, dateRef); segClock = sr[0]; }
+        else if (cm == 3) { FlipClockView[] fr = {null}; clockView = ClockView.buildFlip(this, fr, dateRef); flipClock = fr[0]; }
         else { TextView[] cr = {null}; clockView = ClockView.build(this, cr, dateRef); tvClock = cr[0]; }
         if (cm == 0) clockView.setVisibility(View.GONE);
         root.addView(clockView); tvDate = dateRef[0];
@@ -111,8 +114,10 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     public void applyUiChanges() {
         int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
-        boolean wantSeg = cm == 2, hasSeg = segClock != null, wasHidden = clockView.getVisibility() == View.GONE;
-        if (wantSeg != hasSeg || (cm == 0) != wasHidden) { recreate(); return; }
+        boolean wantSeg = cm == 2, hasSeg = segClock != null;
+        boolean wantFlip = cm == 3, hasFlip = flipClock != null;
+        boolean wasHidden = clockView.getVisibility() == View.GONE;
+        if (wantSeg != hasSeg || wantFlip != hasFlip || (cm == 0) != wasHidden) { recreate(); return; }
         root.setBackgroundColor(VoidTheme.BG);
         if (tvClock != null) { tvClock.setTextColor(VoidTheme.FG); tvDate.setTextColor(VoidTheme.FG4); }
         patternView.refresh(); clockView.invalidate();

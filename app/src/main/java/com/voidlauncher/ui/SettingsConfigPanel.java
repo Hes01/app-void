@@ -78,7 +78,7 @@ class SettingsConfigPanel {
     }
 
     private View clockModeRow(Runnable cb) {
-        String[] L = {"ninguno", "texto", "7 seg"};
+        String[] L = {"ninguno", "texto", "7 seg", "flip"};
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(13), 0, dp(13));
