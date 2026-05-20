@@ -3,11 +3,13 @@ package com.voidlauncher.ui;
 import android.content.Context;
 import com.hes01.voidlauncher.R;
 import android.graphics.Typeface;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,11 +22,14 @@ class QuickSearchLayout {
     final TextView     label;
     final LinearLayout hintRow;
     final TextView     hintText;
+    final BlinkCursor  cursor;
 
     private QuickSearchLayout(LinearLayout root, EditText input, ListView list,
-                               TextView label, LinearLayout hintRow, TextView hintText) {
+                               TextView label, LinearLayout hintRow, TextView hintText,
+                               BlinkCursor cursor) {
         this.root = root; this.input = input; this.list = list;
         this.label = label; this.hintRow = hintRow; this.hintText = hintText;
+        this.cursor = cursor;
     }
 
     static QuickSearchLayout build(Context ctx) {
@@ -56,10 +61,29 @@ class QuickSearchLayout {
         hintRow.addView(dot); hintRow.addView(hintText);
         hintRow.setVisibility(View.GONE);
 
+        input.setCursorVisible(false);
+        BlinkCursor cursor = new BlinkCursor(ctx);
+        int cursorW = dp(ctx, 9), cursorH = dp(ctx, 18);
+        FrameLayout inputFrame = new FrameLayout(ctx);
+        inputFrame.addView(input, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER_VERTICAL));
+        FrameLayout.LayoutParams curLp = new FrameLayout.LayoutParams(cursorW, cursorH, Gravity.START | Gravity.CENTER_VERTICAL);
+        inputFrame.addView(cursor, curLp);
+        input.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+            public void onTextChanged(CharSequence s, int a, int b, int c) {}
+            public void afterTextChanged(Editable s) {
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) cursor.getLayoutParams();
+                lp.leftMargin = (int) input.getPaint().measureText(s.toString());
+                cursor.setLayoutParams(lp);
+            }
+        });
+
         LinearLayout inputRow = new LinearLayout(ctx);
         inputRow.setOrientation(LinearLayout.VERTICAL);
         inputRow.setPadding(dp(ctx, 16), dp(ctx, 14), dp(ctx, 16), dp(ctx, 14));
-        inputRow.addView(label); inputRow.addView(hintRow); inputRow.addView(input);
+        inputRow.addView(label); inputRow.addView(hintRow); inputRow.addView(inputFrame);
 
         View separator = new View(ctx);
         separator.setBackgroundColor(VoidTheme.LINE);
@@ -73,7 +97,7 @@ class QuickSearchLayout {
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
         root.addView(inputRow);
 
-        return new QuickSearchLayout(root, input, list, label, hintRow, hintText);
+        return new QuickSearchLayout(root, input, list, label, hintRow, hintText, cursor);
     }
 
     private static EditText buildInput(Context ctx) {
