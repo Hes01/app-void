@@ -1,6 +1,7 @@
 package com.voidlauncher.ui;
 
 import android.content.Context;
+import com.hes01.voidlauncher.R;
 import android.graphics.Typeface;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -31,7 +32,7 @@ class QuickSearchLayout {
         ListView list  = buildList(ctx);
 
         TextView label = new TextView(ctx);
-        label.setText("BUSCAR");
+        label.setText(ctx.getString(R.string.search_label).toUpperCase());
         label.setTextColor(VoidTheme.FG4);
         label.setTextSize(VoidTheme.TEXT_XS);
         label.setTypeface(Typeface.MONOSPACE);

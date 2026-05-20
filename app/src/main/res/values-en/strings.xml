@@ -55,6 +55,9 @@
     <string name="hint_void">.void  →  settings</string>
     <string name="hint_alias_launch">alias .name  →  quick launch</string>
 
+    <!-- search -->
+    <string name="search_label">search</string>
+
     <!-- welcome -->
     <string name="welcome">welcome to void</string>
 </resources>

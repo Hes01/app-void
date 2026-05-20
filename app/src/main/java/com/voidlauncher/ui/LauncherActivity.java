@@ -65,7 +65,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         contextual = new ContextualApps(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
         timeFmt = new SimpleDateFormat(DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm", Locale.getDefault());
-        dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
+        dateFmt = new SimpleDateFormat("EEE dd MMM", Locale.getDefault());
 
         root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
         patternView = new PatternView(this, new WallpaperRepository(this)); root.addView(patternView);
