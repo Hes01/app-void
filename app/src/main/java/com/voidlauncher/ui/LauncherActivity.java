@@ -119,7 +119,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         boolean wasHidden = clockView.getVisibility() == View.GONE;
         if (wantSeg != hasSeg || wantFlip != hasFlip || (cm == 0) != wasHidden) { recreate(); return; }
         root.setBackgroundColor(VoidTheme.BG);
-        if (tvClock != null) { tvClock.setTextColor(VoidTheme.FG); tvDate.setTextColor(VoidTheme.FG4); }
+        if (tvClock != null) tvClock.setTextColor(VoidTheme.FG);
+        tvDate.setTextColor(VoidTheme.FG4);
         patternView.refresh(); clockView.invalidate();
     }
 
