@@ -54,7 +54,7 @@ class PatternsExtra2 {
         for (float baseY = 0; baseY < h; baseY += spacing) {
             line.reset();
             boolean started = false;
-            for (int xi = 0; xi <= w; xi += stepX) {
+            for (int xi = -(int) A; xi <= w + (int) A; xi += stepX) {
                 float dist = (float) Math.sqrt((xi - cx) * (xi - cx) + (baseY - cy) * (baseY - cy));
                 float pull = A * (float) Math.exp(-dist / lambda);
                 float py = baseY + pull * (float) Math.sin(dist / omega);
