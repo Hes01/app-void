@@ -15,12 +15,14 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.core.CommandRouter;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import com.voidlauncher.data.LaunchRepository;
+import com.voidlauncher.data.WallpaperRepository;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,8 +64,16 @@ public class QuickSearchDialog {
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void afterTextChanged(Editable s) { filter(s.toString()); }
         });
+        layout.root.setBackgroundColor(0);
+        layout.list.setBackgroundColor(0);
+        FrameLayout frame = new FrameLayout(launcher);
+        frame.setBackgroundColor(VoidTheme.BG);
+        PatternView pat = new PatternView(launcher, new WallpaperRepository(launcher));
+        pat.setAlpha(0.07f);
+        frame.addView(pat, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        frame.addView(layout.root, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(layout.root, new ViewGroup.LayoutParams(
+        dialog.setContentView(frame, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         plugin = new QuickSearchPlugin(launcher, aliases, dialog, filteredNames, filteredPkgs);
         if (dialog.getWindow() != null) {
