@@ -19,8 +19,8 @@ import android.widget.TextView;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.core.CommandRouter;
 import com.voidlauncher.data.AliasRepository;
-import com.voidlauncher.data.ContextualApps;
 import com.voidlauncher.data.HiddenAppsRepository;
+import com.voidlauncher.data.LaunchRepository;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,20 +28,26 @@ public class QuickSearchDialog {
 
     private final LauncherActivity launcher;
     private final String[] names, packages;
-    private final ContextualApps contextual; private final AliasRepository aliases;
+    private final LaunchRepository contextual; private final AliasRepository aliases;
     private final HiddenAppsRepository hidden;
     private final List<String> filteredNames = new ArrayList<>(), filteredPkgs = new ArrayList<>();
     private QuickSearchAdapter adapter; private QuickSearchPlugin plugin;
     private Dialog dialog; private TextView label; private EditText searchInput;
     private boolean autoLaunch, contextualOn, vibrationOn;
 
+    private List<String> topApps = new ArrayList<>();
+
     public QuickSearchDialog(LauncherActivity l, String[] n, String[] p,
-                             ContextualApps c, AliasRepository a, HiddenAppsRepository h) {
+                             LaunchRepository c, AliasRepository a, HiddenAppsRepository h) {
         launcher=l; names=n; packages=p; contextual=c; aliases=a; hidden=h;
         autoLaunch=l.getSharedPreferences("void_config",0).getBoolean("auto_launch",true); contextualOn=l.getSharedPreferences("void_config",0).getBoolean("contextual",true); vibrationOn=l.getSharedPreferences("void_config",0).getBoolean("vibration",false);
     }
 
     public void show() {
+        if (contextualOn) contextual.getTop(top -> {
+            topApps = top;
+            if (searchInput != null && searchInput.getText().toString().isEmpty()) filter("");
+        });
         QuickSearchLayout layout = QuickSearchLayout.build(launcher);
         label = layout.label; searchInput = layout.input;
         adapter = new QuickSearchAdapter(launcher, filteredNames, filteredPkgs, aliases, names, packages);
@@ -92,7 +98,7 @@ public class QuickSearchDialog {
         adapter.isTopMode = false; setInputColor(!q.isEmpty() && q.startsWith(".") ? VoidTheme.FG2 : VoidTheme.FG);
         if (q.isEmpty()) {
             adapter.activeSearch = false; adapter.isTopMode = contextualOn; setLabelColor(VoidTheme.FG4);
-            if (contextualOn) for (String pkg : contextual.getTop())
+            if (contextualOn) for (String pkg : topApps)
                 for (int i = 0; i < packages.length; i++)
                     if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
         } else if (q.equals(".all")) {

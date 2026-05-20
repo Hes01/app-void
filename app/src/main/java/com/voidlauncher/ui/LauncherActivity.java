@@ -16,7 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.voidlauncher.core.PluginRegistry;
 import com.voidlauncher.data.AliasRepository;
-import com.voidlauncher.data.ContextualApps;
+import com.voidlauncher.data.LaunchRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import com.voidlauncher.data.ThemeRepository;
 import com.voidlauncher.data.WallpaperRepository;
@@ -29,7 +29,7 @@ import java.util.Locale;
 public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private String[] appNames, appPackages;
-    private ContextualApps contextual; private AliasRepository aliases;
+    private LaunchRepository contextual; private AliasRepository aliases;
     private HiddenAppsRepository hidden; private View launchBar; private PatternView patternView;
     private FrameLayout root; private View clockView; private SegmentClockView segClock;
     private FlipClockView flipClock;
@@ -63,7 +63,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         super.onCreate(savedInstanceState);
         VoidTheme.apply(new ThemeRepository(this).getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        contextual = new ContextualApps(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
+        contextual = new LaunchRepository(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
         timeFmt = new SimpleDateFormat(DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm", Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE dd MMM", Locale.getDefault());
 
