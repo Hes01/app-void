@@ -13,17 +13,25 @@ class Patterns {
     static final int SHIPPO    = 7;  static final int KIKKO     = 8;
     static final int KAGOME    = 9;  static final int TRUCHET   = 10;
     static final int ISO       = 11; static final int OCTAGRAM  = 12;
+    static final int GUILLOCHE = 13; static final int DAMASK    = 14;
+    static final int GRAVURE   = 15; static final int MOIRE     = 16;
+    static final int ISLAMIC   = 17;
 
-    static final int[]    ALL   = { DOTS,HAIRLINES,PLUS,TOPO,SEIGAIHA,ASANOHA,SHIPPO,KIKKO,KAGOME,TRUCHET,ISO,OCTAGRAM };
-    static final String[] NAMES = { "Dots","Hairlines","Plus","Topo","Seigaiha","Asanoha","Shippo","Kikko","Kagome","Truchet","Iso","Octagram" };
+    static final int[]    ALL   = { DOTS,HAIRLINES,PLUS,TOPO,SEIGAIHA,ASANOHA,SHIPPO,KIKKO,KAGOME,TRUCHET,ISO,OCTAGRAM,GUILLOCHE,DAMASK,GRAVURE,MOIRE,ISLAMIC };
+    static final String[] NAMES = { "Dots","Hairlines","Plus","Topo","Seigaiha","Asanoha","Shippo","Kikko","Kagome","Truchet","Iso","Octagram","Guilloché","Damasco","Gravure","Moiré","Islámico" };
 
     static void draw(Canvas c, int id, int w, int h, Context ctx) {
         switch (id) {
-            case DOTS:      drawDots(c, w, h, ctx);               break;
-            case HAIRLINES: drawHairlines(c, w, h, ctx);          break;
-            case PLUS:      drawPlus(c, w, h, ctx);               break;
-            case TOPO:      drawTopo(c, w, h, ctx);               break;
-            default:        PatternsExtra.draw(c, id, w, h, ctx); break;
+            case DOTS:      drawDots(c, w, h, ctx);                break;
+            case HAIRLINES: drawHairlines(c, w, h, ctx);           break;
+            case PLUS:      drawPlus(c, w, h, ctx);                break;
+            case TOPO:      drawTopo(c, w, h, ctx);                break;
+            case GUILLOCHE:
+            case DAMASK:
+            case GRAVURE:
+            case MOIRE:
+            case ISLAMIC:   PatternsExtra2.draw(c, id, w, h, ctx); break;
+            default:        PatternsExtra.draw(c, id, w, h, ctx);  break;
         }
     }
 

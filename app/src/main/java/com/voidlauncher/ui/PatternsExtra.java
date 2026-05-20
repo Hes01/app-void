@@ -26,7 +26,7 @@ class PatternsExtra {
         float tile = Patterns.dp(ctx, 40); float r = tile / 2f;
         c.drawRect(0, 0, w, h, Patterns.fill(0xFF1A2733));
         Paint ink = Patterns.stroke(0x52D4DDE3, Patterns.dp(ctx, 1f));
-        for (float row = 0; row < h / tile + 2; row++) {
+        for (float row = -1; row * tile * 0.75f < h + tile; row++) {
             float ox = (row % 2 == 0) ? 0 : r;
             for (float col = -1; col < w / tile + 2; col++) {
                 float cx = col * tile + ox; float cy = row * tile * 0.75f;

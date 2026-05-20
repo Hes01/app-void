@@ -9,8 +9,6 @@ import android.widget.TextView;
 class ClockView {
 
     static FrameLayout build(Context ctx, TextView[] clockOut, TextView[] dateOut) {
-        int size = QuickSearchLayout.dp(ctx, 300);
-
         TextView clock = new TextView(ctx);
         clock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
         clock.setTextSize(VoidTheme.TEXT_DISPLAY);
@@ -34,7 +32,9 @@ class ClockView {
         dateLp.topMargin = QuickSearchLayout.dp(ctx, 40);
 
         FrameLayout container = new FrameLayout(ctx);
-        container.setLayoutParams(new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
+        container.setLayoutParams(new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
         container.addView(clock, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
