@@ -31,7 +31,7 @@ class SettingsConfigPanel {
 
         content.addView(section("apariencia"));
         content.addView(themeRow(onThemeChanged));
-        content.addView(toggleRow("mostrar reloj",         "show_clock",     true,  onThemeChanged));
+        content.addView(clockModeRow(onThemeChanged));
         content.addView(toggleRow("nombre real en .all",   "show_real_name", true,  null));
 
         content.addView(section("comportamiento"));
@@ -53,9 +53,6 @@ class SettingsConfigPanel {
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(13), 0, dp(13));
-        TextView tvLabel = new TextView(ctx);
-        tvLabel.setText("tema"); tvLabel.setTextColor(VoidTheme.FG3);
-        tvLabel.setTextSize(VoidTheme.TEXT_MD); tvLabel.setTypeface(Typeface.MONOSPACE);
         TextView tvVal = new TextView(ctx);
         tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM);
         tvVal.setTextColor(VoidTheme.FG);
@@ -67,7 +64,7 @@ class SettingsConfigPanel {
             VoidTheme.apply(next);
             if (onThemeChanged != null) onThemeChanged.run();
         });
-        row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(label("tema"), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(tvVal);
         return withDivider(row);
     }
@@ -80,24 +77,32 @@ class SettingsConfigPanel {
         return tv;
     }
 
-    private View toggleRow(String label, String key, boolean def, Runnable onChange) {
-        boolean on = prefs.getBoolean(key, def);
+    private View clockModeRow(Runnable cb) {
+        String[] L = {"ninguno", "texto", "7 seg"};
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(13), 0, dp(13));
-        TextView tvLabel = new TextView(ctx);
-        tvLabel.setText(label); tvLabel.setTextColor(VoidTheme.FG3);
-        tvLabel.setTextSize(VoidTheme.TEXT_MD); tvLabel.setTypeface(Typeface.MONOSPACE);
-        TextView tvToggle = toggle(on);
-        tvToggle.setOnClickListener(v -> {
-            boolean cur = prefs.getBoolean(key, def);
-            prefs.edit().putBoolean(key, !cur).apply();
-            styleToggle(tvToggle, !cur);
-            if (onChange != null) onChange.run();
-        });
-        row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        row.addView(tvToggle);
-        return withDivider(row);
+        TextView tvLabel = label("reloj"); row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        TextView tvVal = new TextView(ctx); tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM); tvVal.setTextColor(VoidTheme.FG);
+        Runnable[] refresh = {null};
+        refresh[0] = () -> tvVal.setText("[ " + L[prefs.getInt("clock_mode", 1)] + " ]");
+        refresh[0].run();
+        tvVal.setOnClickListener(v -> { int n = (prefs.getInt("clock_mode", 1) + 1) % L.length; prefs.edit().putInt("clock_mode", n).apply(); refresh[0].run(); if (cb != null) cb.run(); });
+        row.addView(tvVal); return withDivider(row);
+    }
+
+    private View toggleRow(String label, String key, boolean def, Runnable onChange) {
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(0, dp(13), 0, dp(13));
+        TextView tvToggle = toggle(prefs.getBoolean(key, def));
+        tvToggle.setOnClickListener(v -> { boolean cur = prefs.getBoolean(key, def); prefs.edit().putBoolean(key, !cur).apply(); styleToggle(tvToggle, !cur); if (onChange != null) onChange.run(); });
+        row.addView(label(label), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(tvToggle); return withDivider(row);
+    }
+
+    private TextView label(String text) {
+        TextView tv = new TextView(ctx); tv.setText(text); tv.setTextColor(VoidTheme.FG3);
+        tv.setTextSize(VoidTheme.TEXT_MD); tv.setTypeface(Typeface.MONOSPACE); return tv;
     }
 
     private View actionRow(String label, Runnable action) {

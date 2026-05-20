@@ -31,15 +31,17 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private String[] appNames, appPackages;
     private ContextualApps contextual; private AliasRepository aliases;
     private HiddenAppsRepository hidden; private View launchBar; private PatternView patternView;
-    private FrameLayout root; private View clockView;
+    private FrameLayout root; private View clockView; private SegmentClockView segClock;
     private TextView tvClock, tvDate;
     private final Handler clockHandler = new Handler();
     private SimpleDateFormat timeFmt, dateFmt;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
-            tvClock.setText(timeFmt.format(new Date()));
-            tvDate.setText(dateFmt.format(new Date()).toUpperCase(Locale.getDefault()));
+            Date now = new Date();
+            if (tvClock != null) tvClock.setText(timeFmt.format(now));
+            if (segClock != null) segClock.invalidate();
+            tvDate.setText(dateFmt.format(now).toUpperCase(Locale.getDefault()));
             clockHandler.postDelayed(this, 1000);
         }
     };
@@ -60,28 +62,25 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         VoidTheme.apply(new ThemeRepository(this).getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         contextual = new ContextualApps(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
-        String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
-        timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
+        timeFmt = new SimpleDateFormat(DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm", Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE dd MMM", new Locale("es"));
 
         root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
         patternView = new PatternView(this, new WallpaperRepository(this)); root.addView(patternView);
         GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
-        TextView[] clockRef = new TextView[1], dateRef = new TextView[1];
-        clockView = ClockView.build(this, clockRef, dateRef);
-        if (!getSharedPreferences("void_config", MODE_PRIVATE).getBoolean("show_clock", true))
-            clockView.setVisibility(View.GONE);
-        root.addView(clockView);
-        tvClock = clockRef[0]; tvDate = dateRef[0];
+        TextView[] dateRef = new TextView[1];
+        int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
+        if (cm == 2) { SegmentClockView[] sr = {null}; clockView = ClockView.buildSegment(this, sr, dateRef); segClock = sr[0]; }
+        else { TextView[] cr = {null}; clockView = ClockView.build(this, cr, dateRef); tvClock = cr[0]; }
+        if (cm == 0) clockView.setVisibility(View.GONE);
+        root.addView(clockView); tvDate = dateRef[0];
 
         launchBar = LaunchBar.attach(root);
         setContentView(root);
         loadInstalledApps();
 
-        IntentFilter f = new IntentFilter();
-        f.addAction(Intent.ACTION_PACKAGE_ADDED); f.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        f.addDataScheme("package"); registerReceiver(packageReceiver, f);
+        IntentFilter f = new IntentFilter(); f.addAction(Intent.ACTION_PACKAGE_ADDED); f.addAction(Intent.ACTION_PACKAGE_REMOVED); f.addDataScheme("package"); registerReceiver(packageReceiver, f);
     }
 
     @Override
@@ -111,10 +110,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     public void applyUiChanges() {
+        int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
+        boolean wantSeg = cm == 2, hasSeg = segClock != null, wasHidden = clockView.getVisibility() == View.GONE;
+        if (wantSeg != hasSeg || (cm == 0) != wasHidden) { recreate(); return; }
         root.setBackgroundColor(VoidTheme.BG);
-        tvClock.setTextColor(VoidTheme.FG); tvDate.setTextColor(VoidTheme.FG4);
-        boolean showClock = getSharedPreferences("void_config", MODE_PRIVATE).getBoolean("show_clock", true);
-        clockView.setVisibility(showClock ? View.VISIBLE : View.GONE);
+        if (tvClock != null) { tvClock.setTextColor(VoidTheme.FG); tvDate.setTextColor(VoidTheme.FG4); }
         patternView.refresh(); clockView.invalidate();
     }
 
