@@ -1,6 +1,8 @@
 package com.voidlauncher.ui;
 
 import android.app.Activity;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.WindowManager;
@@ -36,6 +39,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private TextView tvClock, tvDate;
     private final Handler clockHandler = new Handler();
     private SimpleDateFormat timeFmt, dateFmt;
+    private String uiLocale;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
@@ -58,9 +62,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        uiLocale = getResources().getConfiguration().locale.getLanguage();
         VoidTheme.apply(new ThemeRepository(this).getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         contextual = new LaunchRepository(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
@@ -89,6 +95,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     @Override
     protected void onResume() {
         super.onResume();
+        String sysLang = Resources.getSystem().getConfiguration().locale.getLanguage();
+        if (!sysLang.equals(uiLocale)) { Process.killProcess(Process.myPid()); return; }
         ThemeRepository tr = new ThemeRepository(this);
         if (tr.getMode() == ThemeRepository.AUTO && VoidTheme.isDaytime() != VoidTheme.isDay) {
             VoidTheme.apply(ThemeRepository.AUTO); recreate(); return;
@@ -96,6 +104,12 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         hideSystemUI();
         clockHandler.post(clockTick);
         verifyPlugins();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Process.killProcess(Process.myPid());
     }
 
     @Override protected void onPause()   { super.onPause();   clockHandler.removeCallbacks(clockTick); }
