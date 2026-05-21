@@ -46,7 +46,10 @@ public class AliasRepository {
     public void cleanOrphans(List<String> installedPackages) {
         SharedPreferences.Editor editor = prefs.edit();
         for (Map.Entry<String, ?> e : prefs.getAll().entrySet()) {
-            if (!installedPackages.contains(e.getValue())) editor.remove(e.getKey());
+            if (!installedPackages.contains(e.getValue())) {
+                editor.remove(e.getKey());
+                reverseCache.remove(e.getValue());
+            }
         }
         editor.apply();
     }
