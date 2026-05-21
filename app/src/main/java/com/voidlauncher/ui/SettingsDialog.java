@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
+import com.voidlauncher.data.LaunchRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,33 +54,37 @@ public class SettingsDialog {
         header.setTextSize(VoidTheme.TEXT_MD); header.setTypeface(Typeface.MONOSPACE);
         header.setLetterSpacing(0.1f); header.setPadding(dp(20), dp(28), dp(20), dp(16));
 
-        View appsPanel   = new SettingsAppsPanel(launcher, appNames, appPkgs, aliases, hidden).build();
-        View configPanel = new SettingsConfigPanel(launcher).build(launcher::applyUiChanges, launcher::applyUiChanges);
-        configPanel.setVisibility(View.GONE);
+        View appsPanel = new SettingsAppsPanel(launcher, appNames, appPkgs, aliases, hidden).build();
+        FrameLayout configSlot = new FrameLayout(launcher);
+        configSlot.setVisibility(View.GONE);
 
         FrameLayout panels = new FrameLayout(launcher);
         panels.addView(appsPanel,   new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        panels.addView(configPanel, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        panels.addView(configSlot,  new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         LinearLayout root = new LinearLayout(launcher);
         root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(VoidTheme.BG);
         root.addView(header);
-        root.addView(buildTabs(appsPanel, configPanel));
+        root.addView(buildTabs(appsPanel, configSlot));
         root.addView(separator());
         root.addView(panels, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         return root;
     }
 
-    private LinearLayout buildTabs(View appsPanel, View configPanel) {
+    private LinearLayout buildTabs(View appsPanel, FrameLayout configSlot) {
         TextView tApps = tab(launcher.getString(R.string.tab_apps),   true);
         TextView tConf = tab(launcher.getString(R.string.tab_config), false);
         tApps.setOnClickListener(v -> {
-            appsPanel.setVisibility(View.VISIBLE); configPanel.setVisibility(View.GONE);
+            appsPanel.setVisibility(View.VISIBLE); configSlot.setVisibility(View.GONE);
             tApps.setTextColor(VoidTheme.FG); tConf.setTextColor(VoidTheme.FG5);
         });
         tConf.setOnClickListener(v -> {
-            appsPanel.setVisibility(View.GONE); configPanel.setVisibility(View.VISIBLE);
+            if (configSlot.getChildCount() == 0) {
+                View cp = new SettingsConfigPanel(launcher, new LaunchRepository(launcher)).build(launcher::applyUiChanges, launcher::applyUiChanges);
+                configSlot.addView(cp, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+            }
+            appsPanel.setVisibility(View.GONE); configSlot.setVisibility(View.VISIBLE);
             tApps.setTextColor(VoidTheme.FG5); tConf.setTextColor(VoidTheme.FG);
         });
         LinearLayout tabs = new LinearLayout(launcher);

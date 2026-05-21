@@ -35,6 +35,7 @@ public class QuickSearchDialog {
     private final List<String> filteredNames = new ArrayList<>(), filteredPkgs = new ArrayList<>();
     private QuickSearchAdapter adapter; private QuickSearchPlugin plugin;
     private Dialog dialog; private TextView label; private EditText searchInput;
+    private QuickSearchLayout layout;
     private boolean autoLaunch, contextualOn, vibrationOn;
 
     private List<String> topApps = new ArrayList<>();
@@ -50,7 +51,7 @@ public class QuickSearchDialog {
             topApps = top;
             if (searchInput != null && searchInput.getText().toString().isEmpty()) filter("");
         });
-        QuickSearchLayout layout = QuickSearchLayout.build(launcher);
+        layout = QuickSearchLayout.build(launcher);
         label = layout.label; searchInput = layout.input;
         adapter = new QuickSearchAdapter(launcher, filteredNames, filteredPkgs, aliases, names, packages);
         layout.list.setAdapter(adapter);
@@ -116,9 +117,12 @@ public class QuickSearchDialog {
             for (int i = names.length - 1; i >= 0; i--)
                 if (!hidden.isHidden(packages[i])) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
         } else if (q.equals(".void")) {
+            if (layout != null) layout.setGhost("", q);
             new SettingsDialog(launcher, aliases, hidden, dialog).show(); return;
         } else if (q.startsWith(".")) {
-            setLabelColor(VoidTheme.FG4); plugin.routeCommand(q.substring(1).trim(), adapter); return;
+            setLabelColor(VoidTheme.FG4);
+            if (layout != null) layout.setGhost(GhostText.compute(q), q);
+            plugin.routeCommand(q.substring(1).trim(), adapter); return;
         } else if (q.matches(".*[a-z0-9].*")) {
             adapter.activeSearch = true;
             for (int i = 0; i < names.length; i++) {
@@ -132,6 +136,7 @@ public class QuickSearchDialog {
             else setLabelColor(VoidTheme.FG);
         }
         adapter.notifyDataSetChanged();
+        if (layout != null) layout.setGhost(GhostText.compute(q), q);
     }
 
     private void launch(String pkgOrCmd) {
@@ -141,6 +146,7 @@ public class QuickSearchDialog {
             Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(p[0]);
             if (intent == null) return;
             try { intent.putExtra("void.extra.id", Integer.parseInt(p[1])); } catch (NumberFormatException ignored) {}
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             launcher.startActivity(intent); launcher.overridePendingTransition(0, 0); return;
         }
         if (vibrationOn) VibrationFeedback.onLaunch(hapticView()); dialog.dismiss();
@@ -152,6 +158,7 @@ public class QuickSearchDialog {
         Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(pkg);
         if (intent == null) return;
         if (args != null && !args.isEmpty()) intent.putExtra(CommandRouter.EXTRA_ARGS, args);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         launcher.startActivity(intent); launcher.overridePendingTransition(0, 0);
     }
 

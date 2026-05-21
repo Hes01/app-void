@@ -53,7 +53,6 @@ public class CommandRouter {
     /** Args crudos para reenviar al plugin (flag incluido si no es -d ni -l) */
     public String rawArgs() {
         if (flag == null) return args;
-        if (isUninstall() || isList()) return args;
         return args != null ? flag + " " + args : flag;
     }
 }

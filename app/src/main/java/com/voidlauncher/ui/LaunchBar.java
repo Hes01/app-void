@@ -49,7 +49,9 @@ class LaunchBar {
             Bitmap bmp = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
             icon.setBounds(0, 0, 32, 32);
             icon.draw(new Canvas(bmp));
-            return avgColor(bmp);
+            int color = avgColor(bmp);
+            bmp.recycle();
+            return color;
         } catch (Exception e) {
             return VoidTheme.FG3;
         }

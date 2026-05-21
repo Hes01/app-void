@@ -10,16 +10,19 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.hes01.voidlauncher.R;
+import com.voidlauncher.data.LaunchRepository;
 import com.voidlauncher.data.ThemeRepository;
 
 class SettingsConfigPanel {
     private static final String PREFS = "void_config";
     private final Context            ctx;
     private final SharedPreferences  prefs;
+    private final LaunchRepository   launchRepo;
 
-    SettingsConfigPanel(Context ctx) {
-        this.ctx   = ctx;
-        this.prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    SettingsConfigPanel(Context ctx, LaunchRepository launchRepo) {
+        this.ctx        = ctx;
+        this.prefs      = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        this.launchRepo = launchRepo;
     }
 
     View build(Runnable onPatternChanged, Runnable onThemeChanged) {
@@ -142,7 +145,7 @@ class SettingsConfigPanel {
     }
 
     private void clearHistory() {
-        ctx.getSharedPreferences("void_contextual", Context.MODE_PRIVATE).edit().clear().apply();
+        launchRepo.clearAll();
         toast(ctx.getString(R.string.toast_history_cleared));
     }
 

@@ -10,8 +10,6 @@ public class ThemeRepository {
     public static final int DAY   = 1;
     public static final int AUTO  = 2;
 
-    public static final String[] LABELS = { "noche", "día", "auto" };
-
     private static final String PREFS = "void_theme";
     private static final String KEY   = "mode";
 
