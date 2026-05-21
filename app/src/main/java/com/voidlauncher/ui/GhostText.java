@@ -3,7 +3,7 @@ package com.voidlauncher.ui;
 
 class GhostText {
 
-    private static final String[] COMMANDS = {".all", ".void"};
+    private static final String[] COMMANDS = {".all", ".svel"};
 
     static String compute(String query) {
         if (!query.startsWith(".")) return "";

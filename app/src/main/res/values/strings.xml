@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">VOID</string>
+    <string name="app_name">Svel</string>
 
     <!-- settings — secciones -->
     <string name="section_background">fondo</string>
@@ -52,12 +52,12 @@
     <string name="hint_tap">tap  →  buscar</string>
     <string name="hint_swipe">swipe ↓  →  cerrar</string>
     <string name="hint_all">.all  →  todas las apps</string>
-    <string name="hint_void">.void  →  ajustes</string>
+    <string name="hint_void">.svel  →  ajustes</string>
     <string name="hint_alias_launch">alias .nombre  →  lanzar rápido</string>
 
     <!-- buscador -->
     <string name="search_label">buscar</string>
 
     <!-- bienvenida -->
-    <string name="welcome">bienvenido a void</string>
+    <string name="welcome">bienvenido a svel</string>
 </resources>

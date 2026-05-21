@@ -50,7 +50,7 @@ public class SettingsDialog {
 
     private LinearLayout buildRoot() {
         TextView header = new TextView(launcher);
-        header.setText(". void"); header.setTextColor(VoidTheme.FG5);
+        header.setText(". svel"); header.setTextColor(VoidTheme.FG5);
         header.setTextSize(VoidTheme.TEXT_MD); header.setTypeface(Typeface.MONOSPACE);
         header.setLetterSpacing(0.1f); header.setPadding(dp(20), dp(28), dp(20), dp(16));
 
