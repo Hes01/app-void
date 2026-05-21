@@ -72,8 +72,9 @@ class ClockView {
         FrameLayout pill = new FrameLayout(ctx) {
             private final Paint pillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             private final RectF pillRect  = new RectF();
-            { pillPaint.setColor(VoidTheme.BG); pillPaint.setAlpha(0x99); }
+            { pillPaint.setAlpha(0x99); }
             @Override protected void onDraw(Canvas canvas) {
+                pillPaint.setColor(VoidTheme.BG);
                 pillRect.set(0, 0, getWidth(), getHeight());
                 canvas.drawRoundRect(pillRect, rad, rad, pillPaint);
             }
