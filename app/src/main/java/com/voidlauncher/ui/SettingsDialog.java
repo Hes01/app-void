@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
+import com.voidlauncher.data.LaunchRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +81,7 @@ public class SettingsDialog {
         });
         tConf.setOnClickListener(v -> {
             if (configSlot.getChildCount() == 0) {
-                View cp = new SettingsConfigPanel(launcher).build(launcher::applyUiChanges, launcher::applyUiChanges);
+                View cp = new SettingsConfigPanel(launcher, new LaunchRepository(launcher)).build(launcher::applyUiChanges, launcher::applyUiChanges);
                 configSlot.addView(cp, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
             }
             appsPanel.setVisibility(View.GONE); configSlot.setVisibility(View.VISIBLE);
