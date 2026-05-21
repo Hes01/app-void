@@ -146,6 +146,7 @@ public class QuickSearchDialog {
             Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(p[0]);
             if (intent == null) return;
             try { intent.putExtra("void.extra.id", Integer.parseInt(p[1])); } catch (NumberFormatException ignored) {}
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             launcher.startActivity(intent); launcher.overridePendingTransition(0, 0); return;
         }
         if (vibrationOn) VibrationFeedback.onLaunch(hapticView()); dialog.dismiss();
@@ -157,6 +158,7 @@ public class QuickSearchDialog {
         Intent intent = launcher.getPackageManager().getLaunchIntentForPackage(pkg);
         if (intent == null) return;
         if (args != null && !args.isEmpty()) intent.putExtra(CommandRouter.EXTRA_ARGS, args);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         launcher.startActivity(intent); launcher.overridePendingTransition(0, 0);
     }
 
