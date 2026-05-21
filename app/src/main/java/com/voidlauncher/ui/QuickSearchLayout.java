@@ -23,13 +23,14 @@ class QuickSearchLayout {
     final LinearLayout hintRow;
     final TextView     hintText;
     final BlinkCursor  cursor;
+    final TextView     ghostView;
 
     private QuickSearchLayout(LinearLayout root, EditText input, ListView list,
                                TextView label, LinearLayout hintRow, TextView hintText,
-                               BlinkCursor cursor) {
+                               BlinkCursor cursor, TextView ghostView) {
         this.root = root; this.input = input; this.list = list;
         this.label = label; this.hintRow = hintRow; this.hintText = hintText;
-        this.cursor = cursor;
+        this.cursor = cursor; this.ghostView = ghostView;
     }
 
     static QuickSearchLayout build(Context ctx) {
@@ -68,6 +69,14 @@ class QuickSearchLayout {
         inputFrame.addView(input, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER_VERTICAL));
+        TextView ghostView = new TextView(ctx);
+        ghostView.setTextColor(VoidTheme.FG5);
+        ghostView.setTextSize(18f);
+        ghostView.setTypeface(Typeface.MONOSPACE);
+        ghostView.setPadding(0, 0, 0, 0);
+        ghostView.setVisibility(View.GONE);
+        inputFrame.addView(ghostView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, cursorH, Gravity.START | Gravity.CENTER_VERTICAL));
         FrameLayout.LayoutParams curLp = new FrameLayout.LayoutParams(cursorW, cursorH, Gravity.START | Gravity.CENTER_VERTICAL);
         inputFrame.addView(cursor, curLp);
         input.addTextChangedListener(new TextWatcher() {
@@ -97,7 +106,23 @@ class QuickSearchLayout {
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 1)));
         root.addView(inputRow);
 
-        return new QuickSearchLayout(root, input, list, label, hintRow, hintText, cursor);
+        return new QuickSearchLayout(root, input, list, label, hintRow, hintText, cursor, ghostView);
+    }
+
+    void setGhost(String ghost, String typed) {
+        if (ghost.isEmpty()) {
+            ghostView.setVisibility(View.GONE);
+            return;
+        }
+        ghostView.setText(ghost);
+        ghostView.setVisibility(View.VISIBLE);
+        float offset = input.getPaint().measureText(typed);
+        FrameLayout.LayoutParams glp = (FrameLayout.LayoutParams) ghostView.getLayoutParams();
+        glp.leftMargin = (int) offset;
+        ghostView.setLayoutParams(glp);
+        FrameLayout.LayoutParams clp = (FrameLayout.LayoutParams) cursor.getLayoutParams();
+        clp.leftMargin = (int) (offset + input.getPaint().measureText(ghost));
+        cursor.setLayoutParams(clp);
     }
 
     private static EditText buildInput(Context ctx) {
