@@ -71,6 +71,10 @@ public class LaunchRepository {
         return list;
     }
 
+    public void clearAll() {
+        new Thread(() -> db.getWritableDatabase().execSQL("DELETE FROM " + VoidDatabase.TABLE)).start();
+    }
+
     private void rotate(SQLiteDatabase w) {
         w.execSQL(
             "DELETE FROM " + VoidDatabase.TABLE +
