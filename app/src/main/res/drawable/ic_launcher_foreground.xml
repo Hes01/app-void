@@ -4,19 +4,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- S trazo monospace centrada en safe zone -->
+    <!-- Un '0' minimalista: cuadrado hueco de 8x12 unidades -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="8.5"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M 70,36 C 70,29 62,27 54,27 C 46,27 36,32 36,40 C 36,48 44,52 54,54 C 64,56 72,61 72,68 C 72,76 64,81 54,81 C 44,81 36,76 36,69" />
-
-    <!-- cursor terminal 4x22dp, pegado al borde derecho de la S -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 76,62 L 80,62 L 80,84 L 76,84 Z" />
-
+        android:fillColor="@color/text_primary"
+        android:pathData="M48,46 v16 h12 v-16 h-12 M49,47 h10 v14 h-10 v-14" />
 </vector>

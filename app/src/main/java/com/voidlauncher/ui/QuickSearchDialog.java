@@ -116,7 +116,7 @@ public class QuickSearchDialog {
             adapter.activeSearch = false; setLabelColor(VoidTheme.FG4);
             for (int i = names.length - 1; i >= 0; i--)
                 if (!hidden.isHidden(packages[i])) { filteredNames.add(displayName(i)); filteredPkgs.add(packages[i]); }
-        } else if (q.equals(".svel")) {
+        } else if (q.equals(".void")) {
             if (layout != null) layout.setGhost("", q);
             new SettingsDialog(launcher, aliases, hidden, dialog).show(); return;
         } else if (q.startsWith(".")) {

@@ -31,8 +31,9 @@ public class GestureView extends View {
     public boolean onTouchEvent(MotionEvent e) {
         super.onTouchEvent(e);
         switch (e.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN: longFired = false; break;
-            case MotionEvent.ACTION_UP:   if (!longFired && listener != null) listener.onTap(); break;
+            case MotionEvent.ACTION_DOWN:   longFired = false; break;
+            case MotionEvent.ACTION_UP:     if (!longFired && listener != null) listener.onTap(); break;
+            case MotionEvent.ACTION_CANCEL: longFired = false; break;
         }
         return true;
     }
