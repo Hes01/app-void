@@ -11,15 +11,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.voidlauncher.data.AliasRepository;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class QuickSearchAdapter extends ArrayAdapter<String> {
 
-    private final LauncherActivity launcher;
-    private final List<String>     filteredPkgs;
-    private final AliasRepository  aliases;
-    private final String[]         allNames;
-    private final String[]         allPkgs;
+    private final LauncherActivity    launcher;
+    private final List<String>        filteredPkgs;
+    private final AliasRepository     aliases;
+    private final Map<String, String> nameByPkg;
     boolean activeSearch;
     boolean isTopMode;
     private final boolean showRealName;
@@ -29,8 +30,10 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
                        String[] allNames, String[] allPkgs) {
         super(launcher, 0, filteredNames);
         this.launcher     = launcher; this.filteredPkgs = filteredPkgs;
-        this.aliases      = aliases;  this.allNames     = allNames; this.allPkgs = allPkgs;
+        this.aliases      = aliases;
         this.showRealName = launcher.getSharedPreferences("void_config", Context.MODE_PRIVATE).getBoolean("show_real_name", true);
+        nameByPkg = new HashMap<>(allPkgs.length);
+        for (int i = 0; i < allPkgs.length; i++) nameByPkg.put(allPkgs[i], allNames[i]);
     }
 
     @Override
@@ -89,8 +92,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
     }
 
     private String getRealName(String pkg) {
-        for (int i = 0; i < allPkgs.length; i++)
-            if (allPkgs[i].equals(pkg)) return allNames[i];
-        return pkg;
+        String name = nameByPkg.get(pkg);
+        return name != null ? name : pkg;
     }
 }
