@@ -29,9 +29,11 @@ class SettingsAppsPanel {
     private final AliasRepository      aliases;
     private final HiddenAppsRepository hidden;
     private final List<Integer>        filtered = new ArrayList<>();
-    private String      filterMode = "all";
-    private String      query      = "";
+    private String      filterMode  = "all";
+    private String      query       = "";
     private BaseAdapter adapter;
+    private LinearLayout editingRow = null;
+    private int          editingIdx = -1;
 
     SettingsAppsPanel(LauncherActivity launcher, List<String> names, List<String> pkgs,
                       AliasRepository aliases, HiddenAppsRepository hidden) {
@@ -129,7 +131,7 @@ class SettingsAppsPanel {
         TextView tvName  = mono(names.get(i), alias != null ? VoidTheme.FG2 : VoidTheme.FG5, VoidTheme.TEXT_LG, 0);
         ImageView ivEye  = makeEye(isHid);
         ivEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
-        row.setOnClickListener(v -> makeEditable(row, pkg));
+        row.setOnClickListener(v -> makeEditable(row, pkg, i));
         row.addView(tvAlias);
         row.addView(tvName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(ivEye); return row;
@@ -145,7 +147,7 @@ class SettingsAppsPanel {
         ivEye.setImageResource(isHid ? R.drawable.ic_eye_off : R.drawable.ic_eye);
         ivEye.setColorFilter(isHid ? VoidTheme.ERROR : VoidTheme.FG5, PorterDuff.Mode.SRC_IN);
         ivEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
-        row.setBackgroundColor(0); row.setOnClickListener(v -> makeEditable(row, pkg));
+        row.setBackgroundColor(0); row.setOnClickListener(v -> makeEditable(row, pkg, i));
     }
 
     private ImageView makeEye(boolean isHid) {
@@ -160,6 +162,7 @@ class SettingsAppsPanel {
     }
 
     private void applyFilter() {
+        editingRow = null; editingIdx = -1;
         filtered.clear();
         for (int i = 0; i < names.size(); i++) {
             String alias = aliases.aliasOf(pkgs.get(i));
@@ -174,7 +177,25 @@ class SettingsAppsPanel {
         if (adapter != null) adapter.notifyDataSetChanged();
     }
 
-    private void makeEditable(LinearLayout row, String pkg) {
+    private void closeEditingRow() {
+        if (editingRow == null) return;
+        LinearLayout row = editingRow; int idx = editingIdx;
+        editingRow = null; editingIdx = -1;
+        String pkg = pkgs.get(idx); String alias = aliases.aliasOf(pkg); boolean isHid = hidden.isHidden(pkg);
+        row.removeAllViews(); row.setBackgroundColor(0);
+        TextView tvAlias = mono(alias != null ? alias : "—", alias != null ? VoidTheme.FG4 : VoidTheme.FG5, VoidTheme.TEXT_MD, dp(56));
+        TextView tvName  = mono(names.get(idx), alias != null ? VoidTheme.FG2 : VoidTheme.FG5, VoidTheme.TEXT_LG, 0);
+        ImageView ivEye  = makeEye(isHid);
+        ivEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
+        row.setOnClickListener(v -> makeEditable(row, pkg, idx));
+        row.addView(tvAlias);
+        row.addView(tvName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(ivEye);
+    }
+
+    private void makeEditable(LinearLayout row, String pkg, int idx) {
+        if (editingRow != null && editingRow != row) closeEditingRow();
+        editingRow = row; editingIdx = idx;
         row.removeAllViews(); row.setBackgroundColor(VoidTheme.BG_CARD);
         String current = aliases.aliasOf(pkg);
         EditText et = new EditText(launcher); et.setTypeface(Typeface.MONOSPACE);
@@ -182,14 +203,19 @@ class SettingsAppsPanel {
         et.setPadding(dp(20), dp(11), dp(8), dp(11)); et.setSingleLine(true);
         et.setHint(launcher.getString(R.string.hint_alias)); et.setHintTextColor(VoidTheme.FG5);
         if (current != null) { et.setText(current); }
-        TextView ok = mono("→", VoidTheme.FG2, VoidTheme.TEXT_LG, 0);
-        ok.setGravity(Gravity.CENTER); ok.setPadding(dp(12), dp(11), dp(20), dp(11));
+        TextView ok = mono("aceptar", VoidTheme.FG, VoidTheme.TEXT_SM, 0);
+        ok.setGravity(Gravity.CENTER); ok.setPadding(dp(16), dp(11), dp(16), dp(11));
+        ok.setLetterSpacing(0.1f);
+        GradientDrawable okBg = new GradientDrawable();
+        okBg.setColor(VoidTheme.FG5);
+        ok.setBackground(okBg);
         ok.setOnClickListener(v -> {
             String val = et.getText().toString().trim();
             if (current != null) aliases.remove(current);
             if (!val.isEmpty()) aliases.set(val, pkg);
             InputMethodManager imm = (InputMethodManager) launcher.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+            editingRow = null; editingIdx = -1;
             refresh();
         });
         row.addView(et, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
