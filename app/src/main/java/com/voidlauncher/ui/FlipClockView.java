@@ -18,7 +18,8 @@ import java.util.Calendar;
 
 class FlipClockView extends View {
 
-    private static final long HALF = 250; // ms por fase de volteo
+    private static final long     HALF   = 250;
+    private static final String[] DIGITS = {"0","1","2","3","4","5","6","7","8","9"};
 
     private final Paint   paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Camera  cam   = new Camera();
@@ -106,7 +107,7 @@ class FlipClockView extends View {
         float cy = bot ? y + cH/2f : y;
         canvas.clipRect(x, cy, x+cW, cy + cH/2f);
         paint.setColor(VoidTheme.FG); paint.setAlpha(255);
-        canvas.drawText(String.valueOf(n), x + cW/2f, y + cH*0.80f, paint);
+        canvas.drawText(DIGITS[n], x + cW/2f, y + cH*0.80f, paint);
         canvas.restore();
     }
 
@@ -123,7 +124,7 @@ class FlipClockView extends View {
         rf.set(x, y, x+cW, y+cH);
         canvas.drawRoundRect(rf, rad, rad, paint);
         paint.setColor(VoidTheme.FG);
-        canvas.drawText(String.valueOf(n), x + cW/2f, y + cH*0.80f, paint);
+        canvas.drawText(DIGITS[n], x + cW/2f, y + cH*0.80f, paint);
         canvas.restore();
     }
 }
