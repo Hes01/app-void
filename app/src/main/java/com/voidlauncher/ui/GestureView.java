@@ -1,7 +1,6 @@
 package com.voidlauncher.ui;
 
 import android.content.Context;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -13,10 +12,8 @@ public class GestureView extends View {
 
     private Listener listener;
 
-    public GestureView(Context context) { this(context, null); }
-
-    public GestureView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public GestureView(Context context) {
+        super(context);
         setBackgroundColor(android.graphics.Color.TRANSPARENT);
     }
 
