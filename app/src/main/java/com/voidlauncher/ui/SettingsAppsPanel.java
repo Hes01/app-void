@@ -101,7 +101,13 @@ class SettingsAppsPanel {
             @Override public int getCount() { return filtered.size(); }
             @Override public Object getItem(int i) { return filtered.get(i); }
             @Override public long getItemId(int i) { return i; }
-            @Override public View getView(int pos, View cv, ViewGroup p) { return buildRow(filtered.get(pos)); }
+            @Override public View getView(int pos, View cv, ViewGroup p) {
+                int idx = filtered.get(pos);
+                if (cv instanceof LinearLayout && ((LinearLayout) cv).getChildCount() == 4) {
+                    populateRow((LinearLayout) cv, idx); return cv;
+                }
+                return buildRow(idx);
+            }
         };
         ListView lv = new ListView(launcher);
         lv.setBackgroundColor(VoidTheme.BG); GradientDrawable div = new GradientDrawable();
@@ -127,6 +133,20 @@ class SettingsAppsPanel {
         row.addView(tvAlias);
         row.addView(tvName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(tvEye); row.addView(tvAct); return row;
+    }
+
+    private void populateRow(LinearLayout row, int i) {
+        String pkg = pkgs.get(i); String alias = aliases.aliasOf(pkg); boolean isHid = hidden.isHidden(pkg);
+        TextView tvAlias = (TextView) row.getChildAt(0);
+        TextView tvName  = (TextView) row.getChildAt(1);
+        TextView tvEye   = (TextView) row.getChildAt(2);
+        TextView tvAct   = (TextView) row.getChildAt(3);
+        tvAlias.setText(alias != null ? alias : "—"); tvAlias.setTextColor(alias != null ? VoidTheme.FG4 : VoidTheme.FG5);
+        tvName.setText(names.get(i)); tvName.setTextColor(alias != null ? VoidTheme.FG2 : VoidTheme.FG5);
+        tvEye.setText(isHid ? "●" : "○"); tvEye.setTextColor(isHid ? VoidTheme.ERROR : VoidTheme.FG5);
+        tvEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
+        tvAct.setText(alias != null ? "×" : "+ alias"); tvAct.setTextColor(alias != null ? VoidTheme.FG5 : VoidTheme.FG4);
+        row.setBackgroundColor(0); row.setOnClickListener(v -> makeEditable(row, pkg));
     }
 
     private void applyFilter() {
