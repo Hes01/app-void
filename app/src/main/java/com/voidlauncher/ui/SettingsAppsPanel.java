@@ -5,12 +5,14 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.graphics.PorterDuff;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -103,7 +105,7 @@ class SettingsAppsPanel {
             @Override public long getItemId(int i) { return i; }
             @Override public View getView(int pos, View cv, ViewGroup p) {
                 int idx = filtered.get(pos);
-                if (cv instanceof LinearLayout && ((LinearLayout) cv).getChildCount() == 4) {
+                if (cv instanceof LinearLayout && ((LinearLayout) cv).getChildCount() == 3) {
                     populateRow((LinearLayout) cv, idx); return cv;
                 }
                 return buildRow(idx);
@@ -125,28 +127,36 @@ class SettingsAppsPanel {
         row.setPadding(dp(20), dp(11), dp(20), dp(11));
         TextView tvAlias = mono(alias != null ? alias : "—", alias != null ? VoidTheme.FG4 : VoidTheme.FG5, VoidTheme.TEXT_MD, dp(56));
         TextView tvName  = mono(names.get(i), alias != null ? VoidTheme.FG2 : VoidTheme.FG5, VoidTheme.TEXT_LG, 0);
-        TextView tvEye   = mono(isHid ? "●" : "○", isHid ? VoidTheme.ERROR : VoidTheme.FG5, VoidTheme.TEXT_BASE, 0);
-        tvEye.setPadding(dp(8), 0, dp(8), 0);
-        tvEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
-        TextView tvAct = mono(alias != null ? "×" : "+ alias", alias != null ? VoidTheme.FG5 : VoidTheme.FG4, VoidTheme.TEXT_SM, 0);
+        ImageView ivEye  = makeEye(isHid);
+        ivEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
         row.setOnClickListener(v -> makeEditable(row, pkg));
         row.addView(tvAlias);
         row.addView(tvName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        row.addView(tvEye); row.addView(tvAct); return row;
+        row.addView(ivEye); return row;
     }
 
     private void populateRow(LinearLayout row, int i) {
         String pkg = pkgs.get(i); String alias = aliases.aliasOf(pkg); boolean isHid = hidden.isHidden(pkg);
-        TextView tvAlias = (TextView) row.getChildAt(0);
-        TextView tvName  = (TextView) row.getChildAt(1);
-        TextView tvEye   = (TextView) row.getChildAt(2);
-        TextView tvAct   = (TextView) row.getChildAt(3);
+        TextView tvAlias   = (TextView)  row.getChildAt(0);
+        TextView tvName    = (TextView)  row.getChildAt(1);
+        ImageView ivEye    = (ImageView) row.getChildAt(2);
         tvAlias.setText(alias != null ? alias : "—"); tvAlias.setTextColor(alias != null ? VoidTheme.FG4 : VoidTheme.FG5);
         tvName.setText(names.get(i)); tvName.setTextColor(alias != null ? VoidTheme.FG2 : VoidTheme.FG5);
-        tvEye.setText(isHid ? "●" : "○"); tvEye.setTextColor(isHid ? VoidTheme.ERROR : VoidTheme.FG5);
-        tvEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
-        tvAct.setText(alias != null ? "×" : "+ alias"); tvAct.setTextColor(alias != null ? VoidTheme.FG5 : VoidTheme.FG4);
+        ivEye.setImageResource(isHid ? R.drawable.ic_eye_off : R.drawable.ic_eye);
+        ivEye.setColorFilter(isHid ? VoidTheme.ERROR : VoidTheme.FG5, PorterDuff.Mode.SRC_IN);
+        ivEye.setOnClickListener(v -> { hidden.toggle(pkg); refresh(); });
         row.setBackgroundColor(0); row.setOnClickListener(v -> makeEditable(row, pkg));
+    }
+
+    private ImageView makeEye(boolean isHid) {
+        ImageView iv = new ImageView(launcher);
+        int size = dp(18);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+        lp.leftMargin = dp(8);
+        iv.setLayoutParams(lp);
+        iv.setImageResource(isHid ? R.drawable.ic_eye_off : R.drawable.ic_eye);
+        iv.setColorFilter(isHid ? VoidTheme.ERROR : VoidTheme.FG5, PorterDuff.Mode.SRC_IN);
+        return iv;
     }
 
     private void applyFilter() {
