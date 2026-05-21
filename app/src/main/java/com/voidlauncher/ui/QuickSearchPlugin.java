@@ -31,7 +31,9 @@ class QuickSearchPlugin {
         VibrationFeedback.onCommand(hapticView());
         if (cmd.isUninstall()) {
             dialog.dismiss();
-            launcher.startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg)));
+            Intent del = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg));
+            del.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            launcher.startActivity(del);
             return;
         }
         if (cmd.isList())       { queryPlugin(pkg, adapter); return; }
