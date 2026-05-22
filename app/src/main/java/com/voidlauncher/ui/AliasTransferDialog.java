@@ -16,7 +16,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.voidlauncher.data.AliasRepository;
+import java.util.Iterator;
 import java.util.Map;
+import org.json.JSONObject;
 
 class AliasTransferDialog {
 
@@ -92,17 +94,15 @@ class AliasTransferDialog {
 
     private static int parseAndApply(Context ctx, String input, AliasRepository repo) {
         int count = 0;
-        String json = input.trim();
-        if (!json.startsWith("{") || !json.endsWith("}")) return 0;
-        json = json.substring(1, json.length() - 1).trim();
-        if (json.isEmpty()) return 0;
-        for (String pair : json.split("\",\"")) {
-            String[] kv = pair.split("\":\"", 2);
-            if (kv.length != 2) continue;
-            String alias = kv[0].replaceAll("^\"|\"$", "").trim();
-            String pkg   = kv[1].replaceAll("^\"|\"$", "").trim();
-            if (!alias.isEmpty() && isInstalled(ctx, pkg)) { repo.set(alias, pkg); count++; }
-        }
+        try {
+            JSONObject json = new JSONObject(input.trim());
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String alias = keys.next();
+                String pkg   = json.getString(alias);
+                if (!alias.isEmpty() && isInstalled(ctx, pkg)) { repo.set(alias, pkg); count++; }
+            }
+        } catch (Exception ignored) {}
         return count;
     }
 

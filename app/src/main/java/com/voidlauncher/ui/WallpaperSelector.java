@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -32,6 +33,7 @@ class WallpaperSelector {
         grid.setPadding(0, dp(ctx, 6), 0, dp(ctx, 6));
 
         LinearLayout[] wrappers = new LinearLayout[ids.length];
+        Bitmap[]       bitmaps  = new Bitmap[ids.length];
         int current = repo.getPattern();
         LinearLayout row = null;
 
@@ -44,7 +46,8 @@ class WallpaperSelector {
             int id = ids[i];
             LinearLayout wrapper = makeWrapper(ctx, id == current);
             wrappers[i] = wrapper;
-            wrapper.addView(makePreview(ctx, id, previewSize));
+            bitmaps[i] = makePreviewBitmap(ctx, id, previewSize);
+            wrapper.addView(makePreview(ctx, bitmaps[i]));
 
             final int fi = i;
             wrapper.setOnClickListener(v -> {
@@ -85,6 +88,12 @@ class WallpaperSelector {
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, screenH * 2 / 5));
         scroll.addView(grid);
+        scroll.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override public void onViewAttachedToWindow(View v) {}
+            @Override public void onViewDetachedFromWindow(View v) {
+                for (Bitmap bmp : bitmaps) if (bmp != null && !bmp.isRecycled()) bmp.recycle();
+            }
+        });
         return scroll;
     }
 
@@ -95,11 +104,15 @@ class WallpaperSelector {
         return w;
     }
 
-    private static ImageView makePreview(Context ctx, int id, int size) {
+    private static Bitmap makePreviewBitmap(Context ctx, int id, int size) {
         Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
         c.drawColor(VoidTheme.BG);
         if (id != WallpaperRepository.NONE) Patterns.draw(c, id, size, size, ctx);
+        return bmp;
+    }
+
+    private static ImageView makePreview(Context ctx, Bitmap bmp) {
         ImageView iv = new ImageView(ctx);
         iv.setImageBitmap(bmp);
         iv.setScaleType(ImageView.ScaleType.FIT_XY);
