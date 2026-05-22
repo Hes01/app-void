@@ -114,7 +114,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     @Override protected void onPause()   { super.onPause();   clockHandler.removeCallbacks(clockTick); }
-    @Override protected void onDestroy() { super.onDestroy(); try { unregisterReceiver(packageReceiver); } catch (Exception ignored) {} }
+    @Override protected void onDestroy() { super.onDestroy(); try { unregisterReceiver(packageReceiver); } catch (IllegalArgumentException ignored) {} }
     @Override public void onBackPressed() {}
 
     @Override

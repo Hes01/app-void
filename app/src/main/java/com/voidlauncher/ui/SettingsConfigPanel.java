@@ -163,7 +163,7 @@ class SettingsConfigPanel {
     private View withDivider(View content) {
         LinearLayout wrap = new LinearLayout(ctx);
         wrap.setOrientation(LinearLayout.VERTICAL); wrap.addView(content);
-        View d = new View(ctx); d.setBackgroundColor(VoidTheme.BG_CARD);
+        View d = new View(ctx); d.setBackgroundColor(VoidTheme.LINE);
         d.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
         wrap.addView(d); return wrap;
     }

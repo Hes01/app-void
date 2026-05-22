@@ -42,7 +42,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
         tv.setText(getItem(pos));
         boolean empty = filteredPkgs.size() > pos && filteredPkgs.get(pos).isEmpty();
         boolean first = activeSearch && pos == 0 && !empty;
-        tv.setTextSize(first ? VoidTheme.TEXT_XXL : 15f);
+        tv.setTextSize(first ? VoidTheme.TEXT_XXL : VoidTheme.TEXT_LG);
         tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.05f);
         int h = QuickSearchLayout.dp(launcher, 11);
@@ -62,7 +62,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
                 String full  = getRealName(pkg) + "   " + alias;
                 int    start = full.length() - alias.length();
                 SpannableString ss = new SpannableString(full);
-                ss.setSpan(new AbsoluteSizeSpan(13, true), start, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ss.setSpan(new AbsoluteSizeSpan((int) VoidTheme.TEXT_MD, true), start, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 if (isTopMode) { tv.setTextColor(rankColor); }
                 else {
                     ss.setSpan(new ForegroundColorSpan(rankColor), start, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -79,7 +79,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
                 String full  = getRealName(pkg) + "   " + alias;
                 int    start = full.length() - alias.length();
                 SpannableString ss = new SpannableString(full);
-                ss.setSpan(new AbsoluteSizeSpan(13, true), start, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ss.setSpan(new AbsoluteSizeSpan((int) VoidTheme.TEXT_MD, true), start, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 ss.setSpan(new ForegroundColorSpan(VoidTheme.FG4), start, full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 tv.setTextColor(first ? VoidTheme.FG : VoidTheme.FG3);
                 tv.setText(ss); return tv;
