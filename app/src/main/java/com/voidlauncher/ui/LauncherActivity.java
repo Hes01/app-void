@@ -47,7 +47,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
             if (tvClock != null) tvClock.setText(timeFmt.format(now));
             if (segClock != null) segClock.invalidate();
             if (flipClock != null) flipClock.tick();
-            tvDate.setText(dateFmt.format(now).toUpperCase(Locale.getDefault()));
+            if (tvDate != null) tvDate.setText(dateFmt.format(now).toUpperCase(Locale.getDefault()));
             clockHandler.postDelayed(this, 1000);
         }
     };
@@ -151,7 +151,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         }
         root.setBackgroundColor(VoidTheme.BG);
         if (tvClock != null) tvClock.setTextColor(VoidTheme.FG);
-        tvDate.setTextColor(VoidTheme.FG4);
+        if (tvDate != null) tvDate.setTextColor(VoidTheme.FG4);
         patternView.refresh(); clockView.invalidate();
     }
 

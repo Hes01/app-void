@@ -14,7 +14,9 @@ import android.graphics.Typeface;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 class FlipClockView extends View {
 
@@ -29,6 +31,7 @@ class FlipClockView extends View {
 
     private final int[]   cur = new int[4], nxt = new int[4], phase = new int[4];
     private final float[] ang = new float[4];
+    private final List<ValueAnimator> active = new ArrayList<>();
 
     FlipClockView(Context ctx, boolean use24) {
         super(ctx);
@@ -58,9 +61,17 @@ class FlipClockView extends View {
         va.setDuration(HALF); va.setInterpolator(ip);
         va.addUpdateListener(v -> { ang[i] = (float) v.getAnimatedValue(); invalidate(); });
         va.addListener(new AnimatorListenerAdapter() {
-            @Override public void onAnimationEnd(Animator ignored) { done.run(); }
+            @Override public void onAnimationEnd(Animator ignored) { active.remove(va); done.run(); }
         });
+        active.add(va);
         va.start();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        for (ValueAnimator va : active) va.cancel();
+        active.clear();
     }
 
     @Override

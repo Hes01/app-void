@@ -24,8 +24,8 @@ class WallpaperSelector {
         int screenW     = ctx.getResources().getDisplayMetrics().widthPixels;
         int screenH     = ctx.getResources().getDisplayMetrics().heightPixels;
         int margin      = dp(ctx, MARGIN_DP);
-        int cellSize    = (screenW - COLS * margin * 2) / COLS;
-        int previewSize = cellSize - dp(ctx, PADDING_DP) * 2;
+        int cellSize    = Math.max(dp(ctx, 48), (screenW - COLS * margin * 2) / COLS);
+        int previewSize = Math.max(1, cellSize - dp(ctx, PADDING_DP) * 2);
 
         LinearLayout grid = new LinearLayout(ctx);
         grid.setOrientation(LinearLayout.VERTICAL);
