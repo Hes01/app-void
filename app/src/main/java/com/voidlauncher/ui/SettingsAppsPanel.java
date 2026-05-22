@@ -115,7 +115,7 @@ class SettingsAppsPanel {
         };
         ListView lv = new ListView(launcher);
         lv.setBackgroundColor(VoidTheme.BG); GradientDrawable div = new GradientDrawable();
-        div.setColor(VoidTheme.BG_CARD); lv.setDivider(div); lv.setDividerHeight(1);
+        div.setColor(VoidTheme.LINE); lv.setDivider(div); lv.setDividerHeight(dp(1));
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER); lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter); return lv;

@@ -23,6 +23,7 @@ import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import com.voidlauncher.data.LaunchRepository;
 import com.voidlauncher.data.WallpaperRepository;
+import android.view.ViewConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +92,8 @@ public class QuickSearchDialog {
     private void setupListBehavior(QuickSearchLayout layout) {
         GestureDetector gd = new GestureDetector(launcher, new GestureDetector.SimpleOnGestureListener() {
             @Override public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
-                if (vy > 800 && Math.abs(vy) > Math.abs(vx) * 1.5f && filteredNames.size() <= 8)
+                int minFling = ViewConfiguration.get(launcher).getScaledMinimumFlingVelocity() * 3;
+                if (vy > minFling && Math.abs(vy) > Math.abs(vx) * 1.5f && filteredNames.size() <= 8)
                     { dialog.dismiss(); return true; }
                 return false;
             }
