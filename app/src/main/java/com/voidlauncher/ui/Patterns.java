@@ -14,7 +14,7 @@ class Patterns {
     static final int AIZAWA    = 19; static final int HILBERT   = 20;
 
     static final int[]    ALL   = { DOTS, HAIRLINES, TOPO, SHIPPO, TRUCHET, DAMASK, GRAVURE, ULAM, AIZAWA, HILBERT };
-    static final String[] NAMES = { "Dots", "Hairlines", "Topo", "Shippo", "Truchet", "Damasco", "Gravure", "Ulam", "Aizawa", "Hilbert" };
+    static final String[] NAMES = { "Dots", "Hairlines", "Topo", "Shippo", "Truchet", "Damasco", "Gravure", "Ulam", "Astroide", "Hilbert" };
 
     static void draw(Canvas c, int id, int w, int h, Context ctx) {
         switch (id) {
