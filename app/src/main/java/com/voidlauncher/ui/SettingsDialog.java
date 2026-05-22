@@ -103,7 +103,7 @@ public class SettingsDialog {
     }
 
     private View separator() {
-        View v = new View(launcher); v.setBackgroundColor(VoidTheme.BG_CARD);
+        View v = new View(launcher); v.setBackgroundColor(VoidTheme.LINE);
         v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
         return v;
     }

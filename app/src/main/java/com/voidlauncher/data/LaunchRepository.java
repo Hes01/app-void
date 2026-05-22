@@ -8,14 +8,17 @@ import android.os.Handler;
 import android.os.Looper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LaunchRepository {
 
     private static final int QUERY_LIMIT = 500;
     private static final int MAX_RECORDS = 5000;
 
-    private final VoidDatabase db;
-    private final Handler      main = new Handler(Looper.getMainLooper());
+    private final VoidDatabase    db;
+    private final Handler         main     = new Handler(Looper.getMainLooper());
+    private final ExecutorService writeExec = Executors.newSingleThreadExecutor();
 
     public LaunchRepository(Context ctx) {
         db = VoidDatabase.get(ctx);
@@ -23,7 +26,7 @@ public class LaunchRepository {
 
     /** Registra un lanzamiento. Llamar desde cualquier hilo. */
     public void record(final String pkg) {
-        new Thread(() -> {
+        writeExec.execute(() -> {
             SQLiteDatabase w = db.getWritableDatabase();
             ContentValues cv = new ContentValues();
             cv.put(VoidDatabase.COL_PKG,  pkg);
@@ -31,7 +34,7 @@ public class LaunchRepository {
             cv.put(VoidDatabase.COL_PREV, lastPackage(w));
             w.insert(VoidDatabase.TABLE, null, cv);
             rotate(w);
-        }).start();
+        });
     }
 
     /** Predice top apps en background, entrega resultado en el hilo principal. */
@@ -72,7 +75,7 @@ public class LaunchRepository {
     }
 
     public void clearAll() {
-        new Thread(() -> db.getWritableDatabase().execSQL("DELETE FROM " + VoidDatabase.TABLE)).start();
+        writeExec.execute(() -> db.getWritableDatabase().execSQL("DELETE FROM " + VoidDatabase.TABLE));
     }
 
     private void rotate(SQLiteDatabase w) {

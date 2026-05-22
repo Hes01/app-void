@@ -11,16 +11,15 @@ class PatternsExtra2 {
         switch (id) {
             case Patterns.DAMASK:  drawDamask(c, w, h, ctx);  break;
             case Patterns.GRAVURE: drawGravure(c, w, h, ctx); break;
-            case Patterns.AIZAWA:  drawAizawa(c, w, h);       break;
+            case Patterns.AIZAWA:  drawAstroid(c, w, h, ctx); break;
         }
     }
 
     // Damasco — geometría polar en hexágonos: 8 círculos orbitales + diamante exterior
     private static void drawDamask(Canvas c, int w, int h, Context ctx) {
         float tile = Patterns.dp(ctx, 62);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF0E080C));
-        Paint petal   = Patterns.stroke(0x4A9B7BAC, Patterns.dp(ctx, 0.7f));
-        Paint diamond = Patterns.stroke(0x309B7BAC, Patterns.dp(ctx, 0.6f));
+        Paint petal   = Patterns.stroke(VoidTheme.FG4, Patterns.dp(ctx, 0.7f));
+        Paint diamond = Patterns.stroke(VoidTheme.FG5, Patterns.dp(ctx, 0.6f));
         Path sq = new Path();
         for (int row = -1; row * tile * 0.866f < h + tile; row++) {
             float oy     = row * tile * 0.866f;
@@ -42,13 +41,12 @@ class PatternsExtra2 {
 
     // Gravure — campo gravitacional: líneas horizontales dobladas hacia el centro
     private static void drawGravure(Canvas c, int w, int h, Context ctx) {
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF060810));
         float cx      = w / 2f, cy = h / 2f;
         float spacing = Patterns.dp(ctx, 11);
         float A       = Math.min(w, h) * 0.18f;
         float lambda  = Math.min(w, h) * 0.38f;
         float omega   = Math.min(w, h) * 0.10f;
-        Paint ink     = Patterns.stroke(0x4A3B82F6, Patterns.dp(ctx, 0.7f));
+        Paint ink     = Patterns.stroke(VoidTheme.FG4, Patterns.dp(ctx, 0.7f));
         int   stepX   = Math.max(3, w / 80);
         Path  line    = new Path();
         for (float baseY = 0; baseY < h; baseY += spacing) {
@@ -65,41 +63,29 @@ class PatternsExtra2 {
         }
     }
 
-    // Atractor de Aizawa — caos determinista 3D: Euler + rotación + perspectiva + z-fading
-    private static void drawAizawa(Canvas c, int w, int h) {
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF040608));
-        double a=0.95, b=0.7, c2=0.6, d=3.5, e=0.25, f=0.1, dt=0.01;
-        double cosX=Math.cos(1.20), sinX=Math.sin(1.20);
-        double cosY=Math.cos(0.50), sinY=Math.sin(0.50);
-        // paso 1: rango Z para normalización
-        double x=0.1, y=0, z=0; float minZ=9999, maxZ=-9999;
-        for (int i=-1000; i<45000; i++) {
-            double rx=(z-b)*x-d*y, ry=d*x+(z-b)*y;
-            double rz=c2+a*z-z*z*z/3.0-(x*x+y*y)*(1+e*z)+f*z*x*x*x;
-            x+=rx*dt; y+=ry*dt; z+=rz*dt; if (i<0) continue;
-            double y1=y*cosX-z*sinX, z1=y*sinX+z*cosX, z2=-x*sinY+z1*cosY;
-            if (z2<minZ) minZ=(float)z2; if (z2>maxZ) maxZ=(float)z2;
-        }
-        // paso 2: dibujar con z-fading
-        float zR=maxZ-minZ; if (zR==0) zR=1;
-        float sc=Math.min(w,h)/5.5f, cx=w/2f, cy=h*0.45f, P=8f;
-        Paint ink=new Paint(Paint.ANTI_ALIAS_FLAG);
-        ink.setStyle(Paint.Style.STROKE); ink.setColor(0xFF90D8F8);
-        x=0.1; y=0; z=0; float px=0, py=0;
-        for (int i=-1000; i<45000; i++) {
-            double rx=(z-b)*x-d*y, ry=d*x+(z-b)*y;
-            double rz=c2+a*z-z*z*z/3.0-(x*x+y*y)*(1+e*z)+f*z*x*x*x;
-            x+=rx*dt; y+=ry*dt; z+=rz*dt; if (i<0) continue;
-            double y1=y*cosX-z*sinX, z1=y*sinX+z*cosX;
-            double x2=x*cosY+z1*sinY, z2=-x*sinY+z1*cosY;
-            float fov=P/(P-(float)z2);
-            float sx=cx+(float)x2*sc*fov, sy=cy+(float)y1*sc*fov;
-            if (i>0) {
-                float zN=((float)z2-minZ)/zR;
-                ink.setAlpha((int)(5+zN*58)); ink.setStrokeWidth(0.5f+zN*1.0f);
-                c.drawLine(px,py,sx,sy,ink);
+    // Astroide — hipocicloide de 4 cúspides en malla: x=r·cos³(t), y=r·sin³(t)
+    private static void drawAstroid(Canvas c, int w, int h, Context ctx) {
+        float tile = Patterns.dp(ctx, 44);
+        float r    = tile * 0.38f;
+        Paint ink  = Patterns.stroke(VoidTheme.FG4, Patterns.dp(ctx, 0.9f));
+        Path  path = new Path();
+        int   steps = 48;
+        for (float row = -1; row * tile < h + tile; row++) {
+            float cy = row * tile + tile / 2f;
+            float ox  = (((int) row % 2) == 0) ? 0 : tile / 2f;
+            for (float col = -1; col * tile + ox < w + tile; col++) {
+                float cx = col * tile + ox + tile / 2f;
+                path.reset();
+                for (int i = 0; i <= steps; i++) {
+                    double t = 2 * Math.PI * i / steps;
+                    float cos = (float) Math.cos(t), sin = (float) Math.sin(t);
+                    float x = cx + r * cos * cos * cos;
+                    float y = cy + r * sin * sin * sin;
+                    if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+                }
+                path.close();
+                c.drawPath(path, ink);
             }
-            px=sx; py=sy;
         }
     }
 }

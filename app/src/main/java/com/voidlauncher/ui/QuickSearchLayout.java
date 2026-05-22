@@ -71,7 +71,7 @@ class QuickSearchLayout {
                 Gravity.CENTER_VERTICAL));
         TextView ghostView = new TextView(ctx);
         ghostView.setTextColor(VoidTheme.FG5);
-        ghostView.setTextSize(18f);
+        ghostView.setTextSize(VoidTheme.TEXT_XXL);
         ghostView.setTypeface(Typeface.MONOSPACE);
         ghostView.setPadding(0, 0, 0, 0);
         ghostView.setVisibility(View.GONE);
@@ -128,7 +128,7 @@ class QuickSearchLayout {
     private static EditText buildInput(Context ctx) {
         EditText et = new EditText(ctx);
         et.setTextColor(VoidTheme.FG);
-        et.setTextSize(18f);
+        et.setTextSize(VoidTheme.TEXT_XXL);
         et.setTypeface(Typeface.MONOSPACE);
         et.setBackgroundColor(0);
         et.setSingleLine(true);

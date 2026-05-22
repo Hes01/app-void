@@ -33,4 +33,11 @@ public class PatternView extends View {
     }
 
     public void refresh() { cachedId = -1; invalidate(); }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (cache != null) { cache.recycle(); cache = null; }
+        cachedId = -1;
+    }
 }

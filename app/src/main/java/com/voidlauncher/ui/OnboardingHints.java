@@ -34,7 +34,7 @@ class OnboardingHints {
 
         TextView tv = new TextView(ctx);
         tv.setTextColor(VoidTheme.FG3);
-        tv.setTextSize(13f);
+        tv.setTextSize(VoidTheme.TEXT_MD);
         tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.05f);
         tv.setGravity(Gravity.CENTER);

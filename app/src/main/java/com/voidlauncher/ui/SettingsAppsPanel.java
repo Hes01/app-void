@@ -115,7 +115,7 @@ class SettingsAppsPanel {
         };
         ListView lv = new ListView(launcher);
         lv.setBackgroundColor(VoidTheme.BG); GradientDrawable div = new GradientDrawable();
-        div.setColor(VoidTheme.BG_CARD); lv.setDivider(div); lv.setDividerHeight(1);
+        div.setColor(VoidTheme.LINE); lv.setDivider(div); lv.setDividerHeight(dp(1));
         lv.setSelector(android.R.color.transparent);
         lv.setOverScrollMode(View.OVER_SCROLL_NEVER); lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter); return lv;
@@ -138,10 +138,12 @@ class SettingsAppsPanel {
     }
 
     private void populateRow(LinearLayout row, int i) {
+        if (row.getChildCount() < 3) return;
         String pkg = pkgs.get(i); String alias = aliases.aliasOf(pkg); boolean isHid = hidden.isHidden(pkg);
         TextView tvAlias   = (TextView)  row.getChildAt(0);
         TextView tvName    = (TextView)  row.getChildAt(1);
         ImageView ivEye    = (ImageView) row.getChildAt(2);
+        if (tvAlias == null || tvName == null || ivEye == null) return;
         tvAlias.setText(alias != null ? alias : "—"); tvAlias.setTextColor(alias != null ? VoidTheme.FG4 : VoidTheme.FG5);
         tvName.setText(names.get(i)); tvName.setTextColor(alias != null ? VoidTheme.FG2 : VoidTheme.FG5);
         ivEye.setImageResource(isHid ? R.drawable.ic_eye_off : R.drawable.ic_eye);
