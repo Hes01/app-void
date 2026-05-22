@@ -28,6 +28,7 @@ final class VoidTheme {
     static final float TEXT_LG = 14f, TEXT_XL = 16f, TEXT_XXL  = 17f, TEXT_DISPLAY = 64f;
 
     static void apply(int themeId, int mode) {
+        if (themeId < 0 || themeId >= THEMES.length) themeId = 0;
         isDay   = (mode == ThemeRepository.DAY) || (mode == ThemeRepository.AUTO && isDaytime());
         int off = isDay ? 5 : 0;
         int[] t = THEMES[themeId];

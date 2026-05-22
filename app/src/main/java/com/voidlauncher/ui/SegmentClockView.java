@@ -36,7 +36,7 @@ class SegmentClockView extends View {
     protected void onDraw(Canvas canvas) {
         onP.setColor(VoidTheme.FG);
         offP.setColor((VoidTheme.FG & 0x00FFFFFF) | 0x0F000000);
-        if (getWidth() == 0) return;
+        if (getWidth() == 0 || getHeight() == 0) return;
         Calendar cal = Calendar.getInstance();
         int h = use24 ? cal.get(Calendar.HOUR_OF_DAY) : cal.get(Calendar.HOUR);
         if (!use24 && h == 0) h = 12;
