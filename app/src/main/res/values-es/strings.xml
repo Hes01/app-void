@@ -34,6 +34,14 @@
     <string name="hint_alias">alias</string>
     <string name="btn_cancel">cancelar</string>
     <string name="btn_ok">ok</string>
+    <string name="btn_accept">aceptar</string>
+    <string name="btn_import">importar</string>
+    <string name="btn_copy">copiar</string>
+    <string name="btn_share">compartir</string>
+    <string name="toast_copied">copiado</string>
+    <string name="toast_aliases_imported">%d alias importados</string>
+    <string name="label_no_aliases">(sin alias)</string>
+    <string name="hint_alias_json">{ "alias": "paquete" }</string>
 
     <string name="filter_all">todas</string>
     <string name="filter_aliased">con alias</string>

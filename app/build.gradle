@@ -13,7 +13,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.hes01.voidlauncher"
+        applicationId "om.hes01.voidlauncher"
         minSdk 21
         targetSdk 35
         versionCode 2

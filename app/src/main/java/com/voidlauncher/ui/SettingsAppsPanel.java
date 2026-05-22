@@ -205,7 +205,7 @@ class SettingsAppsPanel {
         et.setPadding(dp(20), dp(11), dp(8), dp(11)); et.setSingleLine(true);
         et.setHint(launcher.getString(R.string.hint_alias)); et.setHintTextColor(VoidTheme.FG5);
         if (current != null) { et.setText(current); }
-        TextView ok = mono("aceptar", VoidTheme.FG, VoidTheme.TEXT_SM, 0);
+        TextView ok = mono(launcher.getString(R.string.btn_accept), VoidTheme.FG, VoidTheme.TEXT_SM, 0);
         ok.setGravity(Gravity.CENTER); ok.setPadding(dp(16), dp(11), dp(16), dp(11));
         ok.setLetterSpacing(0.1f);
         GradientDrawable okBg = new GradientDrawable();

@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.hes01.voidlauncher.R;
 import com.voidlauncher.data.AliasRepository;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,17 +28,17 @@ class AliasTransferDialog {
         String json = buildJson(repo);
 
         TextView body = new TextView(ctx);
-        body.setText(json.isEmpty() ? "(sin alias)" : json); body.setTextIsSelectable(true);
+        body.setText(json.isEmpty() ? ctx.getString(R.string.label_no_aliases) : json); body.setTextIsSelectable(true);
         body.setTypeface(Typeface.MONOSPACE); body.setTextSize(VoidTheme.TEXT_SM); body.setTextColor(VoidTheme.FG2);
         body.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
         ScrollView sv = new ScrollView(ctx); sv.addView(body);
 
-        TextView btnCopy = btn(ctx, "copiar"); TextView btnShare = btn(ctx, "compartir");
+        TextView btnCopy = btn(ctx, ctx.getString(R.string.btn_copy)); TextView btnShare = btn(ctx, ctx.getString(R.string.btn_share));
         LinearLayout bar = hbar(ctx);
         bar.addView(btnCopy, flex()); bar.addView(btnShare, flex());
 
         LinearLayout root = root(ctx);
-        root.addView(header(ctx, "exportar alias"));
+        root.addView(header(ctx, ctx.getString(R.string.action_export_aliases)));
         root.addView(sv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         root.addView(sep(ctx)); root.addView(bar);
 
@@ -45,7 +46,7 @@ class AliasTransferDialog {
         btnCopy.setOnClickListener(v -> {
             ClipboardManager cm = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
             if (cm != null) cm.setPrimaryClip(ClipData.newPlainText("aliases", json));
-            Toast.makeText(ctx, "copiado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, ctx.getString(R.string.toast_copied), Toast.LENGTH_SHORT).show();
         });
         btnShare.setOnClickListener(v -> {
             Intent i = new Intent(Intent.ACTION_SEND); i.setType("text/plain"); i.putExtra(Intent.EXTRA_TEXT, json);
@@ -60,14 +61,14 @@ class AliasTransferDialog {
         EditText et = new EditText(ctx);
         et.setTypeface(Typeface.MONOSPACE); et.setTextSize(VoidTheme.TEXT_SM);
         et.setTextColor(VoidTheme.FG); et.setHintTextColor(VoidTheme.FG5);
-        et.setHint("{ \"alias\": \"paquete\" }"); et.setMinLines(6); et.setBackgroundColor(0);
+        et.setHint(ctx.getString(R.string.hint_alias_json)); et.setMinLines(6); et.setBackgroundColor(0);
         et.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
 
-        TextView btnOk = btn(ctx, "importar");
+        TextView btnOk = btn(ctx, ctx.getString(R.string.btn_import));
         LinearLayout bar = hbar(ctx); bar.addView(btnOk, flex());
 
         LinearLayout root = root(ctx);
-        root.addView(header(ctx, "importar alias")); root.addView(et);
+        root.addView(header(ctx, ctx.getString(R.string.action_import_aliases))); root.addView(et);
         root.addView(sep(ctx)); root.addView(bar);
 
         Dialog d = mkDialog(ctx, root);
@@ -75,7 +76,7 @@ class AliasTransferDialog {
             d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         btnOk.setOnClickListener(v -> {
             int n = parseAndApply(ctx, et.getText().toString(), repo);
-            Toast.makeText(ctx, n + " alias importados", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, ctx.getString(R.string.toast_aliases_imported, n), Toast.LENGTH_SHORT).show();
             d.dismiss();
         });
         d.show();

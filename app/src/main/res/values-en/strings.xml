@@ -9,6 +9,7 @@
     <string name="section_privacy">privacy</string>
 
     <!-- settings — rows -->
+    <string name="pref_palette">palette</string>
     <string name="pref_theme">theme</string>
     <string name="pref_clock">clock</string>
     <string name="pref_real_name">real name in .all</string>
@@ -41,6 +42,14 @@
     <string name="hint_alias">alias</string>
     <string name="btn_cancel">cancel</string>
     <string name="btn_ok">ok</string>
+    <string name="btn_accept">accept</string>
+    <string name="btn_import">import</string>
+    <string name="btn_copy">copy</string>
+    <string name="btn_share">share</string>
+    <string name="toast_copied">copied</string>
+    <string name="toast_aliases_imported">%d aliases imported</string>
+    <string name="label_no_aliases">(no aliases)</string>
+    <string name="hint_alias_json">{ "alias": "package" }</string>
 
     <!-- app filters -->
     <string name="filter_all">all</string>
