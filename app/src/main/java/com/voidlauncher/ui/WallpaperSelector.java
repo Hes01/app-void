@@ -3,6 +3,7 @@ package com.voidlauncher.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -10,8 +11,8 @@ import com.voidlauncher.data.WallpaperRepository;
 
 class WallpaperSelector {
 
-    private static final int COLS = 3;
-    private static final int MARGIN_DP = 3;
+    private static final int COLS       = 3;
+    private static final int MARGIN_DP  = 3;
     private static final int PADDING_DP = 2;
 
     static android.view.View build(Context ctx, Runnable onChanged) {
@@ -20,9 +21,10 @@ class WallpaperSelector {
         ids[0] = WallpaperRepository.NONE;
         System.arraycopy(Patterns.ALL, 0, ids, 1, Patterns.ALL.length);
 
-        int screenW = ctx.getResources().getDisplayMetrics().widthPixels;
-        int margin = dp(ctx, MARGIN_DP);
-        int cellSize = (screenW - COLS * margin * 2) / COLS;
+        int screenW     = ctx.getResources().getDisplayMetrics().widthPixels;
+        int screenH     = ctx.getResources().getDisplayMetrics().heightPixels;
+        int margin      = dp(ctx, MARGIN_DP);
+        int cellSize    = (screenW - COLS * margin * 2) / COLS;
         int previewSize = cellSize - dp(ctx, PADDING_DP) * 2;
 
         LinearLayout grid = new LinearLayout(ctx);
@@ -56,8 +58,30 @@ class WallpaperSelector {
             lp.setMargins(margin, margin, margin, margin);
             row.addView(wrapper, lp);
         }
-        int screenH = ctx.getResources().getDisplayMetrics().heightPixels;
-        ScrollView scroll = new ScrollView(ctx);
+
+        ScrollView scroll = new ScrollView(ctx) {
+            private int lastY;
+            @Override
+            public boolean dispatchTouchEvent(MotionEvent ev) {
+                switch (ev.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastY = (int) ev.getY();
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        int dy = lastY - (int) ev.getY();
+                        lastY = (int) ev.getY();
+                        getParent().requestDisallowInterceptTouchEvent(
+                                canScrollVertically(dy > 0 ? 1 : -1));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+                return super.dispatchTouchEvent(ev);
+            }
+        };
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, screenH * 2 / 5));
         scroll.addView(grid);
