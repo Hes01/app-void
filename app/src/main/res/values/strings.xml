@@ -9,7 +9,8 @@
     <string name="section_privacy">privacidad</string>
 
     <!-- settings — filas -->
-    <string name="pref_theme">tema</string>
+    <string name="pref_palette">paleta</string>
+    <string name="pref_theme">modo</string>
     <string name="pref_clock">reloj</string>
     <string name="pref_real_name">nombre real en .all</string>
     <string name="pref_auto_launch">abrir si 1 resultado</string>

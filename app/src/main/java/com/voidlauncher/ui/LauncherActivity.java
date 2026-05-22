@@ -67,7 +67,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         uiLocale = getResources().getConfiguration().locale.getLanguage();
-        VoidTheme.apply(new ThemeRepository(this).getMode());
+        ThemeRepository tr0 = new ThemeRepository(this);
+        VoidTheme.apply(tr0.getTheme(), tr0.getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         contextual = new LaunchRepository(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
         timeFmt = new SimpleDateFormat(DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm", Locale.getDefault());
@@ -99,7 +100,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         if (!sysLang.equals(uiLocale)) { Process.killProcess(Process.myPid()); return; }
         ThemeRepository tr = new ThemeRepository(this);
         if (tr.getMode() == ThemeRepository.AUTO && VoidTheme.isDaytime() != VoidTheme.isDay) {
-            VoidTheme.apply(ThemeRepository.AUTO); recreate(); return;
+            VoidTheme.apply(tr.getTheme(), ThemeRepository.AUTO); recreate(); return;
         }
         hideSystemUI();
         clockHandler.post(clockTick);

@@ -32,7 +32,7 @@ class Patterns {
 
     private static void drawDots(Canvas c, int w, int h, Context ctx) {
         float tile = dp(ctx, 18); float r = dp(ctx, 1.1f);
-        Paint p = fill(0x80FFFFFF);
+        Paint p = fill(VoidTheme.FG4);
         for (float y = 0; y < h + tile; y += tile)
             for (float x = 0; x < w + tile; x += tile)
                 c.drawCircle(x, y, r, p);
@@ -40,7 +40,7 @@ class Patterns {
 
     private static void drawHairlines(Canvas c, int w, int h, Context ctx) {
         float tile = dp(ctx, 14);
-        Paint p = stroke(0x2E1A1A1A, dp(ctx, 0.5f));
+        Paint p = stroke(VoidTheme.FG5, dp(ctx, 0.5f));
         float len = (float) Math.sqrt(w * w + h * h);
         for (float i = -len; i < len; i += tile)
             c.drawLine(i, 0, i + h, h, p);
@@ -48,7 +48,7 @@ class Patterns {
 
     private static void drawTopo(Canvas c, int w, int h, Context ctx) {
         float tw = dp(ctx, 120); float th = dp(ctx, 60);
-        Paint p = stroke(0x662A3B2E, dp(ctx, 0.8f));
+        Paint p = stroke(VoidTheme.FG4, dp(ctx, 0.8f));
         Path path = new Path();
         for (float ty = 0; ty < h + th; ty += th)
             for (float tx = 0; tx < w + tw; tx += tw) {

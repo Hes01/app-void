@@ -18,9 +18,8 @@ class PatternsExtra2 {
     // Damasco — geometría polar en hexágonos: 8 círculos orbitales + diamante exterior
     private static void drawDamask(Canvas c, int w, int h, Context ctx) {
         float tile = Patterns.dp(ctx, 62);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF0E080C));
-        Paint petal   = Patterns.stroke(0x4A9B7BAC, Patterns.dp(ctx, 0.7f));
-        Paint diamond = Patterns.stroke(0x309B7BAC, Patterns.dp(ctx, 0.6f));
+        Paint petal   = Patterns.stroke(VoidTheme.FG4, Patterns.dp(ctx, 0.7f));
+        Paint diamond = Patterns.stroke(VoidTheme.FG5, Patterns.dp(ctx, 0.6f));
         Path sq = new Path();
         for (int row = -1; row * tile * 0.866f < h + tile; row++) {
             float oy     = row * tile * 0.866f;
@@ -42,13 +41,12 @@ class PatternsExtra2 {
 
     // Gravure — campo gravitacional: líneas horizontales dobladas hacia el centro
     private static void drawGravure(Canvas c, int w, int h, Context ctx) {
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF060810));
         float cx      = w / 2f, cy = h / 2f;
         float spacing = Patterns.dp(ctx, 11);
         float A       = Math.min(w, h) * 0.18f;
         float lambda  = Math.min(w, h) * 0.38f;
         float omega   = Math.min(w, h) * 0.10f;
-        Paint ink     = Patterns.stroke(0x4A3B82F6, Patterns.dp(ctx, 0.7f));
+        Paint ink     = Patterns.stroke(VoidTheme.FG4, Patterns.dp(ctx, 0.7f));
         int   stepX   = Math.max(3, w / 80);
         Path  line    = new Path();
         for (float baseY = 0; baseY < h; baseY += spacing) {
@@ -67,7 +65,6 @@ class PatternsExtra2 {
 
     // Atractor de Aizawa — caos determinista 3D: Euler + rotación + perspectiva + z-fading
     private static void drawAizawa(Canvas c, int w, int h) {
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF040608));
         double a=0.95, b=0.7, c2=0.6, d=3.5, e=0.25, f=0.1, dt=0.01;
         double cosX=Math.cos(1.20), sinX=Math.sin(1.20);
         double cosY=Math.cos(0.50), sinY=Math.sin(0.50);
@@ -84,7 +81,7 @@ class PatternsExtra2 {
         float zR=maxZ-minZ; if (zR==0) zR=1;
         float sc=Math.min(w,h)/5.5f, cx=w/2f, cy=h*0.45f, P=8f;
         Paint ink=new Paint(Paint.ANTI_ALIAS_FLAG);
-        ink.setStyle(Paint.Style.STROKE); ink.setColor(0xFF90D8F8);
+        ink.setStyle(Paint.Style.STROKE); ink.setColor(VoidTheme.FG);
         x=0.1; y=0; z=0; float px=0, py=0;
         for (int i=-1000; i<45000; i++) {
             double rx=(z-b)*x-d*y, ry=d*x+(z-b)*y;

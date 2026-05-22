@@ -17,8 +17,7 @@ class PatternsExtra {
 
     private static void drawShippo(Canvas c, int w, int h, Context ctx) {
         float tile = Patterns.dp(ctx, 40); float r = tile / 2f;
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFFF0E3CC));
-        Paint ink = Patterns.stroke(0x473A2E1F, Patterns.dp(ctx, 1f));
+        Paint ink = Patterns.stroke(VoidTheme.FG4, Patterns.dp(ctx, 1f));
         for (float row = -1; row < h / tile + 2; row++)
             for (float col = -1; col < w / tile + 2; col++) {
                 c.drawCircle(col * tile, row * tile, r, ink);
@@ -28,8 +27,7 @@ class PatternsExtra {
 
     private static void drawTruchet(Canvas c, int w, int h, Context ctx) {
         float tile = Patterns.dp(ctx, 40); float r = tile / 2f;
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF1A1A1A));
-        Paint ink = Patterns.stroke(0xB2D97757, Patterns.dp(ctx, 2f));
+        Paint ink = Patterns.stroke(VoidTheme.FG3, Patterns.dp(ctx, 2f));
         for (float row = -1; row < h / tile + 2; row++)
             for (float col = -1; col < w / tile + 2; col++) {
                 float x = col * tile; float y = row * tile;
@@ -47,8 +45,7 @@ class PatternsExtra {
     // Espiral de Ulam: los primos dibujan diagonales ocultas sobre el vacío
     private static void drawUlam(Canvas c, int w, int h, Context ctx) {
         float cell = Patterns.dp(ctx, 8);
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF070A0F));
-        Paint dot = Patterns.fill(0x75A0BCD4);
+        Paint dot = Patterns.fill(VoidTheme.FG4);
         float cx = w / 2f, cy = h / 2f;
         float x = cx, y = cy, r = cell * 0.32f;
         float[] dx = { cell, 0, -cell, 0 };
@@ -78,7 +75,6 @@ class PatternsExtra {
 
     // Curva de Hilbert — fractal de relleno de espacio: pistas de cobre con fade radial
     private static void drawHilbert(Canvas c, int w, int h) {
-        c.drawRect(0, 0, w, h, Patterns.fill(0xFF060804));
         int n = 64;
         float cell = (float) Math.min(w, h) / n;
         float offX = (w - cell * n) / 2f, offY = (h - cell * n) / 2f;
@@ -87,7 +83,7 @@ class PatternsExtra {
         ink.setStyle(Paint.Style.STROKE);
         ink.setStrokeCap(Paint.Cap.SQUARE);
         ink.setStrokeJoin(Paint.Join.BEVEL);
-        ink.setColor(0xFFD48020);
+        ink.setColor(VoidTheme.FG);
         int[] p0 = {0, 0}, p1 = {0, 0};
         hilbert(n, 0, p0);
         for (int i = 1; i < n * n; i++) {

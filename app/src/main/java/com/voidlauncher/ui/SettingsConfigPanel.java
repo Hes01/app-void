@@ -34,6 +34,7 @@ class SettingsConfigPanel {
         content.addView(WallpaperSelector.build(ctx, onPatternChanged));
 
         content.addView(section(ctx.getString(R.string.section_appearance)));
+        content.addView(paletteRow(onThemeChanged));
         content.addView(themeRow(onThemeChanged));
         content.addView(clockModeRow(onThemeChanged));
         content.addView(toggleRow(ctx.getString(R.string.pref_real_name),    "show_real_name", true,  null));
@@ -52,6 +53,29 @@ class SettingsConfigPanel {
         sv.addView(content); return sv;
     }
 
+    private View paletteRow(Runnable onThemeChanged) {
+        ThemeRepository repo = new ThemeRepository(ctx);
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(13), 0, dp(13));
+        TextView tvVal = new TextView(ctx);
+        tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM);
+        tvVal.setTextColor(VoidTheme.FG);
+        Runnable[] refresh = {null};
+        refresh[0] = () -> tvVal.setText("[ " + VoidTheme.NAMES[repo.getTheme()] + " ]");
+        refresh[0].run();
+        tvVal.setOnClickListener(v -> {
+            int next = (repo.getTheme() + 1) % VoidTheme.NAMES.length;
+            repo.setTheme(next);
+            refresh[0].run();
+            VoidTheme.apply(next, repo.getMode());
+            if (onThemeChanged != null) onThemeChanged.run();
+        });
+        row.addView(label(ctx.getString(R.string.pref_palette)), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(tvVal);
+        return withDivider(row);
+    }
+
     private View themeRow(Runnable onThemeChanged) {
         ThemeRepository repo = new ThemeRepository(ctx);
         LinearLayout row = new LinearLayout(ctx);
@@ -65,7 +89,7 @@ class SettingsConfigPanel {
             int next = (repo.getMode() + 1) % 3;
             repo.setMode(next);
             tvVal.setText("[ " + ThemeRepository.label(ctx, next) + " ]");
-            VoidTheme.apply(next);
+            VoidTheme.apply(repo.getTheme(), next);
             if (onThemeChanged != null) onThemeChanged.run();
         });
         row.addView(label(ctx.getString(R.string.pref_theme)), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
