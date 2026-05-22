@@ -20,9 +20,10 @@ class SearchHints {
         View dot = hintRow.getChildAt(0);
         hintRow.setVisibility(View.VISIBLE);
         String text = ctx.getString(R.string.welcome);
+        boolean[] active = {true};
         hintRow.post(() -> {
             breathe(dot);
-            typewriter(hintText, text, 0, new boolean[]{true});
+            typewriter(hintText, text, 0, active);
         });
 
         input.addTextChangedListener(new TextWatcher() {
@@ -31,26 +32,31 @@ class SearchHints {
             @Override public void afterTextChanged(Editable s) {
                 if (s.length() == 0) return;
                 input.removeTextChangedListener(this);
-                dismiss(ctx, hintRow, dot);
+                dismiss(ctx, hintRow, dot, active);
             }
         });
     }
 
     private static void breathe(View dot) {
+        if (!dot.isAttachedToWindow()) return;
         dot.animate().alpha(0.15f).setDuration(900)
-                .withEndAction(() -> dot.animate().alpha(1f).setDuration(900)
-                        .withEndAction(() -> breathe(dot))
-                        .start())
+                .withEndAction(() -> {
+                    if (!dot.isAttachedToWindow()) return;
+                    dot.animate().alpha(1f).setDuration(900)
+                            .withEndAction(() -> breathe(dot))
+                            .start();
+                })
                 .start();
     }
 
     private static void typewriter(TextView tv, String text, int i, boolean[] active) {
-        if (!active[0] || i > text.length()) return;
+        if (!active[0] || !tv.isAttachedToWindow() || i > text.length()) return;
         tv.setText(text.substring(0, i));
         tv.postDelayed(() -> typewriter(tv, text, i + 1, active), 55);
     }
 
-    private static void dismiss(Context ctx, LinearLayout hintRow, View dot) {
+    private static void dismiss(Context ctx, LinearLayout hintRow, View dot, boolean[] active) {
+        active[0] = false;
         dot.animate().cancel();
         hintRow.animate().alpha(0f).setDuration(220)
                 .withEndAction(() -> hintRow.setVisibility(View.GONE))

@@ -27,5 +27,8 @@ public class ThemeRepository {
     public void setTheme(int id)  { prefs.edit().putInt(KEY_THEME, id).apply(); }
 
     private static final int[] LABEL_IDS = {R.string.theme_night, R.string.theme_day, R.string.theme_auto};
-    public static String label(Context ctx, int mode) { return ctx.getString(LABEL_IDS[mode]); }
+    public static String label(Context ctx, int mode) {
+        if (mode < 0 || mode >= LABEL_IDS.length) mode = NIGHT;
+        return ctx.getString(LABEL_IDS[mode]);
+    }
 }

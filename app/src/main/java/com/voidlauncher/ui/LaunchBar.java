@@ -47,11 +47,13 @@ class LaunchBar {
         try {
             Drawable icon = ctx.getPackageManager().getApplicationIcon(pkg);
             Bitmap bmp = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
-            icon.setBounds(0, 0, 32, 32);
-            icon.draw(new Canvas(bmp));
-            int color = avgColor(bmp);
-            bmp.recycle();
-            return color;
+            try {
+                icon.setBounds(0, 0, 32, 32);
+                icon.draw(new Canvas(bmp));
+                return avgColor(bmp);
+            } finally {
+                bmp.recycle();
+            }
         } catch (Exception e) {
             return VoidTheme.FG3;
         }
