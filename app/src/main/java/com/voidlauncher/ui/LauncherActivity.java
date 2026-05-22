@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Process;
 import android.text.format.DateFormat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -152,7 +153,15 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         root.setBackgroundColor(VoidTheme.BG);
         if (tvClock != null) tvClock.setTextColor(VoidTheme.FG);
         if (tvDate != null) tvDate.setTextColor(VoidTheme.FG4);
-        patternView.refresh(); clockView.invalidate();
+        patternView.refresh(); invalidateTree(clockView);
+    }
+
+    private void invalidateTree(View v) {
+        v.invalidate();
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) invalidateTree(vg.getChildAt(i));
+        }
     }
 
     private void verifyPlugins() {
