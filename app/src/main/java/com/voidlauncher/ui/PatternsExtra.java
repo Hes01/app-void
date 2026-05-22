@@ -76,9 +76,9 @@ class PatternsExtra {
     // Curva de Hilbert — fractal de relleno de espacio: pistas de cobre con fade radial
     private static void drawHilbert(Canvas c, int w, int h) {
         int n = 64;
-        float cell = (float) Math.min(w, h) / n;
+        float cell = (float) Math.max(w, h) / n;
         float offX = (w - cell * n) / 2f, offY = (h - cell * n) / 2f;
-        float cx = w / 2f, cy = h / 2f, maxR = Math.min(w, h) * 0.52f;
+        float cx = w / 2f, cy = h / 2f, maxR = (float) Math.hypot(w / 2f, h / 2f);
         Paint ink = new Paint(Paint.ANTI_ALIAS_FLAG);
         ink.setStyle(Paint.Style.STROKE);
         ink.setStrokeCap(Paint.Cap.SQUARE);
@@ -92,9 +92,9 @@ class PatternsExtra {
             float x1 = offX+(p1[0]+0.5f)*cell, y1 = offY+(p1[1]+0.5f)*cell;
             float mx = (x0+x1)*0.5f, my = (y0+y1)*0.5f;
             float dist = (float) Math.sqrt((mx-cx)*(mx-cx)+(my-cy)*(my-cy));
-            float fade = (float) Math.pow(Math.max(0f, 1f - dist/maxR), 1.5f);
+            float fade = (float) Math.pow(Math.max(0.12f, 1f - dist/maxR), 1.0f);
             ink.setAlpha((int)(fade * 200));
-            ink.setStrokeWidth(0.6f + fade * 1.2f);
+            ink.setStrokeWidth(0.4f + fade * 1.4f);
             c.drawLine(x0, y0, x1, y1, ink);
             p0[0] = p1[0]; p0[1] = p1[1];
         }
