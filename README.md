@@ -9,7 +9,7 @@
 ![Licencia](https://img.shields.io/github/license/Hes01/app-void?style=flat-square)
 ![Estrellas](https://img.shields.io/github/stars/Hes01/app-void?style=flat-square)
 
-![Visitas](https://visitor-badge.laobi.icu/badge?page_id=Hes01.app-void&left_color=555555&right_color=000000&left_text=visitas)
+![Visitas](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHes01%2Fapp-void&count_bg=%23000000&title_bg=%23555555&title=visitas&edge_flat=true)
 
 Un launcher. Pantalla oscura, buscador tipo terminal, alias para todo.
 
