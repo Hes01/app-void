@@ -9,7 +9,6 @@
 ![Licencia](https://img.shields.io/github/license/Hes01/app-void?style=flat-square)
 ![Estrellas](https://img.shields.io/github/stars/Hes01/app-void?style=flat-square)
 
-![Visitas](https://visitor-badge.laobi.icu/badge?page_id=Hes01.app-void&left_color=555555&right_color=000000&left_text=visitas)
 
 Un launcher. Pantalla oscura, buscador tipo terminal, alias para todo.
 
