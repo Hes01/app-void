@@ -1,5 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VOID</string>
-    <string name="settings_title">VOID SETTINGS</string>
+
+    <!-- settings — sections -->
+    <string name="section_background">background</string>
+    <string name="section_appearance">appearance</string>
+    <string name="section_behavior">behavior</string>
+    <string name="section_privacy">privacy</string>
+
+    <!-- settings — rows -->
+    <string name="pref_palette">palette</string>
+    <string name="pref_theme">theme</string>
+    <string name="pref_clock">clock</string>
+    <string name="pref_real_name">real name in .all</string>
+    <string name="pref_auto_launch">open if 1 result</string>
+    <string name="pref_contextual">time-based learning</string>
+    <string name="pref_vibration">vibrate on open</string>
+
+    <!-- settings — actions -->
+    <string name="action_clear_history">clear time history</string>
+    <string name="action_export_aliases">export aliases</string>
+    <string name="action_import_aliases">import aliases</string>
+    <string name="toast_history_cleared">history cleared</string>
+
+    <!-- clock modes -->
+    <string name="clock_none">none</string>
+    <string name="clock_text">text</string>
+    <string name="clock_seg">7 seg</string>
+    <string name="clock_flip">flip</string>
+
+    <!-- theme modes -->
+    <string name="theme_night">night</string>
+    <string name="theme_day">day</string>
+    <string name="theme_auto">auto</string>
+
+    <!-- settings tabs -->
+    <string name="tab_apps">apps</string>
+    <string name="tab_config">config</string>
+
+    <!-- edit dialog -->
+    <string name="hint_alias">alias</string>
+    <string name="btn_cancel">cancel</string>
+    <string name="btn_ok">ok</string>
+    <string name="btn_accept">accept</string>
+    <string name="btn_import">import</string>
+    <string name="btn_copy">copy</string>
+    <string name="btn_share">share</string>
+    <string name="toast_copied">copied</string>
+    <string name="toast_aliases_imported">%d aliases imported</string>
+    <string name="label_no_aliases">(no aliases)</string>
+    <string name="hint_alias_json">{ "alias": "package" }</string>
+
+    <!-- app filters -->
+    <string name="filter_all">all</string>
+    <string name="filter_aliased">aliased</string>
+    <string name="filter_no_alias">no alias</string>
+    <string name="search_app_hint">> search app or alias…</string>
+
+    <!-- onboarding -->
+    <string name="hint_tap">tap  →  search</string>
+    <string name="hint_swipe">swipe ↓  →  close</string>
+    <string name="hint_all">.all  →  all apps</string>
+    <string name="hint_void">.void  →  settings</string>
+    <string name="hint_alias_launch">alias .name  →  quick launch</string>
+
+    <!-- search -->
+    <string name="search_label">search</string>
+
+    <!-- welcome -->
+    <string name="welcome">welcome to void</string>
 </resources>

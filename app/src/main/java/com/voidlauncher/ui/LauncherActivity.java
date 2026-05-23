@@ -1,23 +1,29 @@
 package com.voidlauncher.ui;
 
 import android.app.Activity;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.text.format.DateFormat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.voidlauncher.core.PluginRegistry;
 import com.voidlauncher.data.AliasRepository;
-import com.voidlauncher.data.ContextualApps;
+import com.voidlauncher.data.LaunchRepository;
+import com.voidlauncher.data.HiddenAppsRepository;
+import com.voidlauncher.data.ThemeRepository;
+import com.voidlauncher.data.WallpaperRepository;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -26,121 +32,154 @@ import java.util.Locale;
 
 public class LauncherActivity extends Activity implements GestureView.Listener {
 
-    private String[]          appNames;
-    private String[]          appPackages;
-    private ContextualApps    contextual;
-    private AliasRepository   aliases;
-
-    private TextView          tvClock;
-    private final Handler     clockHandler = new Handler();
-    private SimpleDateFormat  timeFmt;
+    private String[] appNames, appPackages;
+    private LaunchRepository contextual; private AliasRepository aliases;
+    private HiddenAppsRepository hidden; private View launchBar; private PatternView patternView;
+    private FrameLayout root; private View clockView; private SegmentClockView segClock;
+    private FlipClockView flipClock;
+    private TextView tvClock, tvDate;
+    private final Handler clockHandler = new Handler();
+    private SimpleDateFormat timeFmt, dateFmt;
+    private String uiLocale;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
-            tvClock.setText(timeFmt.format(new Date()));
-            clockHandler.postDelayed(this, 1000); 
+            Date now = new Date();
+            if (tvClock != null) tvClock.setText(timeFmt.format(now));
+            if (segClock != null) segClock.invalidate();
+            if (flipClock != null) flipClock.tick();
+            if (tvDate != null) tvDate.setText(dateFmt.format(now).toUpperCase(Locale.getDefault()));
+            clockHandler.postDelayed(this, 1000);
         }
     };
 
     private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context ctx, Intent intent) {
+        @Override public void onReceive(Context ctx, Intent intent) {
             String pkg = intent.getData() != null ? intent.getData().getSchemeSpecificPart() : null;
             if (pkg == null) return;
-            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
-                PluginRegistry.onInstalled(ctx, pkg);
-            } else {
-                PluginRegistry.onRemoved(ctx, pkg, aliases);
-            }
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) PluginRegistry.onInstalled(ctx, pkg);
+            else PluginRegistry.onRemoved(ctx, pkg, aliases);
             loadInstalledApps();
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        uiLocale = getResources().getConfiguration().locale.getLanguage();
+        ThemeRepository tr0 = new ThemeRepository(this);
+        VoidTheme.apply(tr0.getTheme(), tr0.getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        contextual = new LaunchRepository(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
+        timeFmt = new SimpleDateFormat(DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm", Locale.getDefault());
+        dateFmt = new SimpleDateFormat("EEE dd MMM", Locale.getDefault());
 
-        contextual = new ContextualApps(this);
-        aliases    = new AliasRepository(this);
-        String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm";
-        timeFmt = new SimpleDateFormat(timePattern, Locale.getDefault());
+        root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
+        patternView = new PatternView(this, new WallpaperRepository(this)); root.addView(patternView);
+        GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
-        FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(Color.BLACK);
-        
-        GestureView gestureView = new GestureView(this);
-        gestureView.setListener(this);
-        root.addView(gestureView);
-        
-        TextView[] clockRef = new TextView[1];
-        root.addView(ClockView.build(this, clockRef));
-        tvClock = clockRef[0];
-        
+        TextView[] dateRef = new TextView[1];
+        int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
+        if (cm == 2) { SegmentClockView[] sr = {null}; clockView = ClockView.buildSegment(this, sr, dateRef); segClock = sr[0]; }
+        else if (cm == 3) { FlipClockView[] fr = {null}; clockView = ClockView.buildFlip(this, fr, dateRef); flipClock = fr[0]; }
+        else { TextView[] cr = {null}; clockView = ClockView.build(this, cr, dateRef); tvClock = cr[0]; }
+        if (cm == 0) clockView.setVisibility(View.GONE);
+        root.addView(clockView); tvDate = dateRef[0];
+
+        launchBar = LaunchBar.attach(root);
         setContentView(root);
         loadInstalledApps();
 
-        IntentFilter pkgFilter = new IntentFilter();
-        pkgFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        pkgFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        pkgFilter.addDataScheme("package");
-        registerReceiver(packageReceiver, pkgFilter);
+        IntentFilter f = new IntentFilter(); f.addAction(Intent.ACTION_PACKAGE_ADDED); f.addAction(Intent.ACTION_PACKAGE_REMOVED); f.addDataScheme("package"); registerReceiver(packageReceiver, f);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        String sysLang = Resources.getSystem().getConfiguration().locale.getLanguage();
+        if (!sysLang.equals(uiLocale)) { Process.killProcess(Process.myPid()); return; }
+        ThemeRepository tr = new ThemeRepository(this);
+        if (tr.getMode() == ThemeRepository.AUTO && VoidTheme.isDaytime() != VoidTheme.isDay) {
+            VoidTheme.apply(tr.getTheme(), ThemeRepository.AUTO); recreate(); return;
+        }
         hideSystemUI();
         clockHandler.post(clockTick);
         verifyPlugins();
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Process.killProcess(Process.myPid());
+    }
+
+    @Override protected void onPause()   { super.onPause();   clockHandler.removeCallbacks(clockTick); }
+    @Override protected void onDestroy() { super.onDestroy(); try { unregisterReceiver(packageReceiver); } catch (IllegalArgumentException ignored) {} }
+    @Override public void onBackPressed() {}
+
+    @Override
+    public void onTap() {
+        new QuickSearchDialog(this, appNames, appPackages, contextual, aliases, hidden).show();
+    }
+
+    @Override
+    public void onLongPress() {
+        new SettingsDialog(this, aliases, hidden, null).show();
+    }
+
+    public void onAppLaunched(String pkg, boolean record) {
+        if (record) contextual.record(pkg);
+        LaunchBar.show(launchBar, this, pkg);
+    }
+
+    public void applyUiChanges() {
+        int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
+        boolean wantSeg = cm == 2, hasSeg = segClock != null;
+        boolean wantFlip = cm == 3, hasFlip = flipClock != null;
+        boolean wasHidden = clockView.getVisibility() == View.GONE;
+        if (wantSeg != hasSeg || wantFlip != hasFlip || (cm == 0) != wasHidden) {
+            clockHandler.removeCallbacks(clockTick);
+            int idx = root.indexOfChild(clockView); root.removeView(clockView);
+            segClock = null; flipClock = null; tvClock = null;
+            TextView[] dateRef = new TextView[1];
+            if (cm == 2) { SegmentClockView[] sr={null}; clockView=ClockView.buildSegment(this,sr,dateRef); segClock=sr[0]; }
+            else if (cm == 3) { FlipClockView[] fr={null}; clockView=ClockView.buildFlip(this,fr,dateRef); flipClock=fr[0]; }
+            else { TextView[] cr={null}; clockView=ClockView.build(this,cr,dateRef); tvClock=cr[0]; }
+            if (cm == 0) clockView.setVisibility(View.GONE);
+            tvDate = dateRef[0]; root.addView(clockView, idx);
+            clockHandler.post(clockTick);
+        }
+        root.setBackgroundColor(VoidTheme.BG);
+        if (tvClock != null) tvClock.setTextColor(VoidTheme.FG);
+        if (tvDate != null) tvDate.setTextColor(VoidTheme.FG4);
+        patternView.refresh(); invalidateTree(clockView);
+    }
+
+    private void invalidateTree(View v) {
+        v.invalidate();
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) invalidateTree(vg.getChildAt(i));
+        }
+    }
+
     private void verifyPlugins() {
-        PackageManager pm = getPackageManager();
-        Intent main = new Intent(Intent.ACTION_MAIN, null);
-        main.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> infos = pm.queryIntentActivities(main, PackageManager.GET_META_DATA);
-        for (ResolveInfo info : infos) {
-            String pkg = info.activityInfo.packageName;
+        Intent main = new Intent(Intent.ACTION_MAIN, null); main.addCategory(Intent.CATEGORY_LAUNCHER);
+        for (ResolveInfo r : getPackageManager().queryIntentActivities(main, PackageManager.GET_META_DATA)) {
+            String pkg   = r.activityInfo.packageName;
             String alias = PluginRegistry.readAlias(this, pkg);
             if (alias != null && aliases.resolve(alias) == null && aliases.aliasOf(pkg) == null)
                 aliases.set(alias, pkg);
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        clockHandler.removeCallbacks(clockTick);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try { unregisterReceiver(packageReceiver); } catch (Exception ignored) {}
-    }
-
-    @Override
-    public void onBackPressed() { /* launcher no retrocede */ }
-
-    @Override
-    public void onTap() {
-        new QuickSearchDialog(this, appNames, appPackages, contextual, aliases).show();
-    }
-
-    public void onAppLaunched(String pkg) {
-        contextual.record(pkg);
-    }
-
     private void loadInstalledApps() {
         PackageManager pm = getPackageManager();
-        Intent main = new Intent(Intent.ACTION_MAIN, null);
-        main.addCategory(Intent.CATEGORY_LAUNCHER);
+        Intent main = new Intent(Intent.ACTION_MAIN, null); main.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> infos = pm.queryIntentActivities(main, 0);
-        Collections.sort(infos, (a, b) -> a.loadLabel(pm).toString()
-                .compareToIgnoreCase(b.loadLabel(pm).toString()));
-        appNames    = new String[infos.size()];
-        appPackages = new String[infos.size()];
+        Collections.sort(infos, (a, b) -> a.loadLabel(pm).toString().compareToIgnoreCase(b.loadLabel(pm).toString()));
+        appNames = new String[infos.size()]; appPackages = new String[infos.size()];
         for (int i = 0; i < infos.size(); i++) {
             appNames[i]    = infos.get(i).loadLabel(pm).toString();
             appPackages[i] = infos.get(i).activityInfo.packageName;

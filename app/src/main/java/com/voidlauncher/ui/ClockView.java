@@ -2,75 +2,96 @@ package com.voidlauncher.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
+import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import java.util.Calendar;
 
 class ClockView {
 
-    static FrameLayout build(Context ctx, TextView[] clockOut) {
-        float density     = ctx.getResources().getDisplayMetrics().density;
-        int   circleSize  = Math.round(density * 240);
-        int   containerSz = Math.round(density * 280);
-        float orbitR      = circleSize / 2f + density * 6;
-
+    static FrameLayout build(Context ctx, TextView[] clockOut, TextView[] dateOut) {
         TextView clock = new TextView(ctx);
         clock.setTypeface(Typeface.create("sans-serif-thin", Typeface.NORMAL));
-        clock.setTextSize(64f);
-        clock.setTextColor(Color.WHITE);
-        clock.setAlpha(0.8f);
-        clock.setGravity(Gravity.CENTER);
+        clock.setTextSize(VoidTheme.TEXT_DISPLAY);
+        clock.setTextColor(VoidTheme.FG);
+        clock.setAlpha(0.9f); clock.setLetterSpacing(0.05f); clock.setGravity(Gravity.CENTER);
         if (clockOut != null) clockOut[0] = clock;
+        TextView date = makeDate(ctx, dateOut);
+        LinearLayout stack = stack(ctx);
+        stack.addView(clock, wrapLp()); stack.addView(date, gap(ctx, 8));
+        return pill(ctx, stack, false);
+    }
 
-        GradientDrawable shape = new GradientDrawable();
-        shape.setShape(GradientDrawable.OVAL);
-        shape.setStroke(2, Color.WHITE);
-        View circle = new View(ctx);
-        circle.setBackground(shape);
-        circle.setAlpha(0.15f);
+    static FrameLayout buildSegment(Context ctx, SegmentClockView[] segOut, TextView[] dateOut) {
+        SegmentClockView seg = new SegmentClockView(ctx, DateFormat.is24HourFormat(ctx));
+        if (segOut != null) segOut[0] = seg;
+        TextView date = makeDate(ctx, dateOut);
+        LinearLayout stack = stack(ctx);
+        stack.addView(seg, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 88)));
+        stack.addView(date, gap(ctx, 4));
+        return pill(ctx, stack, true);
+    }
 
-        FrameLayout container = new FrameLayout(ctx) {
-            private final Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            { dotPaint.setColor(Color.WHITE); }
+    static FrameLayout buildFlip(Context ctx, FlipClockView[] flipOut, TextView[] dateOut) {
+        FlipClockView flip = new FlipClockView(ctx, DateFormat.is24HourFormat(ctx));
+        if (flipOut != null) flipOut[0] = flip;
+        TextView date = makeDate(ctx, dateOut);
+        LinearLayout stack = stack(ctx);
+        stack.addView(flip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 96)));
+        stack.addView(date, gap(ctx, 4));
+        return pill(ctx, stack, true);
+    }
 
-            @Override
-            protected void dispatchDraw(Canvas canvas) {
-                super.dispatchDraw(canvas);
+    private static TextView makeDate(Context ctx, TextView[] out) {
+        TextView tv = new TextView(ctx);
+        tv.setTextColor(VoidTheme.FG4); tv.setTextSize(VoidTheme.TEXT_SM);
+        tv.setLetterSpacing(0.15f); tv.setTypeface(Typeface.MONOSPACE); tv.setGravity(Gravity.CENTER);
+        if (out != null) out[0] = tv; return tv;
+    }
 
-                float cx = getWidth() / 2f;
-                float cy = getHeight() / 2f;
+    private static LinearLayout stack(Context ctx) {
+        LinearLayout ll = new LinearLayout(ctx);
+        ll.setOrientation(LinearLayout.VERTICAL); ll.setGravity(Gravity.CENTER_HORIZONTAL); return ll;
+    }
 
-                Calendar c    = Calendar.getInstance();
-                int hour      = c.get(Calendar.HOUR);
-                int minute    = c.get(Calendar.MINUTE);
-                int active    = hour * 5 + minute / 12;
+    private static LinearLayout.LayoutParams wrapLp() {
+        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+    }
 
-                for (int i = 0; i < 60; i++) {
-                    double angle = Math.toRadians(i * 6 - 90);
-                    float  x     = cx + (float) (orbitR * Math.cos(angle));
-                    float  y     = cy + (float) (orbitR * Math.sin(angle));
+    private static LinearLayout.LayoutParams gap(Context ctx, int dpVal) {
+        LinearLayout.LayoutParams lp = wrapLp(); lp.topMargin = dp(ctx, dpVal); return lp;
+    }
 
-                    float r     = (i % 5 == 0) ? density * 2.5f : density * 1.4f;
-                    int   alpha = (i == active) ? 255 : (i % 5 == 0) ? 60 : 25;
-                    dotPaint.setAlpha(alpha);
-                    canvas.drawCircle(x, y, r, dotPaint);
-                }
+    private static FrameLayout pill(Context ctx, View content, boolean wide) {
+        int padH = dp(ctx, wide ? 20 : 28), padV = dp(ctx, 18), rad = dp(ctx, 16);
+        FrameLayout pill = new FrameLayout(ctx) {
+            private final Paint pillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private final RectF pillRect  = new RectF();
+            { pillPaint.setAlpha(0x99); }
+            @Override protected void onDraw(Canvas canvas) {
+                pillPaint.setColor(VoidTheme.BG);
+                pillRect.set(0, 0, getWidth(), getHeight());
+                canvas.drawRoundRect(pillRect, rad, rad, pillPaint);
             }
         };
-
-        container.setLayoutParams(new FrameLayout.LayoutParams(
-                containerSz, containerSz, Gravity.CENTER));
-        container.addView(circle, new FrameLayout.LayoutParams(
-                circleSize, circleSize, Gravity.CENTER));
-        container.addView(clock, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        pill.setWillNotDraw(false); pill.setPadding(padH, padV, padH, padV);
+        int cw = wide ? FrameLayout.LayoutParams.MATCH_PARENT : FrameLayout.LayoutParams.WRAP_CONTENT;
+        pill.addView(content, new FrameLayout.LayoutParams(cw, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        int screenH = ctx.getResources().getDisplayMetrics().heightPixels;
+        int screenW = ctx.getResources().getDisplayMetrics().widthPixels;
+        FrameLayout container = new FrameLayout(ctx);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL);
+        lp.topMargin = screenH * 2 / 5; container.setLayoutParams(lp);
+        int pw = wide ? screenW * 4 / 5 : FrameLayout.LayoutParams.WRAP_CONTENT;
+        container.addView(pill, new FrameLayout.LayoutParams(pw, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
         return container;
     }
+
+    private static int dp(Context ctx, int v) { return QuickSearchLayout.dp(ctx, v); }
 }

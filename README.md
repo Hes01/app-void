@@ -2,9 +2,9 @@
 
 # VOID Launcher
 
-![Android](https://img.shields.io/badge/Android-4.1%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
+![Android](https://img.shields.io/badge/Android-5.0%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-puro-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![Tamaño](https://img.shields.io/badge/tamaño-~100KB-blue?style=flat-square)
+![Tamaño](https://img.shields.io/badge/tamaño-~60KB-blue?style=flat-square)
 ![Dependencias](https://img.shields.io/badge/dependencias-cero-success?style=flat-square)
 ![Licencia](https://img.shields.io/github/license/Hes01/app-void?style=flat-square)
 ![Estrellas](https://img.shields.io/github/stars/Hes01/app-void?style=flat-square)
@@ -17,11 +17,25 @@ Un launcher. Pantalla oscura, buscador tipo terminal, alias para todo.
 
 ---
 
+### Tema oscuro
+
 <p align="center">
-  <img src="public/bg_reloj.png" width="30%" />
-  <img src="public/bg_buscador.png" width="30%" />
-  <img src="public/bg_alias.png" width="30%" />
+  <img src="public/screenshots/inicio_black_1.png" width="23%" />
+  <img src="public/screenshots/inicio_black_2.png" width="23%" />
+  <img src="public/screenshots/inicio_black_3.png" width="23%" />
+  <img src="public/screenshots/inicio_black_4.png" width="23%" />
 </p>
+
+### Tema claro
+
+<p align="center">
+  <img src="public/screenshots/inicio_white_1.png" width="23%" />
+  <img src="public/screenshots/inicio_white_2.png" width="23%" />
+  <img src="public/screenshots/inicio_white_3.png" width="23%" />
+  <img src="public/screenshots/inicio_white_4.png" width="23%" />
+</p>
+
+<p align="center"><sub>Inicio · Buscador · Alias · Configuración</sub></p>
 
 ---
 
@@ -35,14 +49,16 @@ Tocas cualquier parte de la pantalla y aparece el buscador. Escribes las primera
 
 La búsqueda aprende de ti. Si siempre abres Spotify a las 7am, a esa hora aparece de primero sin escribir ni una letra. Todo pasa en el teléfono, sin servidores, sin internet, sin recopilar nada.
 
+Mantén presionado para abrir los ajustes directamente.
+
 ## Alias
 
-Desde `.void` puedes asignarle un nombre corto a cualquier app instalada. Una vez asignado, ese nombre se convierte en un comando.
+Desde ajustes puedes asignarle un nombre corto a cualquier app instalada. Una vez asignado, ese nombre se convierte en un comando.
 
 ```
-fb          → abre Facebook (si le asignaste el alias "fb")
-yt          → abre YouTube
-nn          → abre VOID Note
+fb    → abre Facebook
+yt    → abre YouTube
+tw    → abre Twitter
 ```
 
 ## Comandos
@@ -50,13 +66,23 @@ nn          → abre VOID Note
 | Comando | Qué hace |
 |---|---|
 | `.all` | Lista todas las apps instaladas |
-| `.void` | Abre el panel de alias |
+| `.void` | Abre ajustes (alias, fondos, reloj, tema) |
+
+## Características
+
+- **Sugerencias inteligentes** — muestra tus apps más usadas por franja horaria
+- **Alias** — renombra cualquier app como quieras
+- **Ocultar apps** — sin desinstalarlas
+- **Fondos matemáticos** — espiral, Hilbert, astroide y más
+- **Estilos de reloj** — texto, 7 segmentos, flip
+- **8 paletas de color** — modo claro, oscuro y automático
+- **Búsqueda** — por nombre o alias
 
 ## Lo que no tiene
 
 - Iconos
 - Widgets
-- Animaciones
+- Animaciones innecesarias
 - Notificaciones
 - Conexión a internet
 - Publicidad
@@ -65,8 +91,8 @@ nn          → abre VOID Note
 ## Números
 
 - **1 permiso**: leer apps instaladas (Android 11+ lo exige)
-- **~100KB** el APK release con ProGuard
-- **Android 4.1+** compatible
+- **~60KB** el AAB release con ProGuard
+- **Android 5.0+** compatible
 
 ## Arquitectura
 
@@ -77,38 +103,36 @@ core/
 └── PluginRegistry.java    — auto-registro de alias al instalar plugins
 
 data/
-├── AliasRepository.java   — guarda alias↔packageName en SharedPreferences
-└── ContextualApps.java    — top 5 apps por ventana horaria ±90min
+├── AliasRepository.java   — alias↔packageName en SharedPreferences
+├── HiddenAppsRepository   — apps ocultas
+├── LaunchRepository.java  — historial de lanzamientos por hora
+├── ThemeRepository.java   — paleta y modo de tema
+└── WallpaperRepository    — fondo de pantalla seleccionado
 
 ui/
-├── LauncherActivity.java  — pantalla principal, gestiona ciclo de vida
-├── ClockView.java         — reloj centrado con círculo decorativo
-├── GestureView.java       — captura toques en la pantalla
-├── QuickSearchDialog.java — buscador, filtro y enrutamiento de comandos
-├── QuickSearchLayout.java — layout del buscador
-└── SettingsDialog.java    — panel visual para asignar alias a apps
+├── LauncherActivity.java  — pantalla principal, ciclo de vida
+├── GestureView.java       — tap y long press en la pantalla
+├── QuickSearchDialog.java — buscador, filtro y enrutamiento
+├── SettingsDialog.java    — ajustes: apps, alias, configuración
+├── SettingsAppsPanel.java — lista de apps con alias y visibilidad
+├── SettingsConfigPanel.java — reloj, tema, paleta, comportamiento
+├── PatternView.java       — fondo matemático generativo
+└── ClockView.java         — reloj con múltiples estilos
 ```
 
 ## Instalar
 
-Descarga el APK desde [Releases](https://github.com/Hes01/app-void/releases) e instálalo. Necesitas permitir instalación desde fuentes desconocidas si no viene de la Play Store.
+Disponible en [Google Play](https://play.google.com/store/apps/details?id=om.hes01.voidlauncher) o descarga el APK desde [Releases](https://github.com/Hes01/app-void/releases).
 
 O clona y compila:
 
 ```bash
 git clone https://github.com/Hes01/app-void.git
 cd app-void
-./gradlew assembleRelease
+./gradlew bundleRelease
 ```
 
 ## Ecosistema VOID (próximamente)
-
-| Comando | Qué hará |
-|---|---|
-| `.<alias> texto` | Lanza la app pasándole el texto como argumento |
-| `.<alias> l` | Lista el contenido del plugin (si lo soporta) |
-| `.<alias> del N` | Elimina el ítem N del plugin |
-| `.<alias> -d` | Desinstala la app |
 
 VOID está pensado como un sistema modular. Cada pieza es una app independiente de menos de 100KB.
 
