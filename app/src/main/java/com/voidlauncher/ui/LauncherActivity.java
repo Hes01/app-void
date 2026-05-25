@@ -12,7 +12,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,6 +24,7 @@ import com.voidlauncher.data.HiddenAppsRepository;
 import com.voidlauncher.data.ThemeRepository;
 import com.voidlauncher.data.WallpaperRepository;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -39,18 +39,22 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private FlipClockView flipClock;
     private TextView tvClock, tvDate;
     private final Handler clockHandler = new Handler();
-    private SimpleDateFormat timeFmt, dateFmt;
+    private SimpleDateFormat dateFmt;
     private String uiLocale;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
             Date now = new Date();
-            if (tvClock != null) tvClock.setText(timeFmt.format(now));
+            if (tvClock != null) tvClock.setText(formatTime());
             if (segClock != null) segClock.invalidate();
             if (flipClock != null) flipClock.tick();
             if (tvDate != null) tvDate.setText(dateFmt.format(now).toUpperCase(Locale.getDefault()));
             clockHandler.postDelayed(this, 1000);
         }
+    };
+
+    private final BroadcastReceiver timeFormatReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context ctx, Intent intent) { recreate(); }
     };
 
     private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
@@ -72,7 +76,6 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         VoidTheme.apply(tr0.getTheme(), tr0.getMode());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         contextual = new LaunchRepository(this); aliases = new AliasRepository(this); hidden = new HiddenAppsRepository(this);
-        timeFmt = new SimpleDateFormat(DateFormat.is24HourFormat(this) ? "HH:mm" : "hh:mm", Locale.getDefault());
         dateFmt = new SimpleDateFormat("EEE dd MMM", Locale.getDefault());
 
         root = new FrameLayout(this); root.setBackgroundColor(VoidTheme.BG);
@@ -92,6 +95,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         loadInstalledApps();
 
         IntentFilter f = new IntentFilter(); f.addAction(Intent.ACTION_PACKAGE_ADDED); f.addAction(Intent.ACTION_PACKAGE_REMOVED); f.addDataScheme("package"); registerReceiver(packageReceiver, f);
+        registerReceiver(timeFormatReceiver, new IntentFilter(Intent.ACTION_TIME_CHANGED));
     }
 
     @Override
@@ -115,7 +119,11 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     @Override protected void onPause()   { super.onPause();   clockHandler.removeCallbacks(clockTick); }
-    @Override protected void onDestroy() { super.onDestroy(); try { unregisterReceiver(packageReceiver); } catch (IllegalArgumentException ignored) {} }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        try { unregisterReceiver(packageReceiver); } catch (IllegalArgumentException ignored) {}
+        try { unregisterReceiver(timeFormatReceiver); } catch (IllegalArgumentException ignored) {}
+    }
     @Override public void onBackPressed() {}
 
     @Override
@@ -172,6 +180,14 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
             if (alias != null && aliases.resolve(alias) == null && aliases.aliasOf(pkg) == null)
                 aliases.set(alias, pkg);
         }
+    }
+
+    private String formatTime() {
+        Calendar c = Calendar.getInstance();
+        boolean is24 = ClockView.is24h(this);
+        int h = is24 ? c.get(Calendar.HOUR_OF_DAY) : c.get(Calendar.HOUR);
+        if (!is24 && h == 0) h = 12;
+        return String.format(Locale.getDefault(), "%02d:%02d", h, c.get(Calendar.MINUTE));
     }
 
     private void loadInstalledApps() {
