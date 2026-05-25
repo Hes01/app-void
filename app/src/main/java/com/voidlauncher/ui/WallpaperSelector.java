@@ -25,8 +25,7 @@ class WallpaperSelector {
         int screenW     = ctx.getResources().getDisplayMetrics().widthPixels;
         int screenH     = ctx.getResources().getDisplayMetrics().heightPixels;
         int margin      = dp(ctx, MARGIN_DP);
-        int cellSize    = Math.max(dp(ctx, 48), (screenW - COLS * margin * 2) / COLS);
-        int previewSize = Math.max(1, cellSize - dp(ctx, PADDING_DP) * 2);
+        int previewSize = Math.max(1, screenW / COLS);
 
         LinearLayout grid = new LinearLayout(ctx);
         grid.setOrientation(LinearLayout.VERTICAL);
@@ -41,7 +40,8 @@ class WallpaperSelector {
             if (i % COLS == 0) {
                 row = new LinearLayout(ctx);
                 row.setOrientation(LinearLayout.HORIZONTAL);
-                grid.addView(row);
+                grid.addView(row, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             }
             int id = ids[i];
             LinearLayout wrapper = makeWrapper(ctx, id == current);
@@ -57,9 +57,17 @@ class WallpaperSelector {
                 if (onChanged != null) onChanged.run();
             });
 
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(cellSize, cellSize);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 0);
+            lp.weight = 1f;
             lp.setMargins(margin, margin, margin, margin);
             row.addView(wrapper, lp);
+            wrapper.post(() -> {
+                int w = wrapper.getWidth();
+                if (w > 0 && wrapper.getLayoutParams().height != w) {
+                    wrapper.getLayoutParams().height = w;
+                    wrapper.requestLayout();
+                }
+            });
         }
 
         ScrollView scroll = new ScrollView(ctx) {

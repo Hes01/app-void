@@ -80,9 +80,9 @@ public class QuickSearchDialog {
         plugin = new QuickSearchPlugin(launcher, aliases, dialog, filteredNames, filteredPkgs);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG)); dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
             dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
+            ImeInsets.attach(dialog.getWindow(), frame);
         }
         filter(""); dialog.show(); if (vibrationOn) VibrationFeedback.onOpen(hapticView());
         SearchHints.showIfNeeded(launcher, layout.hintRow, layout.hintText, layout.input);
