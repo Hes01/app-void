@@ -5,7 +5,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
@@ -74,7 +73,7 @@ class AliasTransferDialog {
 
         Dialog d = mkDialog(ctx, root);
         if (d.getWindow() != null)
-            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         btnOk.setOnClickListener(v -> {
             int n = parseAndApply(ctx, et.getText().toString(), repo);
             Toast.makeText(ctx, ctx.getString(R.string.toast_aliases_imported, n), Toast.LENGTH_SHORT).show();
@@ -82,7 +81,6 @@ class AliasTransferDialog {
         });
         d.show();
         QuickSearchLayout.showKeyboard(ctx, et);
-        attachKeyboardListener(root, d);
     }
 
     // ── Lógica ────────────────────────────────────────────────────────────────
@@ -114,17 +112,6 @@ class AliasTransferDialog {
     }
 
     // ── UI helpers ────────────────────────────────────────────────────────────
-
-    private static void attachKeyboardListener(LinearLayout root, Dialog d) {
-        View dv = d.getWindow().getDecorView();
-        dv.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            Rect r = new Rect();
-            dv.getWindowVisibleDisplayFrame(r);
-            int screenH = dv.getHeight();
-            int kbH = screenH - r.bottom;
-            root.setPadding(0, 0, 0, kbH > screenH * 0.15f ? kbH : 0);
-        });
-    }
 
     private static Dialog mkDialog(Context ctx, LinearLayout root) {
         Dialog d = new Dialog(ctx, android.R.style.Theme_Black_NoTitleBar_Fullscreen);

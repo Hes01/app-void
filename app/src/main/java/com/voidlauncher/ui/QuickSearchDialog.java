@@ -23,7 +23,6 @@ import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import com.voidlauncher.data.LaunchRepository;
 import com.voidlauncher.data.WallpaperRepository;
-import android.graphics.Rect;
 import android.view.ViewConfiguration;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,25 +80,13 @@ public class QuickSearchDialog {
         plugin = new QuickSearchPlugin(launcher, aliases, dialog, filteredNames, filteredPkgs);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG)); dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
             dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
         }
         filter(""); dialog.show(); if (vibrationOn) VibrationFeedback.onOpen(hapticView());
         SearchHints.showIfNeeded(launcher, layout.hintRow, layout.hintText, layout.input);
         QuickSearchLayout.showKeyboard(launcher, layout.input);
-        attachKeyboardListener(frame);
-    }
-
-    private void attachKeyboardListener(FrameLayout frame) {
-        View dv = dialog.getWindow().getDecorView();
-        dv.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            Rect r = new Rect();
-            dv.getWindowVisibleDisplayFrame(r);
-            int screenH = dv.getHeight();
-            int kbH = screenH - r.bottom;
-            frame.setPadding(0, 0, 0, kbH > screenH * 0.15f ? kbH : 0);
-        });
     }
 
     private void setupListBehavior(QuickSearchLayout layout) {
