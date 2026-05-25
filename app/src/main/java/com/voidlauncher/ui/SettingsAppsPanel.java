@@ -139,11 +139,11 @@ class SettingsAppsPanel {
 
     private void populateRow(LinearLayout row, int i) {
         if (row.getChildCount() < 3) return;
+        View c0 = row.getChildAt(0), c1 = row.getChildAt(1), c2 = row.getChildAt(2);
+        if (!(c0 instanceof TextView) || !(c1 instanceof TextView) || !(c2 instanceof ImageView)) return;
         String pkg = pkgs.get(i); String alias = aliases.aliasOf(pkg); boolean isHid = hidden.isHidden(pkg);
-        TextView tvAlias   = (TextView)  row.getChildAt(0);
-        TextView tvName    = (TextView)  row.getChildAt(1);
-        ImageView ivEye    = (ImageView) row.getChildAt(2);
-        if (tvAlias == null || tvName == null || ivEye == null) return;
+        TextView tvAlias = (TextView) c0, tvName = (TextView) c1;
+        ImageView ivEye  = (ImageView) c2;
         tvAlias.setText(alias != null ? alias : "—"); tvAlias.setTextColor(alias != null ? VoidTheme.FG4 : VoidTheme.FG5);
         tvName.setText(names.get(i)); tvName.setTextColor(alias != null ? VoidTheme.FG2 : VoidTheme.FG5);
         ivEye.setImageResource(isHid ? R.drawable.ic_eye_off : R.drawable.ic_eye);
