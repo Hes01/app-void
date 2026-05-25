@@ -36,13 +36,14 @@ public class SettingsDialog {
 
     public void show() {
         loadApps();
+        LinearLayout root = buildRoot();
         Dialog dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(buildRoot());
+        dialog.setContentView(root);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG));
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            ImeInsets.attach(dialog.getWindow(), root);
         }
         dialog.show();
         if (previous != null) previous.dismiss();

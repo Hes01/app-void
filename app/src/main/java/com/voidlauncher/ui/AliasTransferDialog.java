@@ -72,8 +72,7 @@ class AliasTransferDialog {
         root.addView(sep(ctx)); root.addView(bar);
 
         Dialog d = mkDialog(ctx, root);
-        if (d.getWindow() != null)
-            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        if (d.getWindow() != null) ImeInsets.attach(d.getWindow(), root);
         btnOk.setOnClickListener(v -> {
             int n = parseAndApply(ctx, et.getText().toString(), repo);
             Toast.makeText(ctx, ctx.getString(R.string.toast_aliases_imported, n), Toast.LENGTH_SHORT).show();
