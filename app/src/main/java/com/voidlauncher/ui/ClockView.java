@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
@@ -28,7 +29,7 @@ class ClockView {
     }
 
     static FrameLayout buildSegment(Context ctx, SegmentClockView[] segOut, TextView[] dateOut) {
-        SegmentClockView seg = new SegmentClockView(ctx, DateFormat.is24HourFormat(ctx));
+        SegmentClockView seg = new SegmentClockView(ctx, is24h(ctx));
         if (segOut != null) segOut[0] = seg;
         TextView date = makeDate(ctx, dateOut);
         LinearLayout stack = stack(ctx);
@@ -38,7 +39,7 @@ class ClockView {
     }
 
     static FrameLayout buildFlip(Context ctx, FlipClockView[] flipOut, TextView[] dateOut) {
-        FlipClockView flip = new FlipClockView(ctx, DateFormat.is24HourFormat(ctx));
+        FlipClockView flip = new FlipClockView(ctx, is24h(ctx));
         if (flipOut != null) flipOut[0] = flip;
         TextView date = makeDate(ctx, dateOut);
         LinearLayout stack = stack(ctx);
@@ -91,6 +92,16 @@ class ClockView {
         int pw = wide ? screenW * 4 / 5 : FrameLayout.LayoutParams.WRAP_CONTENT;
         container.addView(pill, new FrameLayout.LayoutParams(pw, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
         return container;
+    }
+
+    // Lee la preferencia explícita del usuario antes de consultar el locale.
+    // DateFormat.is24HourFormat() en locales 24h (es, es_PE, etc.) ignora la
+    // preferencia del usuario. Settings.System.TIME_12_24 sí la respeta.
+    static boolean is24h(Context ctx) {
+        String pref = Settings.System.getString(ctx.getContentResolver(), Settings.System.TIME_12_24);
+        if ("12".equals(pref)) return false;
+        if ("24".equals(pref)) return true;
+        return DateFormat.is24HourFormat(ctx); // sin preferencia explícita: usa locale
     }
 
     private static int dp(Context ctx, int v) { return QuickSearchLayout.dp(ctx, v); }
