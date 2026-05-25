@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
@@ -36,16 +37,29 @@ public class SettingsDialog {
 
     public void show() {
         loadApps();
+        LinearLayout root = buildRoot();
         Dialog dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(buildRoot());
+        dialog.setContentView(root);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG));
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         }
         dialog.show();
         if (previous != null) previous.dismiss();
+        attachKeyboardListener(root, dialog);
+    }
+
+    private void attachKeyboardListener(LinearLayout root, Dialog dialog) {
+        View dv = dialog.getWindow().getDecorView();
+        dv.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect r = new Rect();
+            dv.getWindowVisibleDisplayFrame(r);
+            int screenH = dv.getHeight();
+            int kbH = screenH - r.bottom;
+            root.setPadding(0, 0, 0, kbH > screenH * 0.15f ? kbH : 0);
+        });
     }
 
     private LinearLayout buildRoot() {
