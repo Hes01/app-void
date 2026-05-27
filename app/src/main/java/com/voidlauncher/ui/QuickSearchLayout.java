@@ -70,7 +70,7 @@ class QuickSearchLayout {
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER_VERTICAL));
         TextView ghostView = new TextView(ctx);
-        ghostView.setTextColor(VoidTheme.FG5);
+        ghostView.setTextColor(VoidTheme.FG4);
         ghostView.setTextSize(VoidTheme.TEXT_XXL);
         ghostView.setTypeface(Typeface.MONOSPACE);
         ghostView.setPadding(0, 0, 0, 0);
