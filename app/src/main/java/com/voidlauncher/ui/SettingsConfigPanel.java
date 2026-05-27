@@ -100,7 +100,7 @@ class SettingsConfigPanel {
     private View section(String label) {
         TextView tv = new TextView(ctx);
         tv.setText(label.toUpperCase()); tv.setTextColor(VoidTheme.FG5);
-        tv.setTextSize(VoidTheme.TEXT_XS); tv.setTypeface(Typeface.MONOSPACE);
+        tv.setTextSize(VoidTheme.TEXT_SM); tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.2f); tv.setPadding(0, dp(24), 0, dp(4));
         return tv;
     }
