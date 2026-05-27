@@ -10,18 +10,18 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.hes01.voidlauncher.R;
+import com.voidlauncher.data.AppPreferences;
 import com.voidlauncher.data.LaunchRepository;
 import com.voidlauncher.data.ThemeRepository;
 
 class SettingsConfigPanel {
-    private static final String PREFS = "void_config";
     private final Context            ctx;
     private final SharedPreferences  prefs;
     private final LaunchRepository   launchRepo;
 
     SettingsConfigPanel(Context ctx, LaunchRepository launchRepo) {
         this.ctx        = ctx;
-        this.prefs      = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        this.prefs      = AppPreferences.get(ctx);
         this.launchRepo = launchRepo;
     }
 
@@ -37,12 +37,12 @@ class SettingsConfigPanel {
         content.addView(paletteRow(onThemeChanged));
         content.addView(themeRow(onThemeChanged));
         content.addView(clockModeRow(onThemeChanged));
-        content.addView(toggleRow(ctx.getString(R.string.pref_real_name),    "show_real_name", true,  null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_real_name),    AppPreferences.KEY_SHOW_REAL_NAME, true,  null));
 
         content.addView(section(ctx.getString(R.string.section_behavior)));
-        content.addView(toggleRow(ctx.getString(R.string.pref_auto_launch),  "auto_launch",    true,  null));
-        content.addView(toggleRow(ctx.getString(R.string.pref_contextual),   "contextual",     true,  null));
-        content.addView(toggleRow(ctx.getString(R.string.pref_vibration),    "vibration",      false, null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_auto_launch),  AppPreferences.KEY_AUTO_LAUNCH,    true,  null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_contextual),   AppPreferences.KEY_CONTEXTUAL,     true,  null));
+        content.addView(toggleRow(ctx.getString(R.string.pref_vibration),    AppPreferences.KEY_VIBRATION,      false, null));
 
         content.addView(section(ctx.getString(R.string.section_privacy)));
         content.addView(actionRow(ctx.getString(R.string.action_clear_history),  this::clearHistory));
@@ -114,9 +114,9 @@ class SettingsConfigPanel {
         TextView tvLabel = label(ctx.getString(R.string.pref_clock)); row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         TextView tvVal = new TextView(ctx); tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM); tvVal.setTextColor(VoidTheme.FG);
         Runnable[] refresh = {null};
-        refresh[0] = () -> tvVal.setText("[ " + L[prefs.getInt("clock_mode", 1)] + " ]");
+        refresh[0] = () -> tvVal.setText("[ " + L[prefs.getInt(AppPreferences.KEY_CLOCK_MODE, 1)] + " ]");
         refresh[0].run();
-        tvVal.setOnClickListener(v -> { int n = (prefs.getInt("clock_mode", 1) + 1) % L.length; prefs.edit().putInt("clock_mode", n).apply(); refresh[0].run(); if (cb != null) cb.run(); });
+        tvVal.setOnClickListener(v -> { int n = (prefs.getInt(AppPreferences.KEY_CLOCK_MODE, 1) + 1) % L.length; prefs.edit().putInt(AppPreferences.KEY_CLOCK_MODE, n).apply(); refresh[0].run(); if (cb != null) cb.run(); });
         row.addView(tvVal); return withDivider(row);
     }
 

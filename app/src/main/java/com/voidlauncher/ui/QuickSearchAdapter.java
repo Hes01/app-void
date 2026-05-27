@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import com.voidlauncher.data.AppPreferences;
 import com.voidlauncher.data.AliasRepository;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ class QuickSearchAdapter extends ArrayAdapter<String> {
         super(launcher, 0, filteredNames);
         this.launcher     = launcher; this.filteredPkgs = filteredPkgs;
         this.aliases      = aliases;
-        this.showRealName = launcher.getSharedPreferences("void_config", Context.MODE_PRIVATE).getBoolean("show_real_name", true);
+        this.showRealName = AppPreferences.get(launcher).getBoolean(AppPreferences.KEY_SHOW_REAL_NAME, true);
         nameByPkg = new HashMap<>(allPkgs.length);
         for (int i = 0; i < allPkgs.length; i++) nameByPkg.put(allPkgs[i], allNames[i]);
     }

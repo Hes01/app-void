@@ -2,11 +2,12 @@ package com.voidlauncher.ui;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 class BlinkCursor extends View {
 
-    private final Handler  handler = new Handler();
+    private final Handler  handler = new Handler(Looper.getMainLooper());
     private       boolean  running;
 
     BlinkCursor(Context ctx) {

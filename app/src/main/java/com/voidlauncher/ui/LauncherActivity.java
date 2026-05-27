@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.voidlauncher.core.PluginRegistry;
+import com.voidlauncher.data.AppPreferences;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.LaunchRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
@@ -41,6 +42,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     private final Handler clockHandler = new Handler();
     private SimpleDateFormat dateFmt;
     private String uiLocale;
+    private boolean is24h;
 
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
@@ -83,7 +85,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         GestureView gv = new GestureView(this); gv.setListener(this); root.addView(gv);
 
         TextView[] dateRef = new TextView[1];
-        int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
+        int cm = AppPreferences.get(this).getInt(AppPreferences.KEY_CLOCK_MODE, 1);
         if (cm == 2) { SegmentClockView[] sr = {null}; clockView = ClockView.buildSegment(this, sr, dateRef); segClock = sr[0]; }
         else if (cm == 3) { FlipClockView[] fr = {null}; clockView = ClockView.buildFlip(this, fr, dateRef); flipClock = fr[0]; }
         else { TextView[] cr = {null}; clockView = ClockView.build(this, cr, dateRef); tvClock = cr[0]; }
@@ -107,6 +109,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         if (tr.getMode() == ThemeRepository.AUTO && VoidTheme.isDaytime() != VoidTheme.isDay) {
             VoidTheme.apply(tr.getTheme(), ThemeRepository.AUTO); recreate(); return;
         }
+        is24h = ClockView.is24h(this);
         hideSystemUI();
         clockHandler.post(clockTick);
         verifyPlugins();
@@ -142,7 +145,7 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
     }
 
     public void applyUiChanges() {
-        int cm = getSharedPreferences("void_config", MODE_PRIVATE).getInt("clock_mode", 1);
+        int cm = AppPreferences.get(this).getInt(AppPreferences.KEY_CLOCK_MODE, 1);
         boolean wantSeg = cm == 2, hasSeg = segClock != null;
         boolean wantFlip = cm == 3, hasFlip = flipClock != null;
         boolean wasHidden = clockView.getVisibility() == View.GONE;
@@ -184,9 +187,8 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
 
     private String formatTime() {
         Calendar c = Calendar.getInstance();
-        boolean is24 = ClockView.is24h(this);
-        int h = is24 ? c.get(Calendar.HOUR_OF_DAY) : c.get(Calendar.HOUR);
-        if (!is24 && h == 0) h = 12;
+        int h = is24h ? c.get(Calendar.HOUR_OF_DAY) : c.get(Calendar.HOUR);
+        if (!is24h && h == 0) h = 12;
         return String.format(Locale.getDefault(), "%02d:%02d", h, c.get(Calendar.MINUTE));
     }
 

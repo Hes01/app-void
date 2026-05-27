@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.voidlauncher.core.AppLauncher;
 import com.voidlauncher.core.CommandRouter;
+import com.voidlauncher.data.AppPreferences;
 import com.voidlauncher.data.AliasRepository;
 import com.voidlauncher.data.HiddenAppsRepository;
 import com.voidlauncher.data.LaunchRepository;
@@ -44,13 +45,16 @@ public class QuickSearchDialog {
     public QuickSearchDialog(LauncherActivity l, String[] n, String[] p,
                              LaunchRepository c, AliasRepository a, HiddenAppsRepository h) {
         launcher=l; names=n; packages=p; contextual=c; aliases=a; hidden=h;
-        autoLaunch=l.getSharedPreferences("void_config",0).getBoolean("auto_launch",true); contextualOn=l.getSharedPreferences("void_config",0).getBoolean("contextual",true); vibrationOn=l.getSharedPreferences("void_config",0).getBoolean("vibration",false);
+        android.content.SharedPreferences cfg = AppPreferences.get(l);
+        autoLaunch   = cfg.getBoolean(AppPreferences.KEY_AUTO_LAUNCH, true);
+        contextualOn = cfg.getBoolean(AppPreferences.KEY_CONTEXTUAL,  true);
+        vibrationOn  = cfg.getBoolean(AppPreferences.KEY_VIBRATION,   false);
     }
 
     public void show() {
         if (contextualOn) contextual.getTop(top -> {
             topApps = top;
-            if (searchInput != null && searchInput.getText().toString().isEmpty()) filter("");
+            if (dialog != null && dialog.isShowing() && searchInput != null && searchInput.getText().toString().isEmpty()) filter("");
         });
         layout = QuickSearchLayout.build(launcher);
         label = layout.label; searchInput = layout.input;
