@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 public class LaunchRepository {
 
-    private static final int QUERY_LIMIT = 500;
+    private static final int QUERY_LIMIT = 5000;
     private static final int MAX_RECORDS = 5000;
 
     private final VoidDatabase    db;
