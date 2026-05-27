@@ -11,6 +11,9 @@ import android.widget.FrameLayout;
 
 class LaunchBar {
 
+    private static final int EXPAND_MS = 220;
+    private static final int FADE_MS   = 300;
+
     private static final LruCache<String, Integer> colorCache = new LruCache<>(30);
 
     static View attach(FrameLayout root) {
@@ -36,11 +39,11 @@ class LaunchBar {
         bar.setAlpha(1f);
         bar.animate()
                 .scaleX(1f)
-                .setDuration(220)
+                .setDuration(EXPAND_MS)
                 .withEndAction(() ->
                     bar.animate()
                         .alpha(0f)
-                        .setDuration(300)
+                        .setDuration(FADE_MS)
                         .withEndAction(() -> bar.setScaleX(0f))
                         .start())
                 .start();

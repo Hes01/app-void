@@ -130,8 +130,7 @@ class SettingsConfigPanel {
     }
 
     private TextView label(String text) {
-        TextView tv = new TextView(ctx); tv.setText(text); tv.setTextColor(VoidTheme.FG3);
-        tv.setTextSize(VoidTheme.TEXT_MD); tv.setTypeface(Typeface.MONOSPACE); return tv;
+        return ViewFactory.mono(ctx, text, VoidTheme.FG3, VoidTheme.TEXT_MD);
     }
 
     private View actionRow(String label, Runnable action) {
@@ -163,9 +162,7 @@ class SettingsConfigPanel {
     private View withDivider(View content) {
         LinearLayout wrap = new LinearLayout(ctx);
         wrap.setOrientation(LinearLayout.VERTICAL); wrap.addView(content);
-        View d = new View(ctx); d.setBackgroundColor(VoidTheme.LINE);
-        d.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-        wrap.addView(d); return wrap;
+        wrap.addView(ViewFactory.divider(ctx)); return wrap;
     }
 
     private void clearHistory() {

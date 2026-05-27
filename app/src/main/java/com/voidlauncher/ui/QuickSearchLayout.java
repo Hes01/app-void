@@ -153,7 +153,7 @@ class QuickSearchLayout {
     }
 
     static int dp(Context ctx, int dp) {
-        return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
+        return UiUtil.dp(ctx, dp);
     }
 
     static void showKeyboard(Context ctx, EditText et) {

@@ -7,6 +7,8 @@ import android.view.View;
 
 class BlinkCursor extends View {
 
+    private static final int BLINK_INTERVAL_MS = 500;
+
     private final Handler  handler = new Handler(Looper.getMainLooper());
     private       boolean  running;
 
@@ -29,7 +31,7 @@ class BlinkCursor extends View {
         if (running) return;
         running = true;
         setVisibility(VISIBLE);
-        handler.postDelayed(tick, 500);
+        handler.postDelayed(tick, BLINK_INTERVAL_MS);
     }
 
     private void stop() {

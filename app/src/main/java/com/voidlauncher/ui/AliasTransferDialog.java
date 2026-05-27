@@ -6,10 +6,8 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -40,9 +38,9 @@ class AliasTransferDialog {
         LinearLayout root = root(ctx);
         root.addView(header(ctx, ctx.getString(R.string.action_export_aliases)));
         root.addView(sv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-        root.addView(sep(ctx)); root.addView(bar);
+        root.addView(ViewFactory.divider(ctx)); root.addView(bar);
 
-        Dialog d = mkDialog(ctx, root);
+        Dialog d = DialogUtil.makeFullscreen(ctx, root);
         btnCopy.setOnClickListener(v -> {
             ClipboardManager cm = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
             if (cm != null) cm.setPrimaryClip(ClipData.newPlainText("aliases", json));
@@ -69,9 +67,9 @@ class AliasTransferDialog {
 
         LinearLayout root = root(ctx);
         root.addView(header(ctx, ctx.getString(R.string.action_import_aliases))); root.addView(et);
-        root.addView(sep(ctx)); root.addView(bar);
+        root.addView(ViewFactory.divider(ctx)); root.addView(bar);
 
-        Dialog d = mkDialog(ctx, root);
+        Dialog d = DialogUtil.makeFullscreen(ctx, root);
         if (d.getWindow() != null) ImeInsets.attach(d.getWindow(), root);
         btnOk.setOnClickListener(v -> {
             int n = parseAndApply(ctx, et.getText().toString(), repo);
@@ -85,11 +83,12 @@ class AliasTransferDialog {
     // ── Lógica ────────────────────────────────────────────────────────────────
 
     private static String buildJson(AliasRepository repo) {
-        StringBuilder sb = new StringBuilder("{");
-        for (Map.Entry<String, ?> e : repo.getAll().entrySet())
-            sb.append("\"").append(e.getKey()).append("\":\"").append(e.getValue()).append("\",");
-        if (sb.length() > 1) sb.setLength(sb.length() - 1);
-        return sb.append("}").toString();
+        JSONObject obj = new JSONObject();
+        try {
+            for (Map.Entry<String, ?> e : repo.getAll().entrySet())
+                obj.put(e.getKey(), String.valueOf(e.getValue()));
+        } catch (Exception ignored) {}
+        return obj.toString();
     }
 
     private static int parseAndApply(Context ctx, String input, AliasRepository repo) {
@@ -112,17 +111,6 @@ class AliasTransferDialog {
 
     // ── UI helpers ────────────────────────────────────────────────────────────
 
-    private static Dialog mkDialog(Context ctx, LinearLayout root) {
-        Dialog d = new Dialog(ctx, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        d.setContentView(root);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG));
-            d.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            d.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-        }
-        return d;
-    }
-
     private static LinearLayout root(Context ctx)   { LinearLayout ll = new LinearLayout(ctx); ll.setOrientation(LinearLayout.VERTICAL); ll.setBackgroundColor(VoidTheme.BG); return ll; }
     private static LinearLayout hbar(Context ctx)   { LinearLayout ll = new LinearLayout(ctx); ll.setOrientation(LinearLayout.HORIZONTAL); ll.setPadding(dp(ctx,16),dp(ctx,12),dp(ctx,16),dp(ctx,28)); return ll; }
     private static LinearLayout.LayoutParams flex() { return new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f); }
@@ -133,11 +121,6 @@ class AliasTransferDialog {
         tv.setText(text.toUpperCase()); tv.setTextColor(VoidTheme.FG5);
         tv.setTextSize(VoidTheme.TEXT_XS); tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.2f); tv.setPadding(dp(ctx,16), dp(ctx,28), dp(ctx,16), dp(ctx,16)); return tv;
-    }
-
-    private static View sep(Context ctx) {
-        View v = new View(ctx); v.setBackgroundColor(VoidTheme.LINE);
-        v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)); return v;
     }
 
     private static TextView btn(Context ctx, String text) {
