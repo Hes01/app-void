@@ -13,21 +13,21 @@ class ContextualAlgorithm {
     private static final int    TOP_N     = 5;
     private static final double W_ACTR    = 0.50;
     private static final double W_MARKOV  = 0.35;
-    private static final double W_DOW     = 0.15;
+    private static final double W_SLOT    = 0.15;
     private static final double ACT_DECAY = 0.5;
 
     static List<String> predict(List<LaunchRecord> records) {
         if (records.isEmpty()) return new ArrayList<>();
 
-        long   now      = System.currentTimeMillis() / 1000L;
-        int    todayDow = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-        String lastPkg  = records.get(0).pkg;
+        long   now     = System.currentTimeMillis() / 1000L;
+        String lastPkg = records.get(0).pkg;
 
         Map<String, List<Long>> tsByPkg    = new HashMap<>();
         Map<String, Integer>    totalCount = new HashMap<>();
-        Map<String, Integer>    dowCount   = new HashMap<>();
+        Map<String, Integer>    slotCount  = new HashMap<>();
         Map<String, Integer>    markovCnt  = new HashMap<>();
         int markovTot = 0;
+        int todaySlot = slotOf(System.currentTimeMillis() / 1000L);
 
         for (LaunchRecord r : records) {
             // ACT-R: acumular timestamps por app
@@ -35,9 +35,9 @@ class ContextualAlgorithm {
             if (ts == null) { ts = new ArrayList<>(); tsByPkg.put(r.pkg, ts); }
             ts.add(r.ts);
 
-            // DoW: total y cuántos caen en el día de hoy
+            // Franja horaria: total y cuántos caen en la franja actual
             inc(totalCount, r.pkg);
-            if (dowOf(r.ts) == todayDow) inc(dowCount, r.pkg);
+            if (slotOf(r.ts) == todaySlot) inc(slotCount, r.pkg);
 
             // Markov: cuántas veces pkg vino después de lastPkg
             if (lastPkg.equals(r.prevPkg)) { inc(markovCnt, r.pkg); markovTot++; }
@@ -63,9 +63,9 @@ class ContextualAlgorithm {
             String pkg      = e.getKey();
             double actrNorm = (e.getValue() - actrMin) / actrRange;
             int    tot      = iget(totalCount, pkg);
-            double dowN     = tot > 0 ? (double) iget(dowCount, pkg) / tot : 0.0;
+            double slotN    = tot > 0 ? (double) iget(slotCount, pkg) / tot : 0.0;
             double mrkN     = markovTot > 0 ? (double) iget(markovCnt, pkg) / markovTot : 0.0;
-            scores.add(new Score(pkg, W_ACTR*actrNorm + W_DOW*dowN + W_MARKOV*mrkN));
+            scores.add(new Score(pkg, W_ACTR*actrNorm + W_SLOT*slotN + W_MARKOV*mrkN));
         }
 
         Collections.sort(scores, new Comparator<Score>() {
@@ -77,10 +77,16 @@ class ContextualAlgorithm {
         return result;
     }
 
-    private static int dowOf(long tsSec) {
+    // 0=madrugada 00-06 / 1=mañana 06-11 / 2=mediodía 11-14 / 3=tarde 14-19 / 4=noche 19-24
+    private static int slotOf(long tsSec) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(tsSec * 1000L);
-        return c.get(Calendar.DAY_OF_WEEK);
+        int h = c.get(Calendar.HOUR_OF_DAY);
+        if (h <  6) return 0;
+        if (h < 11) return 1;
+        if (h < 14) return 2;
+        if (h < 19) return 3;
+        return 4;
     }
 
     private static void inc(Map<String, Integer> map, String key) {

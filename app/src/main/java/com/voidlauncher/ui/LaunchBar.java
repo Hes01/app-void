@@ -4,11 +4,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 
 class LaunchBar {
+
+    private static final int EXPAND_MS = 220;
+    private static final int FADE_MS   = 300;
+
+    private static final LruCache<String, Integer> colorCache = new LruCache<>(30);
 
     static View attach(FrameLayout root) {
         Context ctx = root.getContext();
@@ -33,24 +39,28 @@ class LaunchBar {
         bar.setAlpha(1f);
         bar.animate()
                 .scaleX(1f)
-                .setDuration(220)
+                .setDuration(EXPAND_MS)
                 .withEndAction(() ->
                     bar.animate()
                         .alpha(0f)
-                        .setDuration(300)
+                        .setDuration(FADE_MS)
                         .withEndAction(() -> bar.setScaleX(0f))
                         .start())
                 .start();
     }
 
     private static int iconColor(Context ctx, String pkg) {
+        Integer cached = colorCache.get(pkg);
+        if (cached != null) return cached;
         try {
             Drawable icon = ctx.getPackageManager().getApplicationIcon(pkg);
             Bitmap bmp = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
             try {
                 icon.setBounds(0, 0, 32, 32);
                 icon.draw(new Canvas(bmp));
-                return avgColor(bmp);
+                int color = avgColor(bmp);
+                colorCache.put(pkg, color);
+                return color;
             } finally {
                 bmp.recycle();
             }

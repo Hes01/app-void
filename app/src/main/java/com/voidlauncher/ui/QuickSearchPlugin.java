@@ -60,6 +60,7 @@ class QuickSearchPlugin {
     }
 
     private void deletePlugin(String pkg, String id, QuickSearchAdapter adapter) {
+        if (id == null) { queryPlugin(pkg, adapter); return; }
         Uri uri = Uri.parse("content://" + pkg + ".provider/items");
         try { launcher.getContentResolver().delete(uri, "_id=?", new String[]{id}); }
         catch (Exception ignored) {}
