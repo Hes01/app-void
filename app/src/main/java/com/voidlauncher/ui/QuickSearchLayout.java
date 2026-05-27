@@ -74,9 +74,10 @@ class QuickSearchLayout {
         ghostView.setTextSize(VoidTheme.TEXT_XXL);
         ghostView.setTypeface(Typeface.MONOSPACE);
         ghostView.setPadding(0, 0, 0, 0);
+        ghostView.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         ghostView.setVisibility(View.GONE);
         inputFrame.addView(ghostView, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT, cursorH, Gravity.START | Gravity.CENTER_VERTICAL));
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
         FrameLayout.LayoutParams curLp = new FrameLayout.LayoutParams(cursorW, cursorH, Gravity.START | Gravity.CENTER_VERTICAL);
         inputFrame.addView(cursor, curLp);
         input.addTextChangedListener(new TextWatcher() {
