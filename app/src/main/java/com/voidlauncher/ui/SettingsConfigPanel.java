@@ -57,7 +57,7 @@ class SettingsConfigPanel {
         ThemeRepository repo = new ThemeRepository(ctx);
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(13), 0, dp(13));
+        row.setPadding(0, dp(16), 0, dp(16));
         TextView tvVal = new TextView(ctx);
         tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM);
         tvVal.setTextColor(VoidTheme.FG);
@@ -80,7 +80,7 @@ class SettingsConfigPanel {
         ThemeRepository repo = new ThemeRepository(ctx);
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(13), 0, dp(13));
+        row.setPadding(0, dp(16), 0, dp(16));
         TextView tvVal = new TextView(ctx);
         tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM);
         tvVal.setTextColor(VoidTheme.FG);
@@ -110,7 +110,7 @@ class SettingsConfigPanel {
                        ctx.getString(R.string.clock_seg),  ctx.getString(R.string.clock_flip)};
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(13), 0, dp(13));
+        row.setPadding(0, dp(16), 0, dp(16));
         TextView tvLabel = label(ctx.getString(R.string.pref_clock)); row.addView(tvLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         TextView tvVal = new TextView(ctx); tvVal.setTypeface(Typeface.MONOSPACE); tvVal.setTextSize(VoidTheme.TEXT_SM); tvVal.setTextColor(VoidTheme.FG);
         Runnable[] refresh = {null};
@@ -122,7 +122,7 @@ class SettingsConfigPanel {
 
     private View toggleRow(String label, String key, boolean def, Runnable onChange) {
         LinearLayout row = new LinearLayout(ctx);
-        row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(0, dp(13), 0, dp(13));
+        row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(0, dp(16), 0, dp(16));
         TextView tvToggle = toggle(prefs.getBoolean(key, def));
         tvToggle.setOnClickListener(v -> { boolean cur = prefs.getBoolean(key, def); prefs.edit().putBoolean(key, !cur).apply(); styleToggle(tvToggle, !cur); if (onChange != null) onChange.run(); });
         row.addView(label(label), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -136,7 +136,7 @@ class SettingsConfigPanel {
     private View actionRow(String label, Runnable action) {
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(13), 0, dp(13)); row.setOnClickListener(v -> action.run());
+        row.setPadding(0, dp(16), 0, dp(16)); row.setOnClickListener(v -> action.run());
         TextView tvLabel = new TextView(ctx);
         tvLabel.setText(label); tvLabel.setTextColor(VoidTheme.FG3);
         tvLabel.setTextSize(VoidTheme.TEXT_MD); tvLabel.setTypeface(Typeface.MONOSPACE);
