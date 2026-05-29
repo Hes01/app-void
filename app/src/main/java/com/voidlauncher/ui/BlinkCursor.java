@@ -2,11 +2,14 @@ package com.voidlauncher.ui;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 class BlinkCursor extends View {
 
-    private final Handler  handler = new Handler();
+    private static final int BLINK_INTERVAL_MS = 500;
+
+    private final Handler  handler = new Handler(Looper.getMainLooper());
     private       boolean  running;
 
     BlinkCursor(Context ctx) {
@@ -28,7 +31,7 @@ class BlinkCursor extends View {
         if (running) return;
         running = true;
         setVisibility(VISIBLE);
-        handler.postDelayed(tick, 500);
+        handler.postDelayed(tick, BLINK_INTERVAL_MS);
     }
 
     private void stop() {

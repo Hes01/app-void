@@ -16,8 +16,8 @@ android {
         applicationId "om.hes01.voidlauncher"
         minSdk 21
         targetSdk 35
-        versionCode 2
-        versionName "1.1"
+        versionCode 4
+        versionName "1.4"
     }
 
     signingConfigs {

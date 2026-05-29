@@ -10,12 +10,14 @@ public class AliasRepository {
 
     private static final String PREFS = "void_aliases";
     private final SharedPreferences prefs;
-    private final Map<String, String> reverseCache = new HashMap<>();
+    private static final Map<String, String> reverseCache = new HashMap<>();
 
     public AliasRepository(Context ctx) {
         prefs = ctx.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        for (Map.Entry<String, ?> e : prefs.getAll().entrySet())
-            reverseCache.put((String) e.getValue(), e.getKey());
+        if (reverseCache.isEmpty()) {
+            for (Map.Entry<String, ?> e : prefs.getAll().entrySet())
+                reverseCache.put((String) e.getValue(), e.getKey());
+        }
     }
 
     public void set(String alias, String pkg) {

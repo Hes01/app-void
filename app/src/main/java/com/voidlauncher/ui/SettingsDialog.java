@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,12 +35,8 @@ public class SettingsDialog {
     public void show() {
         loadApps();
         LinearLayout root = buildRoot();
-        Dialog dialog = new Dialog(launcher, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(root);
+        Dialog dialog = DialogUtil.makeFullscreen(launcher, root);
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(VoidTheme.BG));
-            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
             ImeInsets.attach(dialog.getWindow(), root);
         }
         dialog.show();
@@ -67,7 +61,7 @@ public class SettingsDialog {
         root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(VoidTheme.BG);
         root.addView(header);
         root.addView(buildTabs(appsPanel, configSlot));
-        root.addView(separator());
+        root.addView(ViewFactory.divider(launcher));
         root.addView(panels, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         return root;
@@ -101,12 +95,6 @@ public class SettingsDialog {
         tv.setTextSize(VoidTheme.TEXT_SM); tv.setTypeface(Typeface.MONOSPACE);
         tv.setLetterSpacing(0.2f); tv.setGravity(Gravity.CENTER);
         tv.setPadding(0, dp(10), 0, dp(10)); tv.setBackgroundColor(0); return tv;
-    }
-
-    private View separator() {
-        View v = new View(launcher); v.setBackgroundColor(VoidTheme.LINE);
-        v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-        return v;
     }
 
     private void loadApps() {

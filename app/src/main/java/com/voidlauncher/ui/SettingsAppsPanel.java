@@ -227,8 +227,7 @@ class SettingsAppsPanel {
 
     private void refresh() { applyFilter(); }
     private TextView mono(String text, int color, float size, int fixedPx) {
-        TextView tv = new TextView(launcher);
-        tv.setText(text); tv.setTextColor(color); tv.setTextSize(size); tv.setTypeface(Typeface.MONOSPACE);
+        TextView tv = ViewFactory.mono(launcher, text, color, size);
         if (fixedPx > 0) tv.setWidth(fixedPx); return tv;
     }
 

@@ -68,7 +68,7 @@ class Patterns {
     static Paint stroke(int color, float w) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG); p.setStyle(Paint.Style.STROKE); p.setColor(color); p.setStrokeWidth(w); return p;
     }
-    static float dp(Context ctx, float dp) { return dp * ctx.getResources().getDisplayMetrics().density; }
+    static float dp(Context ctx, float dp) { return UiUtil.dpf(ctx, dp); }
 
     static void drawSquare(Path p, float cx, float cy, float half, float deg) {
         p.reset();

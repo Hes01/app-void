@@ -22,6 +22,8 @@ class SegmentClockView extends View {
         {1,1,1,1,0,1,1}, // 9
     };
 
+    private static final int SEGMENT_OFF_ALPHA = 0x0F;
+
     private final Paint onP  = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint offP = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF  rf  = new RectF();
@@ -35,7 +37,7 @@ class SegmentClockView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         onP.setColor(VoidTheme.FG);
-        offP.setColor((VoidTheme.FG & 0x00FFFFFF) | 0x0F000000);
+        offP.setColor((VoidTheme.FG & 0x00FFFFFF) | (SEGMENT_OFF_ALPHA << 24));
         if (getWidth() == 0 || getHeight() == 0) return;
         Calendar cal = Calendar.getInstance();
         int h = use24 ? cal.get(Calendar.HOUR_OF_DAY) : cal.get(Calendar.HOUR);
