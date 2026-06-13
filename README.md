@@ -73,6 +73,7 @@ tw    → abre Twitter
   - **ACT-R (Recencia y Frecuencia):** Decaimiento logarítmico de activaciones históricas ($A = \ln \left( \sum_{i=1}^n t_i^{-0.5} \right)$).
   - **Probabilidad por Franja Horaria ($P(\text{pkg} \mid \text{slot})$):** Calculado con suavizado de Laplace para evitar ruido de baja frecuencia.
   - **Cadena de Markov de 1er Orden ($P(\text{pkg} \mid \text{lastPkg})$):** Transición secuencial entre la app anterior y la actual con suavizado de Laplace.
+  - **Filtrado de Ocultas con Ranking Extendido:** Se excluyen dinámicamente las apps ocultas de la vista, haciendo "bubble up" de los siguientes candidatos (hasta 15 devueltos por el algoritmo) para mantener siempre un Top 5 visible completo.
 - **Alias** — renombra cualquier app como quieras, con sincronización de caché atómica bidireccional en ajustes.
 - **Ocultar apps** — sin desinstalarlas
 - **Fondos matemáticos** — espiral, Hilbert, astroide y más
