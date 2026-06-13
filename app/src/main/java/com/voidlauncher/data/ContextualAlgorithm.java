@@ -10,7 +10,7 @@ import java.util.Map;
 
 class ContextualAlgorithm {
 
-    private static final int    TOP_N     = 5;
+    private static final int    TOP_N     = 15;
     private static final double W_ACTR    = 0.50;
     private static final double W_MARKOV  = 0.35;
     private static final double W_SLOT    = 0.15;
