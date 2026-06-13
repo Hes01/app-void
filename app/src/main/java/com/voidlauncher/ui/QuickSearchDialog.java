@@ -115,9 +115,20 @@ public class QuickSearchDialog {
         adapter.isTopMode = false; setInputColor(!q.isEmpty() && q.startsWith(".") ? VoidTheme.FG2 : VoidTheme.FG);
         if (q.isEmpty()) {
             adapter.activeSearch = false; adapter.isTopMode = contextualOn; setLabelColor(VoidTheme.FG4);
-            if (contextualOn) for (String pkg : topApps)
-                for (int i = 0; i < packages.length; i++)
-                    if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) { filteredNames.add(displayName(i)); filteredPkgs.add(pkg); break; }
+            if (contextualOn) {
+                int count = 0;
+                for (String pkg : topApps) {
+                    if (count >= 5) break;
+                    for (int i = 0; i < packages.length; i++) {
+                        if (packages[i].equals(pkg) && !hidden.isHidden(pkg)) {
+                            filteredNames.add(displayName(i));
+                            filteredPkgs.add(pkg);
+                            count++;
+                            break;
+                        }
+                    }
+                }
+            }
         } else if (q.equals(".all")) {
             adapter.activeSearch = false; setLabelColor(VoidTheme.FG4);
             for (int i = names.length - 1; i >= 0; i--)
