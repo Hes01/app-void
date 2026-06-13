@@ -57,14 +57,21 @@ class ContextualAlgorithm {
 
         double actrRange = (actrMax > actrMin) ? (actrMax - actrMin) : 1.0;
 
+        int V = tsByPkg.size();
+        if (V == 0) V = 1;
+
+        int totalLaunchesInSlot = 0;
+        for (int count : slotCount.values()) {
+            totalLaunchesInSlot += count;
+        }
+
         // Score final
         List<Score> scores = new ArrayList<>();
         for (Map.Entry<String, Double> e : actrRaw.entrySet()) {
             String pkg      = e.getKey();
-            double actrNorm = (e.getValue() - actrMin) / actrRange;
-            int    tot      = iget(totalCount, pkg);
-            double slotN    = tot > 0 ? (double) iget(slotCount, pkg) / tot : 0.0;
-            double mrkN     = markovTot > 0 ? (double) iget(markovCnt, pkg) / markovTot : 0.0;
+            double actrNorm = actrRange > 0 ? (e.getValue() - actrMin) / actrRange : 0.0;
+            double slotN    = (double) (iget(slotCount, pkg) + 1) / (totalLaunchesInSlot + V);
+            double mrkN     = (double) (iget(markovCnt, pkg) + 1) / (markovTot + V);
             scores.add(new Score(pkg, W_ACTR*actrNorm + W_SLOT*slotN + W_MARKOV*mrkN));
         }
 
