@@ -63,8 +63,12 @@ public class LauncherActivity extends Activity implements GestureView.Listener {
         @Override public void onReceive(Context ctx, Intent intent) {
             String pkg = intent.getData() != null ? intent.getData().getSchemeSpecificPart() : null;
             if (pkg == null) return;
-            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) PluginRegistry.onInstalled(ctx, pkg);
-            else PluginRegistry.onRemoved(ctx, pkg, aliases);
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+                PluginRegistry.onInstalled(ctx, pkg);
+            } else {
+                boolean isUpgrade = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+                if (!isUpgrade) PluginRegistry.onRemoved(ctx, pkg, aliases);
+            }
             loadInstalledApps();
         }
     };
