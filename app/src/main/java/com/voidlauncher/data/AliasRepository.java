@@ -22,6 +22,20 @@ public class AliasRepository {
 
     public void set(String alias, String pkg) {
         String key = alias.toLowerCase().trim();
+        
+        // 1. If another package had this alias, remove it from reverse cache
+        String oldPkg = prefs.getString(key, null);
+        if (oldPkg != null && !oldPkg.equals(pkg)) {
+            reverseCache.remove(oldPkg);
+        }
+        
+        // 2. If this package already had a different alias, remove the old alias from SharedPreferences
+        String oldAlias = reverseCache.get(pkg);
+        if (oldAlias != null && !oldAlias.equals(key)) {
+            prefs.edit().remove(oldAlias).apply();
+        }
+        
+        // 3. Save new mapping
         reverseCache.put(pkg, key);
         prefs.edit().putString(key, pkg).apply();
     }
